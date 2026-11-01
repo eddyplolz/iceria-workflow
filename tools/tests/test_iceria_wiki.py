@@ -113,3 +113,34 @@ def test_a_mac_python_without_certificates_is_told_the_fix():
     wiki = iceria_wiki.Wiki(opener=FakeOpener(refused))
     with pytest.raises(iceria_wiki.WikiUnavailable, match="Install Certificates.command"):
         wiki.get_page("World Standards")
+
+
+def test_latest_revids_asks_once_for_up_to_50_titles_and_maps_each_back():
+    answer = {
+        "query": {
+            "normalized": [{"from": "world standards", "to": "World Standards"}],
+            "pages": [
+                {"title": "World Standards", "revisions": [{"revid": 7}]},
+                {"title": "Nowhere", "missing": True},
+            ],
+        }
+    }
+    opener = FakeOpener(_json(answer))
+    wiki = iceria_wiki.Wiki(opener=opener)
+    assert wiki.latest_revids(["world standards", "Nowhere"]) == {
+        "world standards": 7,
+        "Nowhere": None,
+    }
+    assert len(opener.requests) == 1
+
+
+def test_latest_revids_splits_more_than_50_titles_into_batches():
+    titles = [f"Page {i}" for i in range(51)]
+
+    def pages(batch):
+        rows = [{"title": t, "revisions": [{"revid": 1}]} for t in batch]
+        return _json({"query": {"pages": rows}})
+
+    opener = FakeOpener(pages(titles[:50]), pages(titles[50:]))
+    revids = iceria_wiki.Wiki(opener=opener).latest_revids(titles)
+    assert len(opener.requests) == 2 and len(revids) == 51 and set(revids.values()) == {1}

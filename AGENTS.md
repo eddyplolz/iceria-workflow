@@ -9,6 +9,25 @@ When `VERSION.json` is old or the member asks for a fresh copy, they run `python
 Their bot password goes in only through `python tools/setup_bot.py`, typed by the member at its
 hidden prompt; ask them to keep it out of the chat and out of every file.
 
+## At the start of every session
+
+1. Read `notes/lessons.md` if it exists, and follow each line in it.
+2. When `VERSION.json` is more than a month old, suggest `python tools/refresh_canon.py --check`,
+   which says whether the wiki has changed since the copy.
+3. When a tool fails or the member's setup looks wrong, run `python tools/doctor.py` first.
+
+## Learning from mistakes
+
+When the member corrects you, or the checker or a canon page shows you got something wrong:
+
+1. **Add one line to `notes/lessons.md`** (make the `notes/` folder if it is missing):
+   `YYYY-MM-DD: <what went wrong>. Rule: <what to do instead>. Source: <canon page or MoS section>.`
+   Write a lesson only when a rule, a canon page or the member's own words back it.
+2. **Keep it to 30 lines.** When it is full, show the member the lines and ask which to merge or
+   drop before you add one.
+3. **When the kit itself is wrong** (a tool, a skill, a template or `canon/`), never edit it to work
+   around the problem. Write a report with `iceria-report` for the member to send.
+
 ## The four rules (from the wiki's page "AI use on Iceria")
 
 1. **Check every fact against the wiki.** Each place, date, figure and neighbor comes from a page in
@@ -43,13 +62,28 @@ hidden prompt; ask them to keep it out of the chat and out of every file.
 | The calendar and today's in-world date | `canon/calendar.md` |
 | A page skeleton | `templates/` (nation, city, person, organization, event, treaty, proposal) |
 | Infobox fields | `templates/infobox-cheatsheet.md` |
+| Which nation holds a place on the map | `canon/claims.json` (read by `tools/map_overlay.py`) |
+| The world map | `maps/iceria-base.png` |
+
+## Tools
+
+All tools read; none of them writes to the wiki.
+
+| Command | What it does |
+|---|---|
+| `python tools/check.py draft.wiki --title "Title"` | The style and canon checker, including name clashes with real countries and other nations |
+| `python tools/redlinks.py draft.wiki` | Lists each link in the draft that has no page on the live wiki |
+| `python tools/iceria_calendar.py --real 2027-01-15` | Today's in-world date with no option; `--real` and `--in-world` convert either way |
+| `python tools/map_overlay.py notes/plan.json` | Draws the member's places and routes on the map, inside their own land only |
+| `python tools/refresh_canon.py --check` | Says whether the wiki changed since the copy, without refreshing |
+| `python tools/doctor.py` | Checks this computer's setup, one line per part |
 
 ## The review loop
 
 Every draft goes through these steps, in order:
 
-1. **Draft** from the member's notes and the matching template, in wikitext. When done, list every
-   **NEW fact**: each name, date, figure or relation the draft adds that no page in `canon/` holds.
+1. **Draft** from the member's notes and the matching template, in wikitext. When the notes are thin,
+   interview the member first (`iceria-interview`). When done, list every **NEW fact**: each name, date, figure or relation the draft adds that no page in `canon/` holds.
 2. **Check.** Run `python tools/check.py <draft>.wiki --title "<Page title>"` and fix every error.
    Then compare each claim against `canon/` (the iceria-canon-check steps). Done when the checker
    reports 0 errors and every claim is matched to a source or listed as NEW.

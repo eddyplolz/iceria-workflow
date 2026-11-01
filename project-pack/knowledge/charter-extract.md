@@ -1,6 +1,6 @@
 # Charter (extract)
 
-Copied from the Iceria wiki page "Charter" (revision 3017) on 2026-10-31. The live page outranks this copy. Only the clauses a member drafting pages needs are here; the full Charter is on the wiki.
+Copied from the Iceria wiki page "Charter" (revision 3017) on 2026-11-01. The live page outranks this copy. Only the clauses a member drafting pages needs are here; the full Charter is on the wiki.
 
 ## 1.4 What counts as canon
 What counts as canon, in order of authority:

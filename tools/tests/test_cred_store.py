@@ -18,6 +18,9 @@ class FakeStore:
     def read(self):
         return self.found
 
+    def who(self):
+        return self.found and self.found[0]
+
     def write(self, user, password):
         self.found = (user, password)
 
@@ -99,6 +102,7 @@ def test_the_windows_store_keeps_user_and_password(monkeypatch):
         assert s.read() is None
         s.write("Ana@kit", PW)
         assert s.read() == ("Ana@kit", PW)
+        assert s.who() == "Ana@kit"
     finally:
         ctypes.WinDLL("advapi32").CredDeleteW(target, 1, 0)  # 1 = CRED_TYPE_GENERIC
 
@@ -200,3 +204,72 @@ def test_the_real_mac_keychain_keeps_user_and_password(monkeypatch):
                 ["/usr/bin/security", "delete-generic-password", "-s", target, "-a", account],
                 capture_output=True,
             )
+
+
+def test_who_names_the_saved_login_without_reading_the_password(monkeypatch):
+    asked = []
+    kept = {(cred_store.TARGET, "user"): "Ana@kit", (cred_store.TARGET, "password"): PW}
+    fake = types.SimpleNamespace(get_password=lambda s, key: asked.append(key) or kept[(s, key)])
+    monkeypatch.setitem(sys.modules, "keyring", fake)
+    monkeypatch.setattr(cred_store, "store", cred_store._KeyringStore)
+    assert cred_store.who() == ("Ana@kit", "the system keyring")
+    assert asked == ["user"]
+
+
+def test_who_on_a_mac_never_asks_the_keychain_for_the_password(monkeypatch):
+    fake = FakeSecurity()
+    fake.kept = {(cred_store.TARGET, "user"): "Ana@kit", (cred_store.TARGET, "password"): PW}
+    monkeypatch.setattr(cred_store.subprocess, "run", fake.run)
+    assert cred_store._MacStore().who() == "Ana@kit"
+    assert all("password" not in argv for argv in fake.argvs)
+
+
+def test_who_prefers_the_variables_and_is_none_with_nothing_saved(monkeypatch):
+    monkeypatch.setattr(cred_store, "store", lambda: FakeStore())
+    assert cred_store.who() is None
+    monkeypatch.setenv(cred_store.ENV_USER, "Ana@kit")
+    monkeypatch.setenv(cred_store.ENV_PASS, PW)
+    assert cred_store.who() == ("Ana@kit", "the ICERIA_BOT_USER and ICERIA_BOT_PASS variables")
+
+
+def test_who_with_no_store_on_the_machine_says_why(monkeypatch):
+    def none():
+        raise cred_store.NoStore("no credential store: install one")
+
+    monkeypatch.setattr(cred_store, "store", none)
+    with pytest.raises(cred_store.NoStore, match="install one"):
+        cred_store.who()
+
+
+def test_a_locked_mac_keychain_is_a_store_error_not_a_missing_login(monkeypatch):
+    # Only exit 44 means "no such entry"; a locked or denied keychain (51 here) must not read as
+    # "none saved", or the tools quietly fall back to guest reads and doctor says all is well.
+    fake = FakeSecurity()
+    fake.kept[(cred_store.TARGET, "user")] = "Ana@kit"
+    fake.kept[(cred_store.TARGET, "password")] = PW
+
+    def locked(argv, input=None, **kw):
+        import subprocess
+
+        if argv[1] == "find-generic-password":
+            return subprocess.CompletedProcess(argv, 51, "", "User interaction is not allowed.")
+        return fake.run(argv, input=input, **kw)
+
+    monkeypatch.setattr(cred_store.subprocess, "run", locked)
+    with pytest.raises(cred_store.NoStore, match="exit 51") as e:
+        cred_store._MacStore().read()
+    assert PW not in str(e.value) and cred_store.ENV_PASS in str(e.value)
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="Credential Manager is Windows only")
+def test_an_unreadable_windows_store_is_a_store_error_not_a_traceback(monkeypatch):
+    # Only 1168 (ERROR_NOT_FOUND) means "no such entry"; any other failure is a store doctor
+    # must report as a FIX line, so it is NoStore like the Mac keychain's, never a bare OSError.
+    import ctypes
+
+    s = cred_store._WindowsStore()
+    monkeypatch.setattr(s, "api", types.SimpleNamespace(CredReadW=lambda *a: 0))
+    monkeypatch.setattr(ctypes, "get_last_error", lambda: 5)  # ERROR_ACCESS_DENIED
+    with pytest.raises(cred_store.NoStore, match="error 5") as e:
+        s.who()
+    assert cred_store.ENV_PASS in str(e.value)

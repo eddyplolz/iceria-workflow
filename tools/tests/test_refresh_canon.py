@@ -52,6 +52,12 @@ class FakeWiki:
     def expand(self, text):
         return "The calendar starts at launch"
 
+    def latest_revids(self, titles):
+        self.calls.append(("latest_revids", tuple(titles)))
+        if self.down:
+            raise iceria_wiki.WikiUnavailable("timed out")
+        return {t: (5000 if t in self.pages else None) for t in titles}
+
 
 @pytest.fixture
 def kit(tmp_path):
@@ -239,3 +245,67 @@ def test_when_the_old_copy_cannot_go_back_its_folder_is_kept_and_named(kit, monk
     (work,) = kit.glob(".refresh-*")
     assert (work / "old" / "canon" / "world-standards.md").read_text("utf-8") == "Old standards.\n"
     assert "canon" in err and str(work / "old") in err
+
+
+def checked_kit(kit, pages):
+    """The kit's VERSION.json as a refresh on 2026-10-01 left it, every page at revision 5000."""
+    v = {**OLD, "pages": [{"title": t, "revid": 5000, "source": "live"} for t in pages]}
+    (kit / "VERSION.json").write_text(json.dumps(v), encoding="utf-8")
+    return kit
+
+
+def test_check_says_current_when_every_page_is_at_its_copied_revision(kit, capsys):
+    kit = checked_kit(kit, ["Charter", "World Standards"])
+    wiki = FakeWiki({"Charter": "x", "World Standards": "x"})
+    assert refresh_canon.check(kit, wiki, TODAY, None) == 0
+    out = capsys.readouterr().out
+    assert "current" in out and "50 days old" in out
+    assert [c[0] for c in wiki.calls] == ["latest_revids"]  # one request, nothing read in full
+
+
+def test_check_names_each_changed_page_and_a_nation_now_written(kit, capsys):
+    kit = checked_kit(kit, ["Charter", "World Standards"])
+    wiki = FakeWiki({"Charter": "x", "World Standards": "x", "Xuna": "x"})
+    wiki.latest_revids = lambda titles: {"Charter": 5000, "World Standards": 5100, "Xuna": 9}
+    before = (kit / "VERSION.json").read_text("utf-8")
+    assert refresh_canon.check(kit, wiki, TODAY, None) == 1
+    out = capsys.readouterr().out
+    assert "World Standards" in out and "Xuna" in out and "Charter" not in out
+    assert "python tools/refresh_canon.py" in out
+    assert (kit / "VERSION.json").read_text("utf-8") == before  # a check writes nothing
+
+
+def test_check_counts_a_deleted_page_as_changed(kit, capsys):
+    kit = checked_kit(kit, ["Charter"])
+    assert refresh_canon.check(kit, FakeWiki({}), TODAY, None) == 1
+    assert "Charter" in capsys.readouterr().out
+
+
+def test_check_that_cannot_reach_the_wiki_exits_2(kit, capsys):
+    kit = checked_kit(kit, ["Charter"])
+    assert refresh_canon.check(kit, FakeWiki({"Charter": "x"}, down={"Charter"}), TODAY, None) == 2
+    assert "could not check" in capsys.readouterr().err
+
+
+def test_check_with_a_bot_password_vets_it_first(kit, capsys):
+    kit = checked_kit(kit, ["Charter"])
+    wiki = FakeWiki({"Charter": "x"}, rights=("read", "edit"))
+    assert refresh_canon.check(kit, wiki, TODAY, ("Ana@kitbot", PW)) == 2
+    assert "more than Basic rights" in capsys.readouterr().err
+    assert ("latest_revids", ("Charter", "Xuna")) not in wiki.calls
+
+
+def test_a_refresh_copies_the_calendar_start_from_the_module(kit):
+    pages = wiki_pages(kit)
+    pages["Module:Iceria date"] = 'local p = {}\np.START = "2026-11"\nreturn p\n'
+    assert refresh_canon.refresh(kit, FakeWiki(pages), TODAY, None) == 0
+    assert version(kit)["calendar_start"] == "2026-11"
+
+
+@pytest.mark.parametrize("module", [None, 'p.START = ""\n'])
+def test_before_launch_the_calendar_start_is_none(kit, module):
+    pages = wiki_pages(kit)
+    if module:
+        pages["Module:Iceria date"] = module
+    assert refresh_canon.refresh(kit, FakeWiki(pages), TODAY, None) == 0
+    assert version(kit)["calendar_start"] is None

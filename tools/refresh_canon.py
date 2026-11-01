@@ -1,6 +1,7 @@
 """Rebuild canon/, style/ and templates/ from the live wiki, so the kit matches today's pages.
 
-    python tools/refresh_canon.py     exit 0 refreshed, 1 if anything failed
+    python tools/refresh_canon.py            exit 0 refreshed, 1 if anything failed
+    python tools/refresh_canon.py --check    exit 0 current, 1 a refresh is due, 2 could not check
 
 With a bot password (python tools/setup_bot.py) it reads the wiki logged in as your bot; without
 one it reads as a visitor, which works until the wiki asks visitors for a browser check. Either
@@ -9,6 +10,7 @@ built aside and renamed in path by path; a failure puts back each path already r
 any it could not.
 """
 
+import argparse
 import datetime
 import json
 import shutil
@@ -110,6 +112,35 @@ def refresh(kit: Path, wiki, today: datetime.date, creds: tuple[str, str] | None
     return 0
 
 
+def check(kit: Path, wiki, today: datetime.date, creds: tuple[str, str] | None) -> int:
+    """Compare the copy with the live wiki in one request per 50 pages, and write nothing."""
+    v = json.loads((kit / "VERSION.json").read_text(encoding="utf-8"))
+    copied = {p["title"]: p["revid"] for p in v["pages"]}
+    titles = list(dict.fromkeys([*copied, *v.get("missing_nations", ())]))
+    if creds and (problem := setup_bot.vet_login(wiki, *creds)):
+        print(f"could not check: {problem}", file=sys.stderr)
+        return 2
+    try:
+        live = wiki.latest_revids(titles)
+    except WikiUnavailable as e:
+        print(f"could not check: {e}", file=sys.stderr)
+        return 2
+    age = (today - datetime.date.fromisoformat(v["built"])).days
+    # A copy without a revid came from the stewards' copy, so it is due a live read too.
+    changed = [t for t in copied if copied[t] is None or live.get(t) != copied[t]]
+    written = [t for t in v.get("missing_nations", ()) if live.get(t)]
+    if not changed and not written:
+        print(f"current: the copy from {v['built']} ({age} days old) matches the wiki")
+        return 0
+    print(f"a refresh is due: the copy from {v['built']} is {age} days old")
+    for t in changed:
+        print(f"  changed since the copy: {t}")
+    for t in written:
+        print(f"  now has a page: {t}")
+    print("Run python tools/refresh_canon.py to update the kit.")
+    return 1
+
+
 class SwapFailed(Exception):
     """The swap stopped on `cause`. `restored` names the kit paths put back as they were;
     `stranded` names those whose old copy is still set aside, which only a person can move."""
@@ -149,10 +180,16 @@ def _swap(kit: Path, tree: Path, old: Path):
 
 def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument(
+        "--check", action="store_true", help="say whether a refresh is due; write nothing"
+    )
+    args = ap.parse_args()
     found = cred_store.get()
     if found:
         print(f"reading as the bot password from {found[1]}")
-    return refresh(KIT, Wiki(), datetime.date.today(), found[0] if found else None)
+    run = check if args.check else refresh
+    return run(KIT, Wiki(), datetime.date.today(), found[0] if found else None)
 
 
 if __name__ == "__main__":

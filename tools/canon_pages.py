@@ -23,6 +23,8 @@ CHARTER_CLAUSES = ("1.4", "3.1", "3.8", "5.1", "5.4", "5.6", "6.1")
 PROPOSAL = "Template:Proposal/preload"
 INFOBOXES = ("Infobox country", "Infobox Country")
 IN_WORLD_DATE = re.compile(r"^\d{1,2} \w+ \d{4}$")
+CALENDAR_MODULE = "Module:Iceria date"
+CALENDAR_START = re.compile(r'^\s*p\.START\s*=\s*"(\d{4}-\d{2})?"', re.M)
 REDIRECT = re.compile(r"^\s*#REDIRECT\s*\[\[([^\]|#]+)", re.I)
 CLAUSE_HEADING = re.compile(r"^(?:===\s*(\d+\.\d+)\s+(.+?)\s*===|### +(\d+\.\d+)\s+(.+?))\s*$")
 MOS_HEADING = re.compile(r"^=+\s*(\d+(?:\.\d+)*)[.\s]", re.M)
@@ -132,6 +134,15 @@ class Builder:
             lines += ["", "## Lead", "", _lead(text)]
             _write(tree / "canon" / "nations" / f"{_slug(name)}.md", "\n".join(lines) + "\n")
 
+    def calendar_start(self) -> str | None:
+        """The real month the in-world calendar began ("YYYY-MM"), or None before launch."""
+        try:
+            text, _ = self.read(CALENDAR_MODULE)
+        except PageMissing:
+            return None
+        m = CALENDAR_START.search(text)
+        return m.group(1) if m else None
+
     def in_world_date(self) -> tuple[str | None, str | None]:
         try:
             out = self.wiki.expand("{{Iceria date}}").strip()
@@ -166,6 +177,7 @@ def build_canon(tree: Path, b: Builder, nations: list[str], strict_mos: bool = T
     date, reason = b.in_world_date()
     _write(tree / "canon" / "calendar.md", calendar(date, reason))
     fields = {"built": str(b.today), "source": b.wiki.source, "in_world_date": date}
+    fields["calendar_start"] = b.calendar_start()
     if reason:
         fields["in_world_date_reason"] = reason
     fields["nations"] = list(nations)

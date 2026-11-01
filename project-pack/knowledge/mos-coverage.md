@@ -22,7 +22,7 @@ no row, so a new rule on the wiki cannot slip past the kit unnoticed.
 | 1.6 | Wikipedia-grade: every section a good article would carry | checklist 12; by hand |
 | 2.1 | Titles use the common name, in sentence case | check: headings; checklist 7 |
 | 2.2 | A nation's title is its short name | by hand |
-| 2.3 | Telling same-named pages apart | by hand |
+| 2.3 | Telling same-named pages apart | check: clashes; by hand |
 | 2.4 | Titles of people and events | by hand |
 | 3.1 | The first sentence: subject in bold, what and where it is | check: bold; checklist 8 |
 | 3.2 | The lead summarizes the body | by hand |
@@ -43,7 +43,7 @@ no row, so a new rule on the wiki cannot slip past the kit unnoticed.
 | 6.4 | Punctuation: no dashes in prose, en dash for ranges | check: dashes; checklist 10 |
 | 6.5 | Abbreviations without full stops | check: markup; by hand |
 | 7.1 | Place names fit the nation | by hand |
-| 7.2 | No real-world names | check: voice; checklist 5 |
+| 7.2 | No real-world names | check: voice; check: clashes; checklist 5 |
 | 7.3 | The fixed names, and naming a new feature | check: names; checklist 19 |
 | 7.4 | Native names and words in other languages | checklist 9; by hand |
 | 8.1 | A nation's lead | by hand |

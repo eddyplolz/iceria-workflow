@@ -5,7 +5,8 @@
 2. **Gather the facts.** Read the member's notes, the nation's page in `canon/nations/` if it
    exists, and every page in `canon/` the subject touches (geography, culture zone, shared
    history). Done when each fact you plan to use has a source: the member's notes or a named page.
-3. **Ask** the member about every gap the notes leave, before you fill it. A political outcome or a
+3. **Ask** the member about every gap the notes leave, before you fill it. When the gaps are many,
+   run `iceria-interview` and draft from its confirmed summary. A political outcome or a
    character's choice is the member's to make: offer options.
 4. **Write** the page in wikitext, following `style/writing-checklist.md`: in-world voice, sentence
    case, bold in the lead only, figures for 2000, a reference on every figure. Fill every infobox

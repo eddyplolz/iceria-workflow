@@ -3,5 +3,7 @@
 __pycache__/
 .pytest_cache/
 *.pyc
+# Your lessons file and problem reports stay on your computer; you choose what to send.
+notes/
 # A refresh builds its new copy here and removes it when done; one left behind is a stopped run.
 .refresh-*/

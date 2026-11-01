@@ -39,6 +39,27 @@ def test_context_comes_from_the_canon_files(tmp_path):
     }
 
 
+def test_nations_and_their_capitals_come_from_the_nation_infoboxes(tmp_path):
+    nations = tmp_path / "canon" / "nations"
+    nations.mkdir(parents=True)
+    (nations / "vell.md").write_text(
+        "# Vell\n\n## Infobox\n\n- common_name: Vell (pronounced 'vel')\n- capital: [[Orra]]\n",
+        encoding="utf-8",
+    )
+    (nations / "brenn.md").write_text("# Brenn\n\n- common_name: Brenn\n", encoding="utf-8")
+    assert check.load_ctx(tmp_path) == {"nations": {"Vell": "Orra", "Brenn": None}}
+
+
+def test_a_nation_page_titled_with_its_long_name_maps_to_its_common_name(tmp_path):
+    nations = tmp_path / "canon" / "nations"
+    nations.mkdir(parents=True)
+    (nations / "kingdom-of-vell.md").write_text(
+        "# Kingdom of Vell\n\n- common_name: Vell\n- capital: Orra\n", encoding="utf-8"
+    )
+    ctx = check.load_ctx(tmp_path)
+    assert ctx["nation_pages"] == {"Kingdom of Vell": "Vell"}
+
+
 def test_a_kit_without_canon_files_has_an_empty_context(tmp_path):
     assert check.load_ctx(tmp_path) == {}
 
@@ -122,3 +143,11 @@ def test_a_draft_in_another_encoding_is_refused_with_how_to_fix_it(tmp_path, cap
     code, out = _run(tmp_path, "Vell is a state in Vallée.\n".encode("cp1252"), capsys)
     assert code == 2
     assert "save it as UTF-8" in out.err
+
+
+def test_the_install_hint_names_the_python_that_runs_the_kit(tmp_path, monkeypatch, capsys):
+    # A bare "python" can be another install, or the Microsoft Store stub, so pip lands elsewhere.
+    monkeypatch.setattr(check.sys, "executable", r"C:\Program Files\Python313\python.exe")
+    _humanize(tmp_path, monkeypatch, None, None)
+    err = capsys.readouterr().err
+    assert r'"C:\Program Files\Python313\python.exe" -m pip install humanizer-pro' in err

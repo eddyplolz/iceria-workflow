@@ -102,6 +102,24 @@ class Wiki:
             "text": rev["slots"]["main"]["content"],
         }
 
+    def latest_revids(self, titles: list[str]) -> dict[str, int | None]:
+        """{title: current revid, or None when there is no page} for each title as given, in
+        batches of 50 (the API's limit for a visitor). A redirect is not followed: its own
+        revision is the one a copy records."""
+        out = {}
+        for i in range(0, len(titles), 50):
+            batch = titles[i : i + 50]
+            q = self._call(
+                "GET", action="query", prop="revisions", titles="|".join(batch), rvprop="ids"
+            )["query"]
+            to = {n["from"]: n["to"] for n in q.get("normalized", [])}
+            live = {
+                p["title"]: p["revisions"][0]["revid"] if "revisions" in p else None
+                for p in q["pages"]
+            }
+            out.update({t: live.get(to.get(t, t)) for t in batch})
+        return out
+
     def expand(self, text: str) -> str:
         q = self._call("GET", action="expandtemplates", text=text, prop="wikitext")
         return q["expandtemplates"]["wikitext"]

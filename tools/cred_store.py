@@ -54,19 +54,31 @@ class _WindowsStore:
         self.api.CredWriteW.argtypes = [ctypes.POINTER(CREDENTIAL), wintypes.DWORD]
         self.api.CredFree.argtypes = [ctypes.c_void_p]
 
-    def read(self) -> tuple[str, str] | None:
+    def _read(self, take):
         ctypes = self.ctypes
         ptr = ctypes.POINTER(self.CREDENTIAL)()
         if not self.api.CredReadW(TARGET, 1, 0, ctypes.byref(ptr)):  # 1 = CRED_TYPE_GENERIC
-            if ctypes.get_last_error() == 1168:  # ERROR_NOT_FOUND
+            code = ctypes.get_last_error()
+            if code == 1168:  # ERROR_NOT_FOUND
                 return None
-            raise OSError(ctypes.get_last_error(), "CredReadW failed")
+            raise NoStore(
+                f"Windows Credential Manager could not be read (error {code}); try again, "
+                f"or set {ENV_USER} and {ENV_PASS} in your shell"
+            )
         try:
-            cred = ptr.contents
-            blob = ctypes.string_at(cred.CredentialBlob, cred.CredentialBlobSize)
-            return cred.UserName, blob.decode("utf-16-le")
+            return take(ptr.contents)
         finally:
             self.api.CredFree(ptr)
+
+    def read(self) -> tuple[str, str] | None:
+        def both(cred):
+            blob = self.ctypes.string_at(cred.CredentialBlob, cred.CredentialBlobSize)
+            return cred.UserName, blob.decode("utf-16-le")
+
+        return self._read(both)
+
+    def who(self) -> str | None:
+        return self._read(lambda cred: cred.UserName)
 
     def write(self, user: str, password: str):
         ctypes = self.ctypes
@@ -98,12 +110,24 @@ class _MacStore:
             capture_output=True,
             text=True,
         )
-        return out.stdout.rstrip("\n") if out.returncode == 0 else None
+        if out.returncode == 0:
+            return out.stdout.rstrip("\n")
+        # 44 is errSecItemNotFound; any other code is a locked or denied keychain.
+        if out.returncode == 44:
+            return None
+        raise NoStore(
+            f"the macOS keychain could not be read (security exit {out.returncode}: "
+            f"{out.stderr.strip()}); unlock the login keychain in Keychain Access and try again, "
+            f"or set {ENV_USER} and {ENV_PASS} in your shell"
+        )
 
     def read(self) -> tuple[str, str] | None:
         user = self._find("user")
         password = self._find("password") if user else None
         return (user, password) if password else None
+
+    def who(self) -> str | None:
+        return self._find("user")
 
     def write(self, user: str, password: str):
         # `security -i` reads its commands from stdin, so the password never shows in the process
@@ -161,6 +185,9 @@ class _KeyringStore:
         password = self._call("get_password", "password") if user else None
         return (user, password) if password else None
 
+    def who(self) -> str | None:
+        return self._call("get_password", "user")
+
     def write(self, user: str, password: str):
         self._call("set_password", "user", user)
         self._call("set_password", "password", password)
@@ -186,3 +213,14 @@ def get() -> tuple[tuple[str, str], str] | None:
     except NoStore:
         return None
     return (found, s.name) if found else None
+
+
+def who() -> tuple[str, str] | None:
+    """(login name, where it is kept), or None when none is saved. Never reads the password, so
+    a Mac keychain asks no question; raises NoStore when the machine has no store."""
+    user = os.environ.get(ENV_USER)
+    if user and os.environ.get(ENV_PASS):
+        return user, f"the {ENV_USER} and {ENV_PASS} variables"
+    s = store()
+    name = s.who()
+    return (name, s.name) if name else None

@@ -12,6 +12,7 @@ VERSION.json when they exist, so names and dates are checked against the world a
 import argparse
 import importlib.util
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -24,6 +25,7 @@ from checks import (
     ERROR,
     ai_tells,
     bold,
+    clashes,
     dashes,
     dates,
     headings,
@@ -46,11 +48,15 @@ CHECKS = [
     dates,
     numbers,
     names,
+    clashes,
     voice,
     ai_tells,
     spelling,
 ]
 KIT_ROOT = Path(__file__).resolve().parent.parent
+# The "# Title" heading and "- key: value" infobox lines that canon_pages.Builder.nations writes.
+INFOBOX_LINE = re.compile(r"^- (common_name|capital): (.*)$", re.M)
+HEADING = re.compile(r"^# (.+)$", re.M)
 
 
 def _read(path: Path):
@@ -67,6 +73,19 @@ def load_ctx(root: Path) -> dict:
     zones = _read(root / "canon" / "culture-zones.json")
     if zones:
         ctx["families"] = sorted({z["family"] for z in zones["zones"]})
+    nations, pages = {}, {}
+    for page in sorted((root / "canon" / "nations").glob("*.md")):
+        text = page.read_text(encoding="utf-8")
+        fields = dict(INFOBOX_LINE.findall(text))
+        if fields.get("common_name"):
+            name, capital = clashes.plain(fields["common_name"]), fields.get("capital")
+            nations[name] = capital and clashes.plain(capital)
+            if (heading := HEADING.search(text)) and heading.group(1) != name:
+                pages[heading.group(1)] = name
+    if nations:
+        ctx["nations"] = nations
+    if pages:
+        ctx["nation_pages"] = pages
     version = _read(root / "VERSION.json")
     if version and version.get("in_world_date"):
         ctx["in_world_date"] = version["in_world_date"]
@@ -75,6 +94,23 @@ def load_ctx(root: Path) -> dict:
 
 def _plural(n: int, word: str) -> str:
     return f"{n} {word}" if n == 1 else f"{n} {word}s"
+
+
+def pip_install(package: str) -> str:
+    """The install command for this Python, so pip lands where the kit looks (a bare "python" may
+    be another install or the Microsoft Store stub)."""
+    exe = f'"{sys.executable}"' if " " in sys.executable else sys.executable
+    return f"{exe} -m pip install {package}"
+
+
+def humanizer_command() -> list[str] | None:
+    """The command that runs the AI-tell audit, or None when humanizer-pro is not installed."""
+    if audit := shutil.which("humanizer-audit"):
+        return [audit]
+    # On Windows pip puts the command in a Scripts folder that is often not on PATH.
+    if importlib.util.find_spec("humanizer_audit"):
+        return [sys.executable, "-m", "humanizer_audit"]
+    return None
 
 
 def read_draft(path: Path) -> str:
@@ -120,16 +156,12 @@ def main(argv=None) -> int:
     if args.humanizer:
         # The audit writes to the same stream; flush so its report follows ours when piped.
         sys.stdout.flush()
-        audit = shutil.which("humanizer-audit")
-        if audit:
-            subprocess.run([audit, str(args.draft)], check=False)
-        # On Windows pip puts the command in a Scripts folder that is often not on PATH.
-        elif importlib.util.find_spec("humanizer_audit"):
-            subprocess.run([sys.executable, "-m", "humanizer_audit", str(args.draft)], check=False)
+        if audit := humanizer_command():
+            subprocess.run([*audit, str(args.draft)], check=False)
         else:
             print(
                 "humanizer-audit is not installed, so the AI-tell audit was skipped. Install it "
-                "with: python -m pip install humanizer-pro (setup step 5 in README.md)",
+                f"with: {pip_install('humanizer-pro')} (setup step 5 in README.md)",
                 file=sys.stderr,
             )
     return 1 if errors else 0

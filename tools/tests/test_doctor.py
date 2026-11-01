@@ -1,0 +1,95 @@
+"""doctor.py: one OK or FIX line per part of the setup, and nothing written anywhere."""
+
+import datetime
+import json
+
+import cred_store
+import doctor
+import iceria_wiki
+
+TODAY = datetime.date(2026, 11, 20)
+
+
+def _fixes(results):
+    return [r.name for r in results if r.fix]
+
+
+class Wiki:
+    def __init__(self, down=None):
+        self.down = down
+
+    def latest_revids(self, titles):
+        if self.down:
+            raise iceria_wiki.WikiUnavailable(self.down)
+        return dict.fromkeys(titles, 1)
+
+
+def _kit(tmp_path, built="2026-11-10"):
+    (tmp_path / "VERSION.json").write_text(json.dumps({"built": built}), encoding="utf-8")
+    return tmp_path
+
+
+def _setup(monkeypatch, cas=150, login=("Ana@kit", "Windows Credential Manager"), humanizer=True):
+    monkeypatch.setattr(doctor, "_ca_count", lambda: cas)
+    monkeypatch.setattr(doctor.cred_store, "who", lambda: login)
+    monkeypatch.setattr(doctor.check.shutil, "which", lambda name: "/bin/x" if humanizer else None)
+    monkeypatch.setattr(doctor.check.importlib.util, "find_spec", lambda name: None)
+
+
+def test_a_working_setup_is_all_ok_and_exits_zero(tmp_path, monkeypatch, capsys):
+    _setup(monkeypatch)
+    assert doctor.main(_kit(tmp_path), Wiki(), TODAY) == 0
+    out = capsys.readouterr().out.splitlines()
+    assert all(line.startswith("OK ") for line in out[:-1])
+    assert out[-1] == "6 of 6 checks are OK."
+    assert any("Ana@kit" in line and "Credential Manager" in line for line in out)
+
+
+def test_each_problem_is_a_fix_line_with_one_step(tmp_path, monkeypatch, capsys):
+    _setup(monkeypatch, cas=0, humanizer=False)
+    code = doctor.main(_kit(tmp_path, "2026-09-01"), Wiki(down="timed out"), TODAY)
+    assert code == 1
+    out = capsys.readouterr().out
+    assert "FIX certificates" in out and "Install Certificates.command" in out
+    assert "FIX wiki" in out and "timed out" in out
+    assert "FIX canon copy" in out and "80 days old" in out and "refresh_canon.py --check" in out
+    assert "FIX humanizer" in out and "pip install humanizer-pro" in out
+    assert out.rstrip().endswith("2 of 6 checks are OK; fix the 4 above, then run this again.")
+
+
+def test_no_saved_login_is_fine_since_the_tools_read_as_a_guest(monkeypatch):
+    _setup(monkeypatch, login=None)
+    r = doctor.login()
+    assert r.fix is None and "setup_bot.py" in r.detail
+
+
+def test_a_machine_with_no_store_gets_the_stores_own_fix(monkeypatch):
+    def none():
+        raise cred_store.NoStore("no credential store: install one with `pip install keyring`")
+
+    monkeypatch.setattr(doctor.cred_store, "who", none)
+    r = doctor.login()
+    assert r.fix and "pip install keyring" in r.fix
+
+
+def test_a_kit_without_its_version_file_says_to_get_the_kit_again(tmp_path):
+    r = doctor.canon_copy(tmp_path, TODAY)
+    assert r.fix and "git pull" in r.fix
+
+
+def test_humanizer_found_as_a_module_off_the_path_is_ok(monkeypatch):
+    monkeypatch.setattr(doctor.check.shutil, "which", lambda name: None)
+    monkeypatch.setattr(doctor.check.importlib.util, "find_spec", lambda name: object())
+    assert doctor.humanizer().fix is None
+
+
+def test_the_doctor_never_reads_the_password():
+    # The keychain check goes through who(), which looks up the login name alone.
+    src = (doctor.Path(doctor.__file__)).read_text(encoding="utf-8")
+    assert "cred_store.get(" not in src and ".read()" not in src
+
+
+def test_the_humanizer_fix_names_the_python_that_runs_the_kit(monkeypatch):
+    _setup(monkeypatch, humanizer=False)
+    monkeypatch.setattr(doctor.sys, "executable", "/usr/local/bin/python3.13")
+    assert doctor.humanizer().fix == "/usr/local/bin/python3.13 -m pip install humanizer-pro"
