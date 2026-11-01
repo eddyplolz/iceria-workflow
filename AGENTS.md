@@ -74,7 +74,7 @@ All tools read; none of them writes to the wiki.
 | `python tools/check.py draft.wiki --title "Title"` | The style and canon checker, including name clashes with real countries and other nations |
 | `python tools/redlinks.py draft.wiki` | Lists each link in the draft that has no page on the live wiki |
 | `python tools/iceria_calendar.py --real 2027-01-15` | Today's in-world date with no option; `--real` and `--in-world` convert either way |
-| `python tools/map_overlay.py notes/plan.json` | Draws the member's places and routes on the map, inside their own land only |
+| `python tools/map_overlay.py notes/plan.json` | Draws the member's places and routes on the map, inside their own land only; `examples/plan.json` shows the format |
 | `python tools/refresh_canon.py --check` | Says whether the wiki changed since the copy, without refreshing |
 | `python tools/doctor.py` | Checks this computer's setup, one line per part |
 

@@ -2,14 +2,19 @@
 
     python tools/doctor.py
 
-Each line starts OK or FIX, and a FIX line says the one step that fixes it. It reads the wiki once
-as a guest, looks up the saved bot login's name (never its password), and writes nothing. Exit 0
-when every check is OK, 1 when any needs a fix. Paste its output into a report when asking for help.
+Each line starts OK or FIX, and a FIX line says the one step that fixes it; an optional part that
+is not installed is an OK line saying how to add it. It reads the wiki once as a guest, looks up
+the saved bot login's name (never its password), and writes nothing. It ends with a block to send
+Eddy when something breaks, which says whether a login is saved but never which one. Exit 0 when
+every check is OK, 1 when any needs a fix.
 """
 
+import argparse
 import datetime
 import json
+import platform
 import ssl
+import subprocess
 import sys
 from pathlib import Path
 from typing import NamedTuple
@@ -22,6 +27,7 @@ import cred_store
 from iceria_wiki import Wiki, WikiUnavailable
 
 KIT_ROOT = Path(__file__).resolve().parent.parent
+NO_LOGIN = "none saved"
 STALE_DAYS = 30  # the wiki moves in weeks; past a month a draft may cite a page that changed
 
 
@@ -59,7 +65,7 @@ def login() -> Result:
     if not found:
         return Result(
             "bot login",
-            "none saved, so the tools read the wiki as a guest (to add one: python tools/setup_bot.py)",
+            f"{NO_LOGIN}, so the tools read the wiki as a guest (to add one: python tools/setup_bot.py)",
         )
     user, where = found
     return Result("bot login", f"{user}, kept in {where}")
@@ -90,7 +96,38 @@ def canon_copy(kit: Path, today: datetime.date) -> Result:
 def humanizer() -> Result:
     if check.humanizer_command():
         return Result("humanizer", "installed")
-    return Result("humanizer", "not installed", check.pip_install("humanizer-pro"))
+    # Optional: the checker skips the AI-tell audit without it, so a clean install is not broken.
+    return Result(
+        "humanizer", f"optional, not installed: to add it, {check.pip_install('humanizer-pro')}"
+    )
+
+
+def kit_commit(kit: Path) -> str:
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(kit), "rev-parse", "--short", "HEAD"], capture_output=True, text=True
+        )
+    except FileNotFoundError:
+        return "unknown (git is not installed)"
+    return out.stdout.strip() if out.returncode == 0 else "unknown (not a git clone)"
+
+
+def support_block(kit: Path, results: list[Result]) -> str:
+    """What Eddy needs to help: the setup and each check's status, never the login's name."""
+    bot = next(r for r in results if r.name == "bot login")
+    saved = "no" if bot.fix or bot.detail.startswith(NO_LOGIN) else "yes"
+    checks = ", ".join(f"{r.name} {'FIX' if r.fix else 'OK'}" for r in results)
+    return "\n".join(
+        [
+            "--- for Eddy: copy from here ---",
+            f"OS: {platform.platform()}",
+            f"Python: {sys.version.split()[0]} at {sys.executable}",
+            f"Kit commit: {kit_commit(kit)}",
+            f"Checks: {checks}",
+            f"Bot login saved: {saved}",
+            "--- to here ---",
+        ]
+    )
 
 
 def main(kit: Path = KIT_ROOT, wiki=None, today: datetime.date | None = None) -> int:
@@ -112,10 +149,17 @@ def main(kit: Path = KIT_ROOT, wiki=None, today: datetime.date | None = None) ->
     fixes = len(results) - ok
     if fixes:
         print(f"{ok} of {len(results)} checks are OK; fix the {fixes} above, then run this again.")
-        return 1
-    print(f"{ok} of {len(results)} checks are OK.")
-    return 0
+    else:
+        print(f"{ok} of {len(results)} checks are OK.")
+    print("\nStuck? Send Eddy everything this printed.")
+    print(support_block(kit, results))
+    return 1 if fixes else 0
+
+
+def cli(argv=None) -> int:
+    argparse.ArgumentParser(description=__doc__.splitlines()[0]).parse_args(argv)
+    return main()
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(cli())

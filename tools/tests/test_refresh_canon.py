@@ -271,8 +271,27 @@ def test_check_names_each_changed_page_and_a_nation_now_written(kit, capsys):
     assert refresh_canon.check(kit, wiki, TODAY, None) == 1
     out = capsys.readouterr().out
     assert "World Standards" in out and "Xuna" in out and "Charter" not in out
-    assert "python tools/refresh_canon.py" in out
+    # The reason is the wiki, not the copy's age: a copy made today is due when a page changed.
+    first = out.splitlines()[0]
+    assert first == (
+        "a refresh is due: the wiki changed since your copy from 2026-10-01 "
+        "(World Standards edited; Xuna now has a page): run python tools/refresh_canon.py"
+    )
+    assert "days old" not in first
     assert (kit / "VERSION.json").read_text("utf-8") == before  # a check writes nothing
+
+
+def test_check_with_many_changed_pages_counts_them_and_lists_each(kit, capsys):
+    titles = [f"Page {i}" for i in range(5)]
+    kit = checked_kit(kit, titles)
+    wiki = FakeWiki(dict.fromkeys(titles, "x"))
+    wiki.latest_revids = lambda t: dict.fromkeys(titles, 6000)
+    assert refresh_canon.check(kit, wiki, TODAY, None) == 1
+    out = capsys.readouterr().out.splitlines()
+    assert out[0].startswith(
+        "a refresh is due: the wiki changed since your copy from 2026-10-01 (5 pages edited)"
+    )
+    assert all(f"  changed since the copy: Page {i}" in out for i in range(5))
 
 
 def test_check_counts_a_deleted_page_as_changed(kit, capsys):

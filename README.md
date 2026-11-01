@@ -77,10 +77,10 @@ The tools need Python 3.10 or later and nothing else.
    ```
 
    Each line says `OK` or `FIX`, and a `FIX` line names the one thing to do. It exits 0 when every
-   line is OK.
+   line is OK. The humanizer is optional, so until step 7 its line says `OK` and how to add it.
 
-> [!NOTE]
-> The humanizer line says `FIX` until step 7, and that step is optional.
+> [!TIP]
+> Stuck? Run `python3 tools/doctor.py` and send Eddy everything it prints.
 
 7. **The AI-tell audit (optional; skip it and the checker says so):**
 
@@ -104,7 +104,7 @@ For updates later, see [Keeping it current](#keeping-it-current) below.
 | 3. Get the kit | `git clone https://github.com/eddyplolz/iceria-workflow.git` (or GitHub Desktop: **File > Clone repository**). For updates, see [Keeping it current](#keeping-it-current) below. |
 | 4. Open a terminal in the kit folder | Open the folder in File Explorer, then type `cmd` in its address bar. |
 | 5. The AI-tell audit (optional) | `py -m pip install humanizer-pro` |
-| 6. Check everything | `py tools/doctor.py`: each line says OK or FIX, and a FIX line names the one thing to do. |
+| 6. Check everything | `py tools/doctor.py`: each line says OK or FIX, and a FIX line names the one thing to do. Stuck? Send Eddy everything it prints. |
 
 In Git Bash on Windows, run `setup_bot.py` as `winpty py tools/setup_bot.py`, or its hidden
 password prompt cannot read what you type.
@@ -121,7 +121,7 @@ none writes to the wiki.
 | `python tools/check.py draft.wiki --title "Title"` | The style and canon checker. Add `--humanizer` for the AI-tell audit. |
 | `python tools/doctor.py` | Checks this computer's setup, one line per part. Run it first when a tool fails. |
 | `python tools/redlinks.py draft.wiki` | Lists each link in the draft that has no page on the wiki yet. |
-| `python tools/map_overlay.py notes/plan.json` | Draws your places and routes on the map, inside your own land only. |
+| `python tools/map_overlay.py examples/plan.json` | Draws your places and routes on the map, inside your own land only. Copy `examples/plan.json` to `notes/` and make it yours. |
 | `python tools/iceria_calendar.py` | Today's in-world date; `--real 2027-01-15` and `--in-world "14 March 2001"` convert either way. |
 | `python tools/refresh_canon.py` | Rebuilds the canon copy from today's wiki; `--check` only says whether a refresh is due. |
 | `python tools/setup_bot.py` | Saves your own bot password in your computer's password store; `--check` tests it. |

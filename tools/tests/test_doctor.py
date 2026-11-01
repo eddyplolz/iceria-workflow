@@ -2,10 +2,12 @@
 
 import datetime
 import json
+import subprocess
 
 import cred_store
 import doctor
 import iceria_wiki
+import pytest
 
 TODAY = datetime.date(2026, 11, 20)
 
@@ -40,8 +42,8 @@ def test_a_working_setup_is_all_ok_and_exits_zero(tmp_path, monkeypatch, capsys)
     _setup(monkeypatch)
     assert doctor.main(_kit(tmp_path), Wiki(), TODAY) == 0
     out = capsys.readouterr().out.splitlines()
-    assert all(line.startswith("OK ") for line in out[:-1])
-    assert out[-1] == "6 of 6 checks are OK."
+    end = out.index("6 of 6 checks are OK.")
+    assert all(line.startswith("OK ") for line in out[:end])
     assert any("Ana@kit" in line and "Credential Manager" in line for line in out)
 
 
@@ -53,8 +55,19 @@ def test_each_problem_is_a_fix_line_with_one_step(tmp_path, monkeypatch, capsys)
     assert "FIX certificates" in out and "Install Certificates.command" in out
     assert "FIX wiki" in out and "timed out" in out
     assert "FIX canon copy" in out and "80 days old" in out and "refresh_canon.py --check" in out
-    assert "FIX humanizer" in out and "pip install humanizer-pro" in out
-    assert out.rstrip().endswith("2 of 6 checks are OK; fix the 4 above, then run this again.")
+    assert "FIX humanizer" not in out  # optional, so never a fix
+    assert "3 of 6 checks are OK; fix the 3 above, then run this again." in out
+
+
+def test_a_missing_humanizer_is_an_optional_line_and_still_exits_zero(
+    tmp_path, monkeypatch, capsys
+):
+    # A clean install has no humanizer, and FIX is kept for what blocks the kit.
+    _setup(monkeypatch, humanizer=False)
+    assert doctor.main(_kit(tmp_path), Wiki(), TODAY) == 0
+    out = capsys.readouterr().out
+    assert "OK  humanizer: optional, not installed: to add it, " in out
+    assert "-m pip install humanizer-pro" in out and "FIX" not in out
 
 
 def test_no_saved_login_is_fine_since_the_tools_read_as_a_guest(monkeypatch):
@@ -89,7 +102,57 @@ def test_the_doctor_never_reads_the_password():
     assert "cred_store.get(" not in src and ".read()" not in src
 
 
-def test_the_humanizer_fix_names_the_python_that_runs_the_kit(monkeypatch):
+def test_the_humanizer_line_names_the_python_that_runs_the_kit(monkeypatch):
     _setup(monkeypatch, humanizer=False)
     monkeypatch.setattr(doctor.sys, "executable", "/usr/local/bin/python3.13")
-    assert doctor.humanizer().fix == "/usr/local/bin/python3.13 -m pip install humanizer-pro"
+    r = doctor.humanizer()
+    assert r.fix is None
+    assert r.detail.endswith("to add it, /usr/local/bin/python3.13 -m pip install humanizer-pro")
+
+
+def test_help_prints_usage_and_runs_no_check(monkeypatch, capsys):
+    monkeypatch.setattr(doctor, "main", lambda *a, **k: pytest.fail("--help ran the checks"))
+    with pytest.raises(SystemExit) as e:
+        doctor.cli(["--help"])
+    assert e.value.code == 0
+    out = capsys.readouterr().out
+    assert out.startswith("usage:") and "OK " not in out
+
+
+def _block(out):
+    return out[out.index("--- for Eddy: copy from here ---") :]
+
+
+def test_the_support_block_carries_the_setup_and_never_the_login(tmp_path, monkeypatch, capsys):
+    _setup(monkeypatch)
+    monkeypatch.setattr(doctor.cred_store, "who", cred_store.who)  # the real lookup, off the env
+    monkeypatch.setenv("ICERIA_BOT_USER", "Ana@kit")
+    monkeypatch.setenv("ICERIA_BOT_PASS", "s3cretbotpassw0rd")
+    monkeypatch.setattr(doctor.sys, "executable", "/usr/local/bin/python3.13")
+    ran = subprocess.CompletedProcess([], 0, stdout="ab12cd3\n", stderr="")
+    monkeypatch.setattr(doctor.subprocess, "run", lambda *a, **k: ran)
+    doctor.main(_kit(tmp_path), Wiki(), TODAY)
+    block = _block(capsys.readouterr().out)
+    assert "OS: " in block
+    assert f"Python: {doctor.sys.version.split()[0]} at /usr/local/bin/python3.13" in block
+    assert "Kit commit: ab12cd3" in block
+    assert (
+        "Checks: Python OK, certificates OK, bot login OK, wiki OK, canon copy OK, humanizer OK"
+        in block
+    )
+    assert "Bot login saved: yes" in block
+    assert "Ana@kit" not in block and "s3cretbotpassw0rd" not in block
+    assert block.rstrip().endswith("--- to here ---")
+
+
+def test_the_support_block_says_no_login_and_marks_each_fix(tmp_path, monkeypatch, capsys):
+    _setup(monkeypatch, cas=0, login=None)
+
+    def no_git(*a, **k):
+        raise FileNotFoundError("git")
+
+    monkeypatch.setattr(doctor.subprocess, "run", no_git)
+    assert doctor.main(_kit(tmp_path), Wiki(), TODAY) == 1
+    block = _block(capsys.readouterr().out)
+    assert "Bot login saved: no" in block and "certificates FIX" in block
+    assert "Kit commit: unknown (git is not installed)" in block

@@ -132,12 +132,20 @@ def check(kit: Path, wiki, today: datetime.date, creds: tuple[str, str] | None) 
     if not changed and not written:
         print(f"current: the copy from {v['built']} ({age} days old) matches the wiki")
         return 0
-    print(f"a refresh is due: the copy from {v['built']} is {age} days old")
+    # The reason is what changed on the wiki: a copy made today is due when a page was edited.
+    if len(changed) + len(written) > 3:
+        why = [f"{len(changed)} pages edited"] if changed else []
+        why += [f"{len(written)} nations now have a page"] if written else []
+    else:
+        why = [f"{t} edited" for t in changed] + [f"{t} now has a page" for t in written]
+    print(
+        f"a refresh is due: the wiki changed since your copy from {v['built']} "
+        f"({'; '.join(why)}): run python tools/refresh_canon.py"
+    )
     for t in changed:
         print(f"  changed since the copy: {t}")
     for t in written:
         print(f"  now has a page: {t}")
-    print("Run python tools/refresh_canon.py to update the kit.")
     return 1
 
 

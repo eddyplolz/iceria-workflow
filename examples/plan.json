@@ -1,0 +1,13 @@
+{
+  "nation": "Alexandria",
+  "places": [
+    {"name": "Example town", "at": [45.92, 32.12]},
+    {"name": "Example port", "at": [45.92, 35.64]}
+  ],
+  "routes": [
+    {"name": "Example road", "via": [[45.92, 32.12], [45.92, 33.88], [45.92, 35.64]]}
+  ],
+  "labels": [
+    {"text": "Example hills", "at": [45.92, 34.76]}
+  ]
+}

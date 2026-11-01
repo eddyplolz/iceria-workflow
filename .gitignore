@@ -7,3 +7,5 @@ __pycache__/
 notes/
 # A refresh builds its new copy here and removes it when done; one left behind is a stopped run.
 .refresh-*/
+# map_overlay.py draws examples/plan.svg beside the example plan.
+examples/*.svg
