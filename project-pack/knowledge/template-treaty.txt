@@ -1,0 +1,32 @@
+<!--
+  Treaty skeleton. Replace "Name", "Nation" and "Other nation", fill each section in prose, and
+  delete every comment before posting. A treaty needs every party's agreement before it is canon
+  (Charter 3.8), and it is filed in Category:Treaties as well as each party's category (MoS 17.5).
+  Ask on the Water cooler which infobox to use (MoS 14.1).
+-->
+{{SHORTDESC:Treaty between Nation and Other nation}}<!-- under 60 characters (MoS 3.4) -->
+The '''Treaty of Name''' is a treaty between [[Nation]] and [[Other nation]], signed in 1988.<ref name="nation" /><ref name="other" />
+<!--
+  The lead says who signed it, when and where, and what it settles. Every term that binds the
+  other party comes from that party's own pages (MoS 13.1).
+-->
+
+== Background ==
+
+== Negotiation ==
+
+== Terms ==
+
+== Implementation ==
+
+== See also ==
+
+== References ==
+<references>
+<ref name="nation">[[Nation]]</ref>
+<ref name="other">[[Other nation]]</ref>
+</references>
+
+[[Category:Treaties]]
+[[Category:Nation]]
+[[Category:Other nation]]

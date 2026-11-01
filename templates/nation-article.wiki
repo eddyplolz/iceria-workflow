@@ -1,0 +1,102 @@
+<!--
+  Nation article skeleton (MoS 8). Copy this file, replace "Name" with the nation's name, and fill
+  each section in prose. Delete every comment before posting. Leave out any infobox line you have
+  no fact for: an empty line is dropped, a "none" or "N/A" is an error (MoS 14.3).
+  Field help: templates/infobox-cheatsheet.md. Order of sections: MoS 8.3.
+-->
+{{SHORTDESC:Country in Iceria}}<!-- name the continent or region; under 60 characters, no full stop (MoS 3.4) -->
+{{Infobox Country
+| conventional_long_name =
+| common_name            =
+| native_name            =
+| image_flag             =
+| image_coat             =
+| symbol_type            =
+| national_motto         =
+| national_anthem        =
+| image_map              = <!-- the locator map is part of a finished article (MoS 8.4) -->
+| map_caption            =
+| capital                =
+| largest_city           = <!-- "capital" if it is the capital -->
+| official_languages     =
+| languages_type         =
+| languages              =
+| ethnic_groups          =
+| ethnic_groups_year     =
+| religion               =
+| religion_year          =
+| demonym                =
+| government_type        =
+| leader_title1          =
+| leader_name1           =
+| leader_title2          =
+| leader_name2           =
+| legislature            =
+| upper_house            =
+| lower_house            =
+| sovereignty_type       = <!-- "Independence" or "Formation" -->
+| established_event1     =
+| established_date1      =
+| area_km2               = <!-- the Claims Desk's figure -->
+| percent_water          =
+| population_estimate    =
+| population_estimate_year =
+| GDP_nominal            = <!-- in IRU, like 412 billion -->
+| GDP_nominal_year       =
+| currency               =
+| currency_code          =
+| utc_offset             = <!-- like +2 -->
+| time_zone              =
+| drives_on              =
+| calling_code           =
+| continent              =
+| culture_zone           =
+| culture_twist          =
+| people                 = <!-- Septentria, Meridia and Selenara: native, settler or mixed -->
+| tier                   = <!-- set by the stewards -->
+| status                 = <!-- set by the stewards: provisional or admitted -->
+}}
+'''Name''', officially the '''Republic of Name''', is a country in Iceria.<ref name="proposal" />
+<!--
+  The lead is four paragraphs (MoS 8.1):
+  1. what and where it is: continent, neighbors, capital, population in 2000;
+  2. the shape of its history, in a few sentences;
+  3. government and economy;
+  4. culture and what the country is known for.
+  Every figure carries a reference (MoS 13.2).
+-->
+
+== Etymology ==
+<!-- where the name comes from, in the nation's own language (MoS 7.1, 7.4) -->
+
+== History ==
+<!-- one subsection per era, oldest first; history ends in 1999 (MoS 5.1) -->
+
+== Geography ==
+<!-- relief, rivers, coasts; then === Climate ===, === Natural resources ===, === Environment === -->
+
+== Government and politics ==
+<!-- the constitution and the head of state; then === Legislature ===, === Law and courts ===,
+     === Regions ===, === Foreign relations ===, === Military === -->
+
+== Economy ==
+<!-- GDP in IRU for 2000 (MoS 5.4); then === Agriculture ===, === Industry ===, === Transport ===,
+     === Energy === -->
+
+== Demographics ==
+<!-- population in 2000; then === Cities ===, === Languages ===, === Religion ===, === Education === -->
+
+== Culture ==
+<!-- === Cuisine ===, === Festivals ===, === Arts and architecture ===, === Literature ===,
+     === Media ===, === Sport === -->
+
+== See also ==
+
+== Notes ==
+
+== References ==
+<references>
+<ref name="proposal">[[Proposal:Name]]</ref>
+</references>
+
+[[Category:Name| ]]

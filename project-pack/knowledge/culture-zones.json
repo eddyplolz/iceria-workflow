@@ -1,0 +1,237 @@
+{
+  "zones": [
+    {
+      "id": "E1",
+      "family": "Hesperic",
+      "region": "Western European",
+      "continent": "Eostria",
+      "where": "the west coast on the Thalassine north of 45° N, 20-40° E (oceanic), and the cold mountain peninsula near 43° N 43° E",
+      "anchors": "French, British, Low Countries, German"
+    },
+    {
+      "id": "E2",
+      "family": "Thulean",
+      "region": "Nordic",
+      "continent": "Eostria",
+      "where": "the north-west coasts, 55-70° N (cold oceanic and continental)",
+      "anchors": "Scandinavian"
+    },
+    {
+      "id": "E3",
+      "family": "Sarmatic",
+      "region": "Slavic",
+      "continent": "Eostria",
+      "where": "the continental heartland, 60-120° E, 45-62° N",
+      "anchors": "Russian, Polish, Ukrainian, Czech"
+    },
+    {
+      "id": "E4",
+      "family": "Cimmerian",
+      "region": "North Eurasian",
+      "continent": "Eostria",
+      "where": "the tundra and taiga north of 62° N and the far north-east by the northern strait",
+      "anchors": "Finnic, Sami, Siberian peoples"
+    },
+    {
+      "id": "E5",
+      "family": "Ausonic",
+      "region": "Mediterranean",
+      "continent": "Eostria",
+      "where": "two coasts: the warm south-west corner on the Thalassine (34-46° N, 16-40° E, humid subtropical; harbor #2 at the mouth of Iceria's 5th fullest river) and the south coast on the Ecliptic (29-43° N, 75-95° E, the Old World's only large Mediterranean climate)",
+      "anchors": "Iberian (Alexandria), Italian, Greek, Levantine"
+    },
+    {
+      "id": "E6",
+      "family": "Scythic",
+      "region": "Steppe",
+      "continent": "Eostria",
+      "where": "the dry south interior, 80-120° E, 35-48° N (cold steppe and desert)",
+      "anchors": "Persian, Turkic, Mongol"
+    },
+    {
+      "id": "E7",
+      "family": "Seric",
+      "region": "East Asian",
+      "continent": "Eostria",
+      "where": "the east, beyond 120° E: cold continental, with a small warm southern corner (0.4 M km²)",
+      "anchors": "Korean, Japanese, Manchurian"
+    },
+    {
+      "id": "M1",
+      "family": "Numidic",
+      "region": "Arab and North African",
+      "continent": "Mesaria",
+      "where": "the dry north, 12-30° N (hot desert and steppe)",
+      "anchors": "Arab, Berber, Egyptian"
+    },
+    {
+      "id": "M2",
+      "family": "Occasic",
+      "region": "West African",
+      "continent": "Mesaria",
+      "where": "the savanna and steppe of the west, toward the Thalassine, and the Sahel edge",
+      "anchors": "Mande, Hausa, Yoruba, Akan"
+    },
+    {
+      "id": "M3",
+      "family": "Silvanic",
+      "region": "Central African",
+      "continent": "Mesaria",
+      "where": "the rainforest core, 12° S-5° N",
+      "anchors": "Kongo and the Bantu forest peoples"
+    },
+    {
+      "id": "M4",
+      "family": "Dorsalic",
+      "region": "Highland",
+      "continent": "Mesaria",
+      "where": "the Dorsal Range's cool highlands, near 7° N 5° E (the temperate belt in the tropics)",
+      "anchors": "Ethiopian, Great Lakes"
+    },
+    {
+      "id": "M5",
+      "family": "Erythraean",
+      "region": "Swahili coast",
+      "continent": "Mesaria",
+      "where": "the east peninsula on the Ecliptic: the Old World's trade coast",
+      "anchors": "Swahili, Somali, Malagasy"
+    },
+    {
+      "id": "M6",
+      "family": "Notian",
+      "region": "Southern African",
+      "continent": "Mesaria",
+      "where": "the dry south cape, 20-36° S (hot desert)",
+      "anchors": "Zulu, Xhosa, Sotho, Khoisan"
+    },
+    {
+      "id": "S1",
+      "family": "Solandric",
+      "region": "South Asian",
+      "continent": "Solandra",
+      "where": "the drier north and west (savanna and steppe, 5-24° N)",
+      "anchors": "Indian, Bengali, Tamil, Sinhalese"
+    },
+    {
+      "id": "S2",
+      "family": "Chrysic",
+      "region": "Mainland Southeast Asian",
+      "continent": "Solandra",
+      "where": "the rainforest south and east",
+      "anchors": "Thai, Khmer, Vietnamese, Burmese"
+    },
+    {
+      "id": "S3",
+      "family": "Nesiotic",
+      "region": "Maritime Southeast Asian",
+      "continent": "Solandra",
+      "where": "the coasts and islands; the first wave toward Selenara (1,350 km)",
+      "anchors": "Malay, Javanese, Filipino"
+    },
+    {
+      "id": "N1",
+      "family": "Nivalic",
+      "region": "Arctic",
+      "continent": "Septentria",
+      "where": "Hyperbora's claimable tundra and the far north coasts"
+    },
+    {
+      "id": "N2",
+      "family": "Nemorine",
+      "region": "Northern forests and the east coast",
+      "continent": "Septentria",
+      "where": "the continental north and east, 45-65° N; the Aeterna's mouth (49° N), the best harbor on the map, opens on the Thalassine"
+    },
+    {
+      "id": "N6",
+      "family": "Cedrine",
+      "region": "North-west coast",
+      "continent": "Septentria",
+      "where": "the mild oceanic coast west of the Hyperborean Range, near 48° N 175° E, across the date line; the Aeterna rises here"
+    },
+    {
+      "id": "N3",
+      "family": "Pratensian",
+      "region": "Plains and deserts",
+      "continent": "Septentria",
+      "where": "the dry south-west, 15-37° N"
+    },
+    {
+      "id": "N4",
+      "family": "Altissiman",
+      "region": "Highland civilizations",
+      "continent": "Septentria",
+      "where": "the Altissima (the frontier continents' highest range, 31° N) and the southern arm's highlands"
+    },
+    {
+      "id": "N5",
+      "family": "Corallian",
+      "region": "Tropical south and islands",
+      "continent": "Septentria",
+      "where": "the savanna and rainforest tip, 0-17° N, with Corallia and its sea"
+    },
+    {
+      "id": "R1",
+      "family": "Fluvian",
+      "region": "Tropical north",
+      "continent": "Meridia",
+      "where": "the rainforest and rivers, 7-23° S (the north-east)"
+    },
+    {
+      "id": "R2",
+      "family": "Orean",
+      "region": "Andean highlands",
+      "continent": "Meridia",
+      "where": "the tropical range near 20° S 118° W (M12, 4,620 m)"
+    },
+    {
+      "id": "R3",
+      "family": "Siccan",
+      "region": "Dry interior",
+      "continent": "Meridia",
+      "where": "the deserts and steppe, 21-44° S"
+    },
+    {
+      "id": "R4",
+      "family": "Mitian",
+      "region": "Southern cone",
+      "continent": "Meridia",
+      "where": "the temperate south-east (humid subtropical, Mediterranean, oceanic), 39-56° S"
+    },
+    {
+      "id": "R5",
+      "family": "Tempestan",
+      "region": "Patagonian south-west",
+      "continent": "Meridia",
+      "where": "the cold, glaciated south-west under the Tempestine Range (continental and ice)"
+    },
+    {
+      "id": "L1",
+      "family": "Eremic",
+      "region": "Dry west and Mediterranean coast",
+      "continent": "Selenara",
+      "where": "steppe, desert and the Mediterranean coast, 32-45° S"
+    },
+    {
+      "id": "L2",
+      "family": "Pelagian",
+      "region": "Oceanic east and islands",
+      "continent": "Selenara",
+      "where": "the mild wet east near 46° S 150° E"
+    },
+    {
+      "id": "L3",
+      "family": "Gelidan",
+      "region": "Cold south-west",
+      "continent": "Selenara",
+      "where": "the big continental south-west near 57° S 100° E"
+    },
+    {
+      "id": "L4",
+      "family": "Selenic",
+      "region": "Northern coast",
+      "continent": "Selenara",
+      "where": "the north coast on the Ecliptic (harbor #6, among the best 100)"
+    }
+  ]
+}

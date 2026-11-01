@@ -1,0 +1,93 @@
+{
+  "kit_version": "0.1.0",
+  "map_lock_version": "1.11",
+  "read_as": "anonymous",
+  "built": "2026-10-31",
+  "source": "live",
+  "in_world_date": null,
+  "in_world_date_reason": "the wiki's {{Iceria date}} reads: The calendar starts at launch",
+  "nations": [
+    "Alexandria",
+    "Mantua",
+    "Seltana",
+    "Tleyew-Pas",
+    "Axxannuzru",
+    "Rossheim-Amannia",
+    "Xuna"
+  ],
+  "missing_nations": [
+    "Xuna"
+  ],
+  "pages": [
+    {
+      "title": "World Standards",
+      "revid": 3066,
+      "source": "live"
+    },
+    {
+      "title": "History of Iceria",
+      "revid": 2968,
+      "source": "live"
+    },
+    {
+      "title": "Culture zones of Iceria",
+      "revid": 2905,
+      "source": "live"
+    },
+    {
+      "title": "Manual of Style",
+      "revid": 2977,
+      "source": "live"
+    },
+    {
+      "title": "AI use on Iceria",
+      "revid": 1842,
+      "source": "live"
+    },
+    {
+      "title": "Template:Infobox Country/doc",
+      "revid": 1131,
+      "source": "live"
+    },
+    {
+      "title": "Charter",
+      "revid": 3017,
+      "source": "live"
+    },
+    {
+      "title": "Template:Proposal/preload",
+      "revid": 2967,
+      "source": "live"
+    },
+    {
+      "title": "Alexandria",
+      "revid": 2902,
+      "source": "live"
+    },
+    {
+      "title": "Mantua",
+      "revid": 2774,
+      "source": "live"
+    },
+    {
+      "title": "Seltana",
+      "revid": 2956,
+      "source": "live"
+    },
+    {
+      "title": "Tleyew-Pas",
+      "revid": 3121,
+      "source": "live"
+    },
+    {
+      "title": "Axxannuzru",
+      "revid": 2929,
+      "source": "live"
+    },
+    {
+      "title": "Rossheim-Amannia",
+      "revid": 2863,
+      "source": "live"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+<!--
+  Organization skeleton: a company, party, order, armed force or institution. Replace "Name" and
+  "Nation", fill each section in prose, and delete every comment before posting. Pick the
+  infobox from the table in MoS 14.1 (Infobox political party, Infobox legislature, Infobox
+  order, Infobox national military); ask on the Water cooler before making a new one.
+  Leave out infobox lines you have no fact for (MoS 14.3).
+-->
+{{SHORTDESC:Political party in Nation}}<!-- under 60 characters, no full stop (MoS 3.4) -->
+{{Infobox political party
+| name          =
+| logo          =
+| leader1_title =
+| leader1_name  =
+| founded       =
+| headquarters  =
+| ideology      =
+| position      =
+| seats1_title  =
+| seats1        =
+}}
+'''Name''' is a political party in [[Nation]].<ref name="nation" />
+<!--
+  The lead says what the body is, where it works, when it was founded, and what it does.
+  Membership and seats are given as of 2000 (MoS 1.3, 5.1).
+-->
+
+== History ==
+
+== Organization ==
+
+== Activities ==
+
+== See also ==
+
+== References ==
+<references>
+<ref name="nation">[[Nation]]</ref>
+</references>
+
+[[Category:Nation]]

@@ -1,0 +1,48 @@
+# The kit's tests on the two systems members write from, at the oldest and a recent Python.
+name: tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+        python: ["3.10", "3.13"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install pytest
+      # On the Mac runner this includes a real round trip through the login keychain, and on the
+      # Windows runner one through Credential Manager.
+      - run: python -m pytest -v -rs
+      - name: The checker runs on a template
+        run: python tools/check.py templates/city.wiki --title "Example"
+        shell: bash
+
+  # A Mac's built-in python3 is 3.9: each tool must stop with the install message, not a traceback.
+  old-python:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+      - name: Each tool names the fix
+        shell: bash
+        run: |
+          for tool in check setup_bot refresh_canon; do
+            out=$(python tools/$tool.py --help 2>&1) && { echo "$tool ran on 3.9"; exit 1; }
+            echo "$out"
+            grep -q "needs Python 3.10 or newer" <<<"$out" || { echo "$tool: no install message"; exit 1; }
+          done

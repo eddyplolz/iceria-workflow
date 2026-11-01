@@ -1,0 +1,7 @@
+# Your bot password lives in your computer's credential store, never in a file here.
+.env*
+__pycache__/
+.pytest_cache/
+*.pyc
+# A refresh builds its new copy here and removes it when done; one left behind is a stopped run.
+.refresh-*/

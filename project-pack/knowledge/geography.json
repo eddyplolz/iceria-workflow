@@ -1,0 +1,164 @@
+{
+  "continents": [
+    {
+      "id": "C1",
+      "name": "Septentria"
+    },
+    {
+      "id": "C2",
+      "name": "Meridia"
+    },
+    {
+      "id": "C3",
+      "name": "Mesaria"
+    },
+    {
+      "id": "C4",
+      "name": "Eostria"
+    },
+    {
+      "id": "C5",
+      "name": "Solandra"
+    },
+    {
+      "id": "C6",
+      "name": "Selenara"
+    }
+  ],
+  "polar_regions": [
+    {
+      "id": "PN",
+      "name": "Hyperbora"
+    },
+    {
+      "id": "PS",
+      "name": "The Austrine"
+    }
+  ],
+  "oceans": [
+    {
+      "id": "O1",
+      "name": "Serenian Ocean"
+    },
+    {
+      "id": "O2",
+      "name": "Aquilonian Ocean"
+    },
+    {
+      "id": "O3",
+      "name": "Thalassine Ocean"
+    },
+    {
+      "id": "O4",
+      "name": "Ecliptic Ocean"
+    },
+    {
+      "id": "O5",
+      "name": "Pallid Sea"
+    },
+    {
+      "id": "O6",
+      "name": "Halcyon Sea"
+    },
+    {
+      "id": "O7",
+      "name": "Hiemal Sea"
+    },
+    {
+      "id": "O8",
+      "name": "Austral Sea"
+    },
+    {
+      "id": "O9",
+      "name": "Boreal Sea"
+    }
+  ],
+  "lakes": [
+    {
+      "id": "L1",
+      "name": "Aurelian Lake"
+    },
+    {
+      "id": "L2",
+      "name": "Lake Gemina"
+    },
+    {
+      "id": "L3",
+      "name": "Lake Catena"
+    },
+    {
+      "id": "L4",
+      "name": "Lake Silentia"
+    },
+    {
+      "id": "L5",
+      "name": "Lake Algida"
+    }
+  ],
+  "islands": [
+    {
+      "id": "I1",
+      "name": "Vespera"
+    },
+    {
+      "id": "I2",
+      "name": "Corallia"
+    },
+    {
+      "id": "I3",
+      "name": "Zenithia"
+    },
+    {
+      "id": "I4",
+      "name": "Fortunata"
+    },
+    {
+      "id": "I5",
+      "name": "Brumalis"
+    }
+  ],
+  "rivers": [
+    {
+      "id": "R1",
+      "name": "the Aeterna"
+    },
+    {
+      "id": "R2",
+      "name": "the Arctura"
+    },
+    {
+      "id": "R3",
+      "name": "the Origo"
+    },
+    {
+      "id": "R4",
+      "name": "the Aurorea"
+    },
+    {
+      "id": "R5",
+      "name": "the Plena"
+    }
+  ],
+  "ranges": [
+    {
+      "id": "M1",
+      "name": "the Dorsal Range"
+    },
+    {
+      "id": "M2",
+      "name": "Hyperborean Range"
+    },
+    {
+      "id": "M3",
+      "name": "the Altissima"
+    },
+    {
+      "id": "M4",
+      "name": "Eoan Range"
+    },
+    {
+      "id": "M5",
+      "name": "Tempestine Range"
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+<!--
+  Event skeleton (MoS 11): a war, crisis, disaster or election. Replace "Name" and "Nation", fill
+  each section in prose, and delete every comment before posting. Titles put the year first:
+  "1997 Alexandrian general election" (MoS 2.4). An election uses Background, Campaign, Results
+  and Aftermath, with {{Infobox election}}; a war uses {{Infobox military conflict}}.
+  An event that involves another nation needs that nation's agreement (Charter 3.8).
+  Leave out infobox lines you have no fact for (MoS 14.3).
+-->
+{{SHORTDESC:Event in Nation}}<!-- under 60 characters, no full stop (MoS 3.4) -->
+{{Infobox military conflict
+| conflict    =
+| image       =
+| caption     =
+| date        =
+| place       =
+| result      =
+| combatant1  =
+| combatant2  =
+| commander1  =
+| commander2  =
+| casualties1 =
+| casualties2 =
+}}
+The '''Name''' was an event in [[Nation]] on 3 April 1991.<ref name="nation" />
+<!--
+  The lead says what happened, where, when, and with what result. Example from the manual:
+  "The 1991 Alexandrian coup attempt was an attempt by ... on 3 April 1991." (MoS 11)
+-->
+
+== Background ==
+
+== Course of events ==
+
+== Aftermath ==
+
+== Legacy ==
+
+== See also ==
+
+== References ==
+<references>
+<ref name="nation">[[Nation]]</ref>
+</references>
+
+[[Category:Nation]]

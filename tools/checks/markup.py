@@ -1,0 +1,118 @@
+"""Page markup: wikitext, not Markdown, and the parts every article carries.
+
+MoS 3.4 (short description: about 40 characters, under 60, no leading article, no final full stop,
+avoid "current" and "former"); 6.5 (write "for example", "that is", "and so on"); 13.3 (refs need a
+reference list); 14.3 (no "none", "N/A", "unknown" or dash in an infobox field); 17 (every page
+has a category). Markdown does not render on the wiki, so it is an error wherever it appears.
+"""
+
+import re
+
+from checks import ERROR, WARNING, Finding, lines
+
+SHORTDESC = re.compile(r"\{\{\s*(?:SHORTDESC\s*:|short description\s*\|)(.*?)\}\}", re.I)
+EMPTY_FIELD = re.compile(r"^\s*\|\s*[\w ]+?\s*=\s*(none|n/?a|unknown|-|–|—|\?)\s*$", re.I)
+MD_HEADING = re.compile(r"^#{2,6}\s")
+LINE_RULES = [
+    (
+        re.compile(r"\*\*[^*\n]+\*\*"),
+        ERROR,
+        "Markdown bold: use '''bold''' in the lead only (MoS 6.3)",
+    ),
+    (MD_HEADING, ERROR, "Markdown heading: write == Heading == (MoS 4.1)"),
+    (re.compile(r"^\s*-\s+\S"), WARNING, "Markdown bullet: wikitext lists start with * (MoS 4.3)"),
+    (re.compile(r"`[^`\n]+`"), ERROR, "Markdown code: backticks do not render on the wiki"),
+    (re.compile(r"\[[^\]\n]+\]\(https?://"), ERROR, "Markdown link: write [[Page]] links (MoS 12)"),
+    (
+        re.compile(r"\b(?:e\.g|i\.e|etc)\b\.?", re.I),
+        ERROR,
+        "Latin abbreviation: write for example, that is, and so on (MoS 6.5)",
+    ),
+]
+
+
+def _shortdesc(n: int, desc: str) -> list[Finding]:
+    out = []
+    if len(desc) >= 60:
+        out.append(
+            Finding(
+                n,
+                "markup",
+                ERROR,
+                f"short description too long: {len(desc)} characters, keep it under 60 (MoS 3.4)",
+            )
+        )
+    if re.match(r"(a|an|the)\b", desc, re.I):
+        out.append(
+            Finding(
+                n,
+                "markup",
+                ERROR,
+                "short description starts with an article: drop A or The (MoS 3.4)",
+            )
+        )
+    if desc.endswith("."):
+        out.append(
+            Finding(
+                n, "markup", ERROR, "short description ends with a full stop: drop it (MoS 3.4)"
+            )
+        )
+    if re.search(r"\b(current|former)\b", desc, re.I):
+        out.append(
+            Finding(
+                n, "markup", WARNING, "short description says current or former: it dates (MoS 3.4)"
+            )
+        )
+    return out
+
+
+def run(text: str, ctx: dict) -> list[Finding]:
+    rows = lines(text)
+    page = "\n".join(rows)
+    last = max((i for i, ln in enumerate(rows, 1) if ln.strip()), default=1)
+    found = []
+    for n, line in enumerate(rows, 1):
+        for m in SHORTDESC.finditer(line):
+            found += _shortdesc(n, m.group(1).strip())
+        if EMPTY_FIELD.match(line):
+            found.append(
+                Finding(
+                    n,
+                    "markup",
+                    ERROR,
+                    "empty infobox value: leave the field out instead (MoS 14.3)",
+                )
+            )
+        for rx, level, msg in LINE_RULES:
+            # A "##" under a "#" line is a wikitext nested numbered list, not a heading.
+            if rx is MD_HEADING and n > 1 and rows[n - 2].startswith("#"):
+                continue
+            if rx.search(line):
+                found.append(Finding(n, "markup", level, msg))
+    if not SHORTDESC.search(page):
+        found.append(
+            Finding(1, "markup", WARNING, "no short description: add {{SHORTDESC:...}} (MoS 3.4)")
+        )
+    has_refs = re.search(r"<ref\b", page, re.I)
+    if not has_refs:
+        found.append(
+            Finding(
+                1, "markup", WARNING, "no references: cite the pages your facts come from (MoS 13)"
+            )
+        )
+    if not re.search(r"\[\[\s*Category\s*:", page, re.I):
+        found.append(
+            Finding(
+                last, "markup", ERROR, "no category: end the page with [[Category:...]] (MoS 17)"
+            )
+        )
+    if has_refs and not re.search(r"<references\b|\{\{\s*reflist", page, re.I):
+        found.append(
+            Finding(
+                last,
+                "markup",
+                ERROR,
+                "no reference list: add <references> under == References == (MoS 13.3)",
+            )
+        )
+    return sorted(found, key=lambda f: f.line)
