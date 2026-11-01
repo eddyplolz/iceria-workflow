@@ -1,6 +1,6 @@
 <div align="center">
 
-# Iceria contributor kit
+# Iceria Contributor Kit
 
 **Write for Iceria with your AI assistant, in the wiki's own style and checked against canon.**
 
