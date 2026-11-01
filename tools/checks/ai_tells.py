@@ -27,7 +27,7 @@ VOCAB = re.compile(
     re.I,
 )
 PATTERN = re.compile(
-    r"\bnot only\b.*\bbut also\b|^\s*(?:In conclusion|In summary|Overall|Ultimately),"
+    r"\bnot only\b.*\bbut also\b|^\s*(?:In conclusion|In summary)\b|^\s*(?:Overall|Ultimately),"
     r"|\bit is not just\b.*\bit is\b|\bmore than just\b",
     re.I,
 )

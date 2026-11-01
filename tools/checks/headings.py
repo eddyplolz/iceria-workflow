@@ -66,6 +66,8 @@ def run(text: str, ctx: dict) -> list[Finding]:
             words = name.split()[1:]
             if any(w[:1].isupper() and w.lower() in COMMON for w in words):
                 add(n, WARNING, "heading may be in title case: use sentence case (MoS 4.1)")
-        if title and (low == title or low.endswith(" of " + title)):
+        # A linked title still repeats it: "History of [[Vell]]" reads as "History of Vell".
+        plain = re.sub(r"\[\[(?:[^\]|]*\|)?([^\]]*)\]\]", r"\1", low)
+        if title and (plain == title or plain.endswith(" of " + title)):
             add(n, WARNING, "heading repeats the title: name the topic of the section (MoS 4.1)")
     return found

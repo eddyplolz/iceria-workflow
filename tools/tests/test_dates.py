@@ -59,3 +59,17 @@ def test_a_year_before_a_function_word_or_a_name_is_still_a_date():
     found = dates.run(text, {})
     assert _summary(found) == [(1, "error", "date after the present")]
     assert "2005, 2006, 2007" in found[0].message
+
+
+def test_a_count_after_a_quantity_noun_and_of_is_not_a_year():
+    # Review: "a population of 4500." and "a garrison of 2500 in the fort" were errors.
+    text = "The city has a population of 4500.\nA garrison of 2500 in the fort held.\n"
+    assert _summary(dates.run(text, {})) == [
+        (1, "warning", "number read as a count, not a year"),
+        (2, "warning", "number read as a count, not a year"),
+    ]
+
+
+def test_an_event_of_a_year_is_still_a_date():
+    found = dates.run("It was the election of 2005.\n", {})
+    assert _summary(found) == [(1, "error", "date after the present")]

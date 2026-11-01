@@ -1,6 +1,6 @@
 # Alexandria
 
-Copied from the Iceria wiki page "Alexandria" (revision 2902) on 2026-10-31. The live page outranks this copy.
+Copied from the Iceria wiki page "Alexandria" (revision 3145) on 2026-10-31. The live page outranks this copy.
 
 ## Infobox
 

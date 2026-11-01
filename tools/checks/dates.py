@@ -45,6 +45,13 @@ AFTER_A_YEAR = frozenset(
     "the a an and or but when as it its he she they there this that these those with under "
     "after before in on at by to of for from until while his her their".split()
 )
+# "a population of 4500", "a garrison of 2500 in the fort": a quantity noun before "of" makes the
+# number a count whatever follows it.
+QUANTITY = re.compile(
+    r"\b(?:population|garrison|army|force|fleet|crew|total|strength|staff|workforce|tonnage"
+    r"|capacity|budget|sum|area|length|height|depth|distance)\s+of\s+\d{4}$",
+    re.I,
+)
 # A future date that is set, not reported ("the next election is due by 2002") is allowed: the
 # clause before the year says it is scheduled.
 SCHEDULED = re.compile(
@@ -72,7 +79,9 @@ def run(text: str, ctx: dict) -> list[Finding]:
         for m in DATED.finditer(prose):
             if int(m.group(1)) <= year or SCHEDULED.search(prose[: m.start()]):
                 continue
-            count = m.group(2) and m.group(2) not in AFTER_A_YEAR
+            count = (m.group(2) and m.group(2) not in AFTER_A_YEAR) or QUANTITY.search(
+                prose[: m.end(1)]
+            )
             (counts if count else late).add(int(m.group(1)))
         if late:
             found.append(

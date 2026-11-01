@@ -34,9 +34,9 @@ no row, so a new rule on the wiki cannot slip past the kit unnoticed.
 | 4.4 | Main articles and summary sections | by hand |
 | 5.1 | The calendar: nothing after the present | check: dates; checklist 5 |
 | 5.2 | Writing dates | check: dates |
-| 5.3 | Numbers: spell out zero to nine, no numeral opens a sentence | by hand |
+| 5.3 | Numbers: spell out zero to nine, no numeral opens a sentence | check: numbers; by hand |
 | 5.4 | Currencies, with the IRU figure first for a whole economy | by hand |
-| 5.5 | Units: metric, a space between number and symbol | by hand |
+| 5.5 | Units: metric, a space between number and symbol | check: numbers; by hand |
 | 6.1 | One variety of English per article | check: spelling; checklist 16 |
 | 6.2 | Capital letters | by hand |
 | 6.3 | Bold in the lead only; italics for works, ships and foreign words | check: bold; checklist 8; checklist 9 |
@@ -64,7 +64,7 @@ no row, so a new rule on the wiki cannot slip past the kit unnoticed.
 | 11.3 | Event infoboxes | template |
 | 11.4 | Event section order | template; checklist 11 |
 | 12.1 | What to link | by hand |
-| 12.2 | What not to link: no self-links, no links in headings | by hand |
+| 12.2 | What not to link: no self-links, no links in headings | check: links; check: headings |
 | 12.3 | Red links mean "not written yet" | checklist 18; checklist 19 |
 | 12.4 | Piped links and links to sections | check: refs; by hand |
 | 13.1 | A reference cites a page on this wiki | check: refs; checklist 13; checklist 14 |
@@ -76,17 +76,17 @@ no row, so a new rule on the wiki cannot slip past the kit unnoticed.
 | 14.3 | Leave out fields that do not apply | check: markup; checklist 18 |
 | 15.1 | Upload images here, with a description page and a category | checklist 17 |
 | 15.2 | Maps follow the official maps | by hand |
-| 15.3 | Captions | checklist 17; by hand |
-| 15.4 | Image placement and size | by hand |
+| 15.3 | Captions | check: links; checklist 17; by hand |
+| 15.4 | Image placement and size | check: links; by hand |
 | 16.1 | Short and long quotations | by hand |
 | 16.2 | Attribute every quotation inside the world | by hand |
 | 16.3 | Quotations never argue or praise | by hand |
-| 17.1 | The two category trees; every page has a category | check: markup; by hand |
-| 17.2 | One category per nation, made by a steward | steward; checklist 18 |
+| 17.1 | The two category trees; every page has a category | check: markup; check: links; by hand |
+| 17.2 | One category per nation, made by a steward | check: links; steward; checklist 18 |
 | 17.3 | Splitting a crowded nation category | by hand |
 | 17.4 | The most specific category only | by hand |
 | 17.5 | Pages that belong to no single nation | by hand |
-| 17.6 | Category names, and making a new one | checklist 18 |
+| 17.6 | Category names, and making a new one | check: links; checklist 18 |
 | 17.7 | Maintenance categories come from templates | steward |
 | 17.8 | Stewards tidy categories | steward |
 | 18.1 | What goes in the Library | checklist 6; by hand |

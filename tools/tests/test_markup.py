@@ -64,3 +64,13 @@ def test_a_nested_numbered_list_is_no_markdown_heading():
     # Audit: wikitext writes a nested numbered list as "##", which the heading rule flagged.
     text = "# The council meets.\n## It votes.\n## It adjourns.\n"
     assert "Markdown heading" not in [f.message.split(":")[0] for f in markup.run(text, {})]
+
+
+def test_a_self_closing_nowiki_hides_nothing_after_it():
+    # Review: <nowiki/> masked the rest of the page, so refs and categories went unseen.
+    text = (
+        "{{SHORTDESC:State in Iceria}}\n'''Vell'''<nowiki/>'s capital is Ost.<ref name=\"a\" />\n\n"
+        '== References ==\n<references>\n<ref name="a">[[Vell]]</ref>\n</references>\n\n'
+        "[[Category:Vell]]\n"
+    )
+    assert markup.run(text, {}) == []

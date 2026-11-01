@@ -25,7 +25,8 @@ class Finding:
 # Comments, nowiki/pre/syntaxhighlight/source text and behavior switches (__NOTOC__) are not
 # prose, so no check reads them; a switch glued to the lead would otherwise hide its first line.
 HIDDEN = re.compile(
-    r"<!--.*?(?:-->|\Z)|<(nowiki|pre|syntaxhighlight|source)\b[^>]*>.*?(?:</\1\s*>|\Z)"
+    r"<!--.*?(?:-->|\Z)|<(?:nowiki|pre|syntaxhighlight|source)\b[^>]*/>"
+    r"|<(nowiki|pre|syntaxhighlight|source)\b[^>]*>.*?(?:</\1\s*>|\Z)"
     r"|__[A-Z]+__",
     re.DOTALL | re.IGNORECASE,
 )

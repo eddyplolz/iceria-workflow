@@ -34,3 +34,16 @@ def test_a_wikilink_that_starts_with_your_is_no_placeholder():
     # Audit: [[Your Majesty]] matched the [Your ...] placeholder inside its brackets.
     text = "'''Vell''' is ruled by a queen styled [[Your Majesty]] at court.\n"
     assert ai_tells.run(text, {}) == []
+
+
+def test_a_closing_formula_without_its_comma_is_still_a_pattern():
+    # Review: "In conclusion the port..." slipped past because the pattern demanded a comma.
+    found = ai_tells.run("In conclusion the port matters.\nIn summary trade grew.\n", {})
+    assert [(f.line, f.message.split(":")[0]) for f in found] == [
+        (1, "AI sentence pattern"),
+        (2, "AI sentence pattern"),
+    ]
+
+
+def test_overall_with_no_comma_is_an_adjective_not_a_pattern():
+    assert ai_tells.run("Overall command passed to the admiral.\n", {}) == []

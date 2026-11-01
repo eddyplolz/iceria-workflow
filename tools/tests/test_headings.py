@@ -48,3 +48,14 @@ def test_clean_headings_pass():
         "== See also ==\n== Notes ==\n== References ==\n"
     )
     assert headings.run(clean, {"title": "Vell"}) == []
+
+
+def test_a_heading_that_links_the_title_still_repeats_it():
+    # Review: "History of [[Port-Réal]]" missed the title check because of the link brackets.
+    found = headings.run(
+        "Text.\n\n== History of [[Port-Réal|Port-Réal]] ==\n", {"title": "Port-Réal"}
+    )
+    assert _rules(found) == [
+        (3, "error", "markup in a heading"),
+        (3, "warning", "heading repeats the title"),
+    ]

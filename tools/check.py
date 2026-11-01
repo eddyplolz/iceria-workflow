@@ -27,14 +27,29 @@ from checks import (
     dashes,
     dates,
     headings,
+    links,
     markup,
     names,
+    numbers,
     refs,
     spelling,
     voice,
 )
 
-CHECKS = [markup, headings, bold, dashes, refs, dates, names, voice, ai_tells, spelling]
+CHECKS = [
+    markup,
+    headings,
+    bold,
+    dashes,
+    refs,
+    links,
+    dates,
+    numbers,
+    names,
+    voice,
+    ai_tells,
+    spelling,
+]
 KIT_ROOT = Path(__file__).resolve().parent.parent
 
 
@@ -103,6 +118,8 @@ def main(argv=None) -> int:
     print(f"{name}: {_plural(errors, 'error')}, {_plural(len(found) - errors, 'warning')}")
 
     if args.humanizer:
+        # The audit writes to the same stream; flush so its report follows ours when piped.
+        sys.stdout.flush()
         audit = shutil.which("humanizer-audit")
         if audit:
             subprocess.run([audit, str(args.draft)], check=False)
