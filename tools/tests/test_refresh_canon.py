@@ -2,7 +2,6 @@
 
 import datetime
 import json
-import os
 import shutil
 from pathlib import Path
 
@@ -164,7 +163,8 @@ def test_a_redirected_style_or_canon_page_is_copied_from_its_target(kit):
 
 
 def test_a_swap_stopped_part_way_puts_the_old_kit_back(kit, monkeypatch, capsys):
-    real = os.rename
+    # Path.rename, not os.rename: on Python 3.10 pathlib calls its own saved copy of os.rename.
+    real = Path.rename
 
     def held_open(src, dst):  # a file in the new templates/ held open by a virus scanner
         new = Path(src).parent  # the new tree, not the old copy set aside beside it
@@ -176,7 +176,7 @@ def test_a_swap_stopped_part_way_puts_the_old_kit_back(kit, monkeypatch, capsys)
             raise PermissionError(13, "in use", str(src))
         return real(src, dst)
 
-    monkeypatch.setattr(os, "rename", held_open)
+    monkeypatch.setattr(Path, "rename", held_open)
     assert refresh_canon.refresh(kit, FakeWiki(wiki_pages(kit)), TODAY, None) == 1
     err = capsys.readouterr().err
     assert "FAILED" in err and "put back canon, style, templates" in err
@@ -221,7 +221,7 @@ def test_an_unexpected_error_still_removes_the_work_folder(kit, monkeypatch):
 
 
 def test_when_the_old_copy_cannot_go_back_its_folder_is_kept_and_named(kit, monkeypatch, capsys):
-    real = os.rename
+    real = Path.rename  # see test_a_swap_stopped_part_way_puts_the_old_kit_back
 
     def stuck(
         src, dst
@@ -233,7 +233,7 @@ def test_when_the_old_copy_cannot_go_back_its_folder_is_kept_and_named(kit, monk
             raise PermissionError(13, "in use", str(src))
         return real(src, dst)
 
-    monkeypatch.setattr(os, "rename", stuck)
+    monkeypatch.setattr(Path, "rename", stuck)
     assert refresh_canon.refresh(kit, FakeWiki(wiki_pages(kit)), TODAY, None) == 1
     err = capsys.readouterr().err
     (work,) = kit.glob(".refresh-*")
