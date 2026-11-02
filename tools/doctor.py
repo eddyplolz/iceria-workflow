@@ -5,7 +5,7 @@
 Each line starts OK or FIX, and a FIX line says the one step that fixes it; an optional part that
 is not installed is an OK line saying how to add it. It reads the wiki once as a guest, looks up
 the saved bot login's name (never its password), and writes nothing. It ends with a block to send
-Eddy when something breaks, which says whether a login is saved but never which one. Exit 0 when
+the kit's maintainer when something breaks, which says whether a login is saved but never which one. Exit 0 when
 every check is OK, 1 when any needs a fix.
 """
 
@@ -113,13 +113,13 @@ def kit_commit(kit: Path) -> str:
 
 
 def support_block(kit: Path, results: list[Result]) -> str:
-    """What Eddy needs to help: the setup and each check's status, never the login's name."""
+    """What the maintainer needs to help: the setup and each check's status, never the login's name."""
     bot = next(r for r in results if r.name == "bot login")
     saved = "no" if bot.fix or bot.detail.startswith(NO_LOGIN) else "yes"
     checks = ", ".join(f"{r.name} {'FIX' if r.fix else 'OK'}" for r in results)
     return "\n".join(
         [
-            "--- for Eddy: copy from here ---",
+            "--- for the maintainer: copy from here ---",
             f"OS: {platform.platform()}",
             f"Python: {sys.version.split()[0]} at {sys.executable}",
             f"Kit commit: {kit_commit(kit)}",
@@ -151,7 +151,7 @@ def main(kit: Path = KIT_ROOT, wiki=None, today: datetime.date | None = None) ->
         print(f"{ok} of {len(results)} checks are OK; fix the {fixes} above, then run this again.")
     else:
         print(f"{ok} of {len(results)} checks are OK.")
-    print("\nStuck? Send Eddy everything this printed.")
+    print("\nStuck? Send the kit's maintainer everything this printed.")
     print(support_block(kit, results))
     return 1 if fixes else 0
 

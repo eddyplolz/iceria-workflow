@@ -137,20 +137,8 @@ def run(text: str, ctx: dict) -> list[Finding]:
             )
     # Comments, nowiki and pre are blanked for the other checks, so out-of-world text hides there.
     if ctx.get("form"):
-        # A form's values are template parameters, which prose_lines skips; its guidance comments
-        # are the form itself, so only what the member typed is read.
-        typed = re.sub(r"<!--.*?-->", lambda m: re.sub(r"[^\n]", " ", m.group(0)), text, flags=re.S)
-        for n, row in enumerate(typed.splitlines(), 1):
-            # "| discord = ..." names a parameter of the form; only the value is the member's.
-            if hits := _out_of_world(re.sub(r"^\s*\|[^=]*=", "", row)):
-                found.append(
-                    Finding(
-                        n,
-                        "voice",
-                        ERROR,
-                        f"out-of-world voice: {', '.join(hits)}; write from inside the world (MoS 1.1)",
-                    )
-                )
+        # A proposal may speak about Iceria as a project (Manual of Style intro), so its typed
+        # values are not read for out-of-world voice.
         return sorted(found, key=lambda f: f.line)
     for m in HIDDEN.finditer(text):
         if not m.group(0).startswith("__") and (hits := _out_of_world(m.group(0))):

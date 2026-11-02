@@ -5,7 +5,7 @@ from checks import proposal
 FULL = """{{Proposal
 | name       = Halvorden
 | claim      = Halvorden-claim.png
-| family     = Thulean <!-- your culture family -->
+| family     = Thulean
 | twist      =
 | history    = Settlers reached the fjord around 1190.
 | capital    = Brannvik
@@ -55,7 +55,7 @@ def test_one_of_differs_problem_or_neighbor_is_needed():
 
 
 def test_a_family_the_world_does_not_have_is_an_error():
-    text = FULL.replace("Thulean <!-- your culture family -->", "Eostrian")
+    text = FULL.replace("= Thulean", "= Eostrian")
     assert _run(text) == [
         (
             4,
@@ -76,5 +76,89 @@ def test_another_nation_s_capital_is_an_error():
             "error",
             "capital is already the capital of Mantua: Cavaletta; give your nation a "
             "capital of its own (World Standards 6)",
+        )
+    ]
+
+
+def test_a_name_that_is_already_a_canon_nation_is_an_error():
+    ctx = {"nations": {"Mantua": "Cavaletta", "Alexandria": "Port Alba"}}
+    assert _run(FULL.replace("Halvorden\n", "Alexandria\n", 1), **ctx) == [
+        (
+            2,
+            "error",
+            "name is already a nation of Iceria: Alexandria; choose a name of your own "
+            "(World Standards 6.5)",
+        )
+    ]
+    assert [m for _, _, m in _run(FULL.replace("= Halvorden\n", "= alexandria\n"), **ctx)] == [
+        "name is already a nation of Iceria: alexandria; choose a name of your own "
+        "(World Standards 6.5)"
+    ]
+
+
+def test_a_name_that_is_a_real_world_country_is_an_error():
+    assert _run(FULL.replace("= Halvorden\n", "= France\n")) == [
+        (
+            2,
+            "error",
+            "name is a real-world place: France; Iceria has its own names (World Standards 6.2, "
+            "MoS 7.2)",
+        )
+    ]
+
+
+def test_the_prose_answers_are_read_for_dashes_bold_lead_ins_and_real_places():
+    text = FULL.replace(
+        "Settlers reached the fjord around 1190.",
+        "'''Origin:''' Settlers — mostly from Norway — reached the fjord.",
+    )
+    assert _run(text) == [
+        (6, "warning", "em dash: recast the sentence; MoS 6.4 allows no dashes in prose"),
+        (6, "warning", "'''Origin:''': bolded lead-in (MoS 4.3)"),
+        (6, "warning", "real-world name: Norway; Iceria has its own places (MoS 7.2)"),
+    ]
+
+
+def test_a_proposal_may_speak_about_iceria_as_a_project():
+    text = FULL.replace(
+        "Settlers reached the fjord around 1190.",
+        "Settlers reached the fjord; see the wiki and Discord.",
+    )
+    assert _run(text) == []
+
+
+def test_an_answer_shorter_than_a_sentence_is_a_warning():
+    assert _run(FULL.replace("The fish stocks have thinned.", "asdf")) == [
+        (
+            9,
+            "warning",
+            "problem is too short to be an answer: write a sentence or two (Template:Proposal)",
+        )
+    ]
+    assert [
+        m for _, _, m in _run(FULL.replace("Settlers reached the fjord around 1190.", "N/A"))
+    ] == ["history is too short to be an answer: write a sentence or two (Template:Proposal)"]
+
+
+def test_the_claim_is_the_name_of_an_image_file():
+    assert _run(FULL.replace("Halvorden-claim.png", "my claim")) == [
+        (
+            3,
+            "error",
+            "claim is not an image file name: my claim; give the file you uploaded, such as "
+            "Halvorden-claim.png (Template:Proposal)",
+        )
+    ]
+    for ok in ("Halvorden-claim.JPG", "claim.svg", "a b.jpeg"):
+        assert _run(FULL.replace("Halvorden-claim.png", ok)) == []
+
+
+def test_a_guidance_comment_left_in_the_form_is_a_warning():
+    text = FULL.replace("= Thulean", "= Thulean <!-- your culture family -->")
+    assert _run(text) == [
+        (
+            4,
+            "warning",
+            "comment left in the draft: delete template guidance comments before handing in",
         )
     ]

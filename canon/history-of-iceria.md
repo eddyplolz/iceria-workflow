@@ -1,6 +1,6 @@
 # History of Iceria
 
-Copied from the Iceria wiki page "History of Iceria" (revision 3285) on 2026-11-01. The live page outranks this copy.
+Copied from the Iceria wiki page "History of Iceria" (revision 3319) on 2026-11-01. The live page outranks this copy.
 
 {{#seo:|description=Iceria's shared past, from the first river cities and monsoon trade to the age of sail, independence and the year 2000: the backdrop every nation builds on.|keywords=interactive geofiction, collaborative worldbuilding, nation simulation, nation RP, fictional world, conworld, geofiction wiki}}{{SHORTDESC:Shared history of the planet Iceria}}
 {{Iceria Meta Masthead|History of Iceria|The broad history every nation shares}}
@@ -217,12 +217,14 @@ and was largely over by 1970.
 From 1938 to 1945 the [[Great War]] drew in much of the world. Nuclear weapons
 were first built at its end. When it ended in 1945, the victors and many smaller states founded
 the Concord of Nations the same year to keep the peace, and almost every independent state has
-since joined it.
+since joined it. After the war the nuclear powers handed their bombs to the new Concord and stopped
+building more, under the [[International Nuclear Compact]]. The bomb was never used against a city.
 The decades that followed brought a divided peace between rival powers, the last of the
 independence waves, and rapid technical change, and by 2000 the divisions were easing.
 
 In the year 2000 technology matches Earth's of the same year: jet travel, satellites, mobile
-telephones and an early internet. A few powers hold nuclear weapons.<ref name="ws-history" />
+telephones and an early internet. No nation is proven to hold a nuclear weapon, though a few
+unwritten countries are suspected of hidden programs.<ref name="ws-history" />
 
 == Iceria in 2000 ==
 
@@ -270,7 +272,7 @@ greatest extent is the one exception: it is fixed for every nation inside that e
 |-
 | 1938 to 1945 || The Great War draws in much of the world; nuclear weapons are built at its end
 |-
-| 1945 || The war ends; the Concord of Nations is founded and adopts the common reckoning for international use
+| 1945 || The war ends; the Concord of Nations is founded and adopts the common reckoning for international use; the nuclear powers place their bombs in its custody
 |-
 | By about 1970 || The second wave of independence is largely over
 |-
@@ -301,18 +303,19 @@ them ([[World Standards]] 6.4 and 12).
 |-
 | The Occasic landings in Meridia in the 1300s, and their fading || Who fought whom in the Great War, and on which side
 |-
-| Contact 1450 to 1550, colonies, the slave trade, independence 1780 to 1970 || Which unwritten powers hold nuclear weapons
+| Contact 1450 to 1550, colonies, the slave trade, independence 1780 to 1970 || Which unwritten countries are suspected of hidden nuclear programs
 |-
-| The Great War, ending in 1945, nuclear weapons at its end, the Concord of Nations founded in 1945 || Every nation's own faith, within its tradition or apart from it
+| The Great War, ending in 1945, nuclear weapons at its end, the Concord of Nations founded in 1945 and the bombs placed in its custody || Every nation's own faith, within its tradition or apart from it
 |-
 | The common reckoning: year 1 is an old astronomical epoch of the Ecliptic coasts || 
 |-
 | Technology at Earth's 2000 level ||
 |}
 
-No player nation starts with nuclear weapons. The few powers that hold them are not yet written,
-and the stewards may open nuclear weapons to established nations by a change to the
-[[World Standards]] (13.5).
+No player nation starts with nuclear weapons. The bombs of the Great War are held in Concord
+custody, no nation is proven to hold one in 2000, and the few unwritten countries suspected of hidden
+programs are not yet named. The stewards may open nuclear weapons to established nations by a
+change to the [[World Standards]] (13.5).
 
 == Faith traditions ==
 

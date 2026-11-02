@@ -41,6 +41,9 @@ INFOBOX = re.compile(r"\{\{\s*infobox[ _]+([^|{}\n]+?)\s*(?=[|}]|$)", re.I)
 PARAM = re.compile(r"^\s*\|\s*([\w ]+?)\s*=")
 DOC_PARAM = re.compile(r"\|\s*([\w ]+?)\s*=")
 REDIRECT = re.compile(r"#REDIRECT\s*\[\[([^\]|]+)", re.I)
+INVOKE = re.compile(r"#invoke:\s*(Infobox[ _][^|}]+?)\s*\|\s*main", re.I)
+READ_CALL = re.compile(r"\b([vf])\(([^()]*)\)")
+STRING_ARG = re.compile(r'"([A-Za-z_]\w*)"(\s*\.\.)?')
 PLACE_LEAD = re.compile(r"\bis an? [^.]*?\b(?:city|town|village|port|settlement|harbou?r)\b", re.I)
 NATION_LEAD = re.compile(
     r"\bis an? [^.]*?\b(?:nation|country|kingdom|republic|state|empire)\b", re.I
@@ -64,19 +67,50 @@ def find(first: dict[str, int], wiki) -> list[tuple[int, str]]:
     return [(n, t) for t, n in first.items() if live.get(t) is None]
 
 
-def _doc_fields(wiki, name: str) -> set[str]:
-    """Field names in the <pre> block of the template's /doc page, following a redirect."""
-    title = f"Template:Infobox {name}/doc"
+def _page_text(wiki, title: str) -> str | None:
+    """The wikitext of a page, following a redirect; None when the page is missing."""
     for _ in range(3):
         page = wiki.get_page(title)
         if page is None:
-            return set()
+            return None
         if redirect := REDIRECT.match(page["text"].strip()):
             title = redirect.group(1).strip()
             continue
-        pre = re.search(r"<pre>(.*?)</pre>", page["text"], re.S | re.I)
-        return {p.strip().lower() for p in DOC_PARAM.findall(pre.group(1))} if pre else set()
-    return set()
+        return page["text"]
+    return None
+
+
+def _doc_fields(wiki, name: str) -> set[str]:
+    """Field names in the <pre> block of the template's /doc page, following a redirect."""
+    text = _page_text(wiki, f"Template:Infobox {name}/doc")
+    pre = re.search(r"<pre>(.*?)</pre>", text or "", re.S | re.I)
+    return {p.strip().lower() for p in DOC_PARAM.findall(pre.group(1))} if pre else set()
+
+
+def _module_fields(wiki, name: str) -> set[str]:
+    """Field names the infobox's Lua module reads, when its template only invokes that module.
+
+    The module is what draws the box, so it knows more fields than the terse /doc lists. A field
+    is a string argument of a v(...) or f(...) call; one joined to a counter ("term" .. n) or read
+    through f(), which adds the suffixes 1 to 5, is also stored as "<name>#" and matches <name>1 to
+    <name>9 (see _known)."""
+    body = _page_text(wiki, f"Template:Infobox {name}")
+    invoked = INVOKE.search(body or "")
+    source = _page_text(wiki, f"Module:{invoked.group(1)}") if invoked else None
+    fields = set()
+    for kind, args in READ_CALL.findall(source or ""):
+        for key, joined in STRING_ARG.findall(args):
+            key = key.lower()
+            if joined or kind == "f":
+                fields.add(key + "#")
+            if not joined:
+                fields.add(key)
+    return fields
+
+
+def _known(field: str, fields: set[str]) -> bool:
+    numbered = re.fullmatch(r"(.+?)[1-9]", field)
+    return field in fields or bool(numbered and numbered.group(1) + "#" in fields)
 
 
 def _infoboxes(text: str, ctx: dict) -> list[Finding]:
@@ -104,13 +138,13 @@ def _infoboxes(text: str, ctx: dict) -> list[Finding]:
                     f"infobox does not fit the page: {{{{Infobox {name}}}}} on this kind of page (MoS 14.1)",
                 )
             )
-        fields, depth = _doc_fields(wiki, name), 0
+        fields, depth = _module_fields(wiki, name) or _doc_fields(wiki, name), 0
         if not fields and key == "country":
             fields = COUNTRY_FIELDS
         for j in range(i, len(rows)):
             depth += rows[j].count("{{") - rows[j].count("}}")
             p = PARAM.match(rows[j]) if depth >= 1 and j > i else None
-            if p and fields and p.group(1).lower() not in fields:
+            if p and fields and not _known(p.group(1).lower(), fields):
                 found.append(
                     Finding(
                         j + 1,
@@ -162,6 +196,22 @@ def _home_nation(text: str, nations) -> str | None:
     return name if name in nations else None
 
 
+def _own_names(text: str, title: str) -> set[str]:
+    """Names the page gives its own nation: an infobox nation field, a proposal's name, the page's
+    title. A merely linked page is not one: a missing category for it stays an error."""
+    fields = "subdivision_name|nationality|country"
+    if re.match(r"\s*\{\{\s*Proposal\b", text, re.I):
+        fields += "|name"
+    names = {title}
+    for m in re.finditer(
+        rf"^\s*\|\s*(?:{fields})\s*=\s*(?:\[\[\s*)?([^\]|#<\n]+)",
+        text,
+        re.M,
+    ):
+        names.add(_norm(m.group(1)))
+    return names - {""}
+
+
 def _nation_of(category: str, nations) -> str | None:
     for nation in nations:
         if category == nation or category.endswith(" of " + nation):
@@ -180,19 +230,30 @@ def _categories(text: str, ctx: dict) -> list[Finding]:
     ]
     body = "\n".join(ln for ln in lines(text) if not CATEGORY.search(ln))
     live = wiki.categories_exist([c for _, c in filed]) if filed else {}
+    own = _own_names(text, title)
     for n, cat in filed:
         if not live.get(cat, False):
-            found.append(
-                Finding(
-                    n,
-                    "wiring",
-                    ERROR,
-                    f"category does not exist: {cat}; use an existing category (MoS 17.6). If "
-                    f"{cat} is your own new nation, a steward makes its category once the nation "
-                    "is provisional (MoS 17.2): keep the line, and the page waits for that "
-                    "before it is posted",
+            if cat in own and cat not in nations:
+                found.append(
+                    Finding(
+                        n,
+                        "wiring",
+                        WARNING,
+                        f"category does not exist yet: {cat} is your own new nation, so a "
+                        "steward makes its category once the nation is provisional (MoS 17.2): "
+                        "keep the line, and the page waits for that before it is posted",
+                    )
                 )
-            )
+            else:
+                found.append(
+                    Finding(
+                        n,
+                        "wiring",
+                        ERROR,
+                        f"category does not exist: {cat}; use an existing topic category "
+                        "(MoS 17.6)",
+                    )
+                )
         found += _case_and_shape(n, cat, nations)
         nation = _nation_of(cat, nations)
         if nation and nation != title and not re.search(rf"\b{re.escape(nation)}\b", body):

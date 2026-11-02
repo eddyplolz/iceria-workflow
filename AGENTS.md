@@ -31,6 +31,13 @@ When the member corrects you, or the checker or a canon page shows you got somet
 3. **When the kit itself is wrong** (a tool, a skill, a template or `canon/`), never edit it to work
    around the problem. Write a report with `iceria-report` for the member to send.
 
+## New nation: before anything else
+
+A member with no nation yet starts with the claim, not with pages: they must be 18 or older and
+have joined the Iceria Discord, paint their claim in the Claim Studio (studio.iceria.org) until
+its pre-check passes, then post the proposal. Draft none of the nation's other pages until the
+stewards make it provisional.
+
 ## The four rules (from the wiki's page "AI use on Iceria")
 
 1. **Check every fact against the wiki.** Each place, date, figure and neighbor comes from a page in

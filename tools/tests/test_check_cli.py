@@ -184,10 +184,10 @@ def test_a_proposal_form_is_not_held_to_the_article_rules(tmp_path, capsys):
     assert "no category" not in capsys.readouterr().out
 
 
-def test_a_form_value_is_still_read_for_out_of_world_voice(tmp_path, capsys):
+def test_a_form_value_may_speak_about_the_project(tmp_path, capsys):
     draft = tmp_path / "proposal.wiki"
     draft.write_text(
         FORM.replace("name = Vell", "name = Vell, as agreed on Discord"), encoding="utf-8"
     )
-    assert check.main([str(draft), "--root", str(tmp_path), "--offline"]) == 1
-    assert "Discord" in capsys.readouterr().out
+    assert check.main([str(draft), "--root", str(tmp_path), "--offline"]) == 0
+    assert "out-of-world" not in capsys.readouterr().out

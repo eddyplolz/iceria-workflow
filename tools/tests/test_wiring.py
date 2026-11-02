@@ -1,5 +1,7 @@
 """Wiring against the live wiki: categories, infoboxes, red links. A fake wiki stands in."""
 
+from pathlib import Path
+
 import check
 import iceria_wiki
 from checks import wiring
@@ -44,10 +46,53 @@ def test_a_category_the_wiki_does_not_have_is_an_error():
     assert _run("[[Category:Mantoa]]\n", wiki) == [("error", "category does not exist")]
     (finding,) = wiring.run("[[Category:Mantoa]]\n", {"wiki": wiki})
     assert finding.message == (
-        "category does not exist: Mantoa; use an existing category (MoS 17.6). If Mantoa is your "
-        "own new nation, a steward makes its category once the nation is provisional (MoS 17.2): "
-        "keep the line, and the page waits for that before it is posted"
+        "category does not exist: Mantoa; use an existing topic category (MoS 17.6)"
     )
+
+
+NEW_NATION_PAGE = (
+    "{{Infobox Settlement\n| name = Vell\n| subdivision_name = [[Hollenmark]]\n}}\n"
+    "'''Vell''' is a port in [[Hollenmark]].\n[[Category:CAT]]\n"
+)
+
+
+def test_the_category_of_the_pages_own_new_nation_is_a_warning_with_the_steward_note():
+    text = NEW_NATION_PAGE.replace("CAT", "Hollenmark")
+    (finding,) = wiring.run(text, {"wiki": FakeWiki(pages={"Hollenmark"}), "nations": {}})
+    assert (finding.level, finding.line) == ("warning", 6)
+    assert finding.message == (
+        "category does not exist yet: Hollenmark is your own new nation, so a steward makes its "
+        "category once the nation is provisional (MoS 17.2): keep the line, and the page waits "
+        "for that before it is posted"
+    )
+
+
+def test_any_other_missing_category_stays_an_error_without_the_new_nation_advice():
+    text = NEW_NATION_PAGE.replace("CAT", "Cool ports")
+    (finding,) = wiring.run(text, {"wiki": FakeWiki(pages={"Hollenmark"}), "nations": {}})
+    assert finding.level == "error"
+    assert finding.message == (
+        "category does not exist: Cool ports; use an existing topic category (MoS 17.6)"
+    )
+
+
+def test_a_missing_category_of_a_nation_already_in_canon_is_an_error():
+    text = NEW_NATION_PAGE.replace("CAT", "Hollenmark")
+    ctx = {"wiki": FakeWiki(pages={"Hollenmark"}), "nations": {"Hollenmark": "Brannvik"}}
+    (finding,) = wiring.run(text, ctx)
+    assert finding.level == "error"
+
+
+def test_a_missing_category_that_is_only_a_linked_page_is_an_error():
+    text = "'''Vell''' trades through [[Trade]].\n[[Category:Trade]]\n"
+    (finding,) = wiring.run(text, {"wiki": FakeWiki(pages={"Trade"}), "nations": {}})
+    assert finding.level == "error"
+
+
+def test_a_proposal_name_counts_as_the_pages_own_new_nation():
+    text = "{{Proposal\n| name = Hollenmark\n}}\n[[Category:Hollenmark]]\n"
+    (finding,) = wiring.run(text, {"wiki": FakeWiki(), "nations": {}})
+    assert finding.level == "warning"
 
 
 def test_a_category_link_with_a_colon_is_a_link_not_a_filing():
@@ -191,3 +236,41 @@ def test_the_country_infobox_fields_are_known_even_when_the_wiki_doc_is_unreadab
 
 def test_a_member_s_user_page_is_never_a_red_link():
     assert _run("== Participants ==\n* [[User:Sample]] (creator)\n", FakeWiki()) == []
+
+
+FIXTURES = Path(__file__).resolve().parent / "fixtures"
+KIT = Path(__file__).resolve().parents[2]
+
+
+def _module_wiki(*kinds):
+    """The live wiki's shape: a template that only invokes a Lua module, and a terse /doc."""
+    docs = {}
+    for kind in kinds:
+        docs[f"Template:Infobox {kind}"] = (
+            f"<includeonly>{{{{#invoke:Infobox {kind.lower()}|main}}}}</includeonly>"
+            "<noinclude>{{Documentation}}</noinclude>"
+        )
+        docs[f"Module:Infobox {kind.lower()}"] = (
+            FIXTURES / f"module_infobox_{kind.lower()}.lua"
+        ).read_text(encoding="utf-8")
+        docs[f"Template:Infobox {kind}/doc"] = f"<pre>{{{{Infobox {kind}\n| name =\n}}}}</pre>"
+    return FakeWiki(docs=docs)
+
+
+def test_the_fields_come_from_the_module_the_template_invokes():
+    wiki = _module_wiki("Person")
+    assert _run("{{Infobox Person\n| name = X\n| birth_name = Y\n| term2 = Z\n}}\n", wiki) == []
+    assert _run("{{Infobox Person\n| name = X\n| shoe_size = 9\n}}\n", wiki) == [
+        ("warning", "infobox field not in the template")
+    ]
+
+
+def test_every_infobox_field_in_the_kit_templates_is_one_the_module_reads():
+    wiki = _module_wiki("Person", "Settlement", "Country")
+    boxes = 0
+    for path in sorted((KIT / "templates").glob("*.wiki")):
+        text = path.read_text(encoding="utf-8")
+        found = [m for m in wiring.run(text, {"wiki": wiki}) if "field not in" in m.message]
+        assert found == [], f"{path.name}: {[m.message for m in found]}"
+        boxes += text.lower().count("{{infobox ")
+    assert boxes >= 3

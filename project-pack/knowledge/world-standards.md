@@ -1,6 +1,6 @@
 # World Standards
 
-Copied from the Iceria wiki page "World Standards" (revision 3282) on 2026-11-01. The live page outranks this copy.
+Copied from the Iceria wiki page "World Standards" (revision 3320) on 2026-11-01. The live page outranks this copy.
 
 {{#seo:|description=Iceria's shared rules for seas, borders, the polar regions, dates, names and records that every nation follows.|keywords=interactive geofiction, collaborative worldbuilding, nation simulation, nation RP, fictional world, conworld, geofiction wiki}}{{SHORTDESC:Shared rules for Iceria's nations}}
 {{Iceria Meta Masthead|World Standards|The shared rules for seas, borders, dates and names}}
@@ -379,9 +379,10 @@ practice.
 '''13.4''' '''The calendar''' is in 5.1: the year 2000 is the first year of play ([[Charter|charter]] 1.6).
 
 '''13.5''' '''Technology''' in each in-world year matches Earth's of the same year. A nation may lead in a field it has
-written up, by a few in-world years at most; anything beyond Earth is local canon (section 14). A few unwritten powers hold
-nuclear weapons; no player nation starts with them, and the stewards may open them to established nations by a
-change to these standards.
+written up, by a few in-world years at most; anything beyond Earth is local canon (section 14). No nation is proven to hold a
+nuclear weapon of its own: the warheads built in the Great War are held in Concord custody under the [[International Nuclear Compact]],
+and a few unwritten countries are suspected of hidden programs. No player nation starts with a nuclear weapon, and the
+stewards may open nuclear weapons to established nations by a change to these standards.
 
 [[File:Iceria-holy-lands-lerian-empire.png|thumb|upright=1.6|The Lerian Empire at its greatest extent (13.6)]]
 '''13.6''' '''Hard history.''' A nation may have been a colonizer, a colony, a protectorate, a trading

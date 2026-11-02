@@ -120,7 +120,7 @@ def test_help_prints_usage_and_runs_no_check(monkeypatch, capsys):
 
 
 def _block(out):
-    return out[out.index("--- for Eddy: copy from here ---") :]
+    return out[out.index("--- for the maintainer: copy from here ---") :]
 
 
 def test_the_support_block_carries_the_setup_and_never_the_login(tmp_path, monkeypatch, capsys):

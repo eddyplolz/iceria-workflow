@@ -2,7 +2,7 @@
 
 1. **Run the checker:** `python tools/check.py <draft>.wiki --title "<Page title>" --humanizer`.
    Fix every error, and treat each humanizer finding as a warning. If it says humanizer-audit is
-   not installed, tell the member once that setup step 5 in `README.md` adds it, and carry on.
+   not installed, tell the member once that the optional humanizer-pro step in `README.md` (step 5 on Windows, step 7 on a Mac) adds it, and carry on.
 2. **Read each warning** and either fix it or write one line on why it stays.
 3. **Treat each tell as a class.** When one AI tell turns up (puffery, a stock phrase, a "not only
    ... but also", a run of three), search the whole draft for it and its relatives, and fix them
