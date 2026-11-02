@@ -42,6 +42,12 @@ def test_a_category_the_wiki_does_not_have_is_an_error():
     wiki = FakeWiki(categories={"Mantua"})
     assert _run("[[Category:Mantua]]\n", wiki) == []
     assert _run("[[Category:Mantoa]]\n", wiki) == [("error", "category does not exist")]
+    (finding,) = wiring.run("[[Category:Mantoa]]\n", {"wiki": wiki})
+    assert finding.message == (
+        "category does not exist: Mantoa; use an existing category (MoS 17.6). If Mantoa is your "
+        "own new nation, a steward makes its category once the nation is provisional (MoS 17.2): "
+        "keep the line, and the page waits for that before it is posted"
+    )
 
 
 def test_a_category_link_with_a_colon_is_a_link_not_a_filing():

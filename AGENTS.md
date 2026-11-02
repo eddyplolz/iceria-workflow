@@ -5,6 +5,9 @@ pages for their own nation. Everything in this kit was copied from the live wiki
 `VERSION.json`. The live wiki is the authority: when the member pastes a live page, or a page here
 disagrees with the wiki, the live page wins.
 
+Every command here says `python`. On a Mac, type `python3` in its place; on Windows, type `py`
+(a bare `python` there can open the Microsoft Store instead).
+
 When `VERSION.json` is old or the member asks for a fresh copy, they run `python tools/refresh_canon.py`.
 Their bot password goes in only through `python tools/setup_bot.py`, typed by the member at its
 hidden prompt; ask them to keep it out of the chat and out of every file.
@@ -89,14 +92,15 @@ Every draft goes through these steps, in order:
    reports 0 errors and every claim is matched to a source or listed as NEW.
 3. **The member reads the whole draft.** Hand it over in full, with the warnings you left and why.
 4. **Route it.** The member posts pages of their own nation. A new nation goes in through a proposal
-   (`templates/proposal.wiki`) and steward review. Anything shared with another nation goes to that
+   (`templates/proposal.wiki`) and steward review; `check.py` reads a proposal's six core answers
+   too (filled in, a real culture family, a capital of its own). Anything shared with another nation goes to that
    nation's talk page or to a steward first.
 5. **Attach the check report**: the kit version from `VERSION.json`, the checker's result, and the
    NEW-facts list.
 
 ## Posting
 
-- The assistant never posts to the wiki, never names AI in an edit summary or page, and re-runs `check.py` after every edit until it reports 0 errors.
+- The assistant never posts or uploads to the wiki (the member uploads the claim image too), never names AI in an edit summary or page, and re-runs `check.py` after every edit until it reports 0 errors.
 - Pages carry no label for AI use; the wiki asks for none.
 - The edit summary is the member's choice.
 - If someone asks the member whether a page used AI, the honest answer is the right one.

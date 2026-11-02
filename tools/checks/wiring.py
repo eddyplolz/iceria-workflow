@@ -187,7 +187,10 @@ def _categories(text: str, ctx: dict) -> list[Finding]:
                     n,
                     "wiring",
                     ERROR,
-                    f"category does not exist: {cat}; use an existing category (MoS 17.6)",
+                    f"category does not exist: {cat}; use an existing category (MoS 17.6). If "
+                    f"{cat} is your own new nation, a steward makes its category once the nation "
+                    "is provisional (MoS 17.2): keep the line, and the page waits for that "
+                    "before it is posted",
                 )
             )
         found += _case_and_shape(n, cat, nations)

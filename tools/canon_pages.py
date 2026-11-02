@@ -253,12 +253,14 @@ def template_fields(text: str, names) -> dict:
 def _clause_sections(text: str) -> dict[str, str]:
     """{clause: its heading and text} for every clause given its own heading, wiki or Markdown."""
     found, current = {}, None
+    # In wikitext a line opening with # is a numbered list item, so only == ends a clause there.
+    end = r"^==" if re.search(r"^==", text, re.M) else r"^#{1,2} "
     for line in text.splitlines():
         m = CLAUSE_HEADING.match(line)
         if m:
             current = m.group(1) or m.group(3)
             found[current] = [f"## {current} {m.group(2) or m.group(4)}"]
-        elif re.match(r"^(?:==|#{1,2} )", line):
+        elif re.match(end, line):
             current = None
         elif current:
             found[current].append(line)

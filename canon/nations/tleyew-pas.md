@@ -1,6 +1,6 @@
 # Tleyew-Pas
 
-Copied from the Iceria wiki page "Tleyew-Pas" (revision 3280) on 2026-11-01. The live page outranks this copy.
+Copied from the Iceria wiki page "Tleyew-Pas" (revision 3298) on 2026-11-01. The live page outranks this copy.
 
 ## Infobox
 
@@ -42,7 +42,7 @@ Across the land, staffed highland watchtowers and mounted guardians protect the 
 <div style="max-width:1100px;margin:0.4em auto 1.5em;text-align:center;color:#123C36;font-family:Palatino,'Palatino Linotype',Georgia,serif;line-height:1.7;">''Tleyew-Pas welcomes those who come in friendship, seeking shared knowledge, fair exchange, and lasting connections.''</div>
 
 <!-- First-visit wayfinding: welcome readers to the invitation or the full national encyclopedia. -->
-<div style="max-width:1100px;margin:0.8em auto 1.5em;padding:10px 13px;background:#F0E5CF;border-top:2px solid #C99A4E;border-bottom:2px solid #C99A4E;text-align:center;color:#123C36;font-size:97%;line-height:1.7;">'''Choose your path:''' [[#The First Five Harbors|The First Five Harbors invitation]] · [[#Explore_Tleyew-Pas|Explore the republic]] · [[#The First Calling and the lifelong bond|The Pavar's First Calling]] · [[#Coastal sea companions|Meet the Ilyavai and Azharuun]] · [[#The Answer Beneath|The Answer Beneath]]</div>
+<div style="max-width:1100px;margin:0.8em auto 1.5em;padding:10px 13px;background:#F0E5CF;border-top:2px solid #C99A4E;border-bottom:2px solid #C99A4E;text-align:center;color:#123C36;font-size:97%;line-height:1.7;">'''Choose your path:''' [[#The First Five Harbors|The First Five Harbors invitation]] · [[#Explore_Tleyew-Pas|Explore the republic]] · [[Tleyew-Pas: 05 Work, Trade, Fleets and Research#The First Calling and the lifelong bond|The Pavar's First Calling]] · [[Tleyew-Pas: 04 Government, Protection and Diplomacy#Coastal sea companions|Meet the Ilyavai and Azharuun]] · [[Tleyew-Pas: 04 Government, Protection and Diplomacy#The Answer Beneath|The Answer Beneath]]</div>
 
 
 <!-- FIRST FIVE HARBORS: ALEXANDRIA'S I OF V IS SIGNED, SEALED AND DISPATCHED; II THROUGH V REMAIN OPEN. New files are wrapped

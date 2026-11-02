@@ -112,3 +112,16 @@ def test_a_plan_that_is_not_there_or_is_not_json_is_named_with_how_to_fix_it(tmp
     assert map_overlay.main([str(plan), "--root", str(kit)]) == 2
     assert "not valid JSON at line 2" in capsys.readouterr().err
     assert not (tmp_path / "vell-map.svg").exists()
+
+
+def test_a_nation_with_no_land_yet_is_told_why_not_to_move_points(tmp_path, capsys):
+    kit = _kit(tmp_path / "kit")
+    plan = tmp_path / "plan.json"
+    plan.write_text(json.dumps(_plan(nation="Valmora")), encoding="utf-8")
+    assert map_overlay.main([str(plan), "--root", str(kit)]) == 1
+    err = capsys.readouterr().err
+    assert "Move those points" not in err
+    assert (
+        "a new nation has land here only once the stewards accept its claim; then run "
+        "tools/refresh_canon.py and this again" in err
+    )

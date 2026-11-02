@@ -1,6 +1,6 @@
 # Mantua
 
-Copied from the Iceria wiki page "Mantua" (revision 3260) on 2026-11-01. The live page outranks this copy.
+Copied from the Iceria wiki page "Mantua" (revision 3291) on 2026-11-01. The live page outranks this copy.
 
 ## Infobox
 

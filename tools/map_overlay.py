@@ -195,15 +195,20 @@ def main(argv: list[str] | None = None) -> int:
             file=sys.stderr,
         )
         return 2
+    claims = Claims.load(args.root)
     try:
-        svg = draw(plan, Claims.load(args.root), (args.root / BASE).resolve().as_uri())
+        svg = draw(plan, claims, (args.root / BASE).resolve().as_uri())
     except Refused as e:
         for p in e.problems:
             print(f"refused: {p}", file=sys.stderr)
-        print(
-            "Nothing was written. Move those points inside your land, then run this again.",
-            file=sys.stderr,
-        )
+        if plan["nation"] not in claims.runs:
+            fix = (
+                "a new nation has land here only once the stewards accept its claim; then run "
+                "tools/refresh_canon.py and this again"
+            )
+        else:
+            fix = "Move those points inside your land, then run this again"
+        print(f"Nothing was written: {fix}.", file=sys.stderr)
         return 1
     out = args.plan.with_suffix(".svg")
     out.write_text(svg, encoding="utf-8", newline="\n")

@@ -335,3 +335,19 @@ def test_before_launch_the_calendar_start_is_none(kit, module):
         pages["Module:Iceria date"] = module
     assert refresh_canon.refresh(kit, FakeWiki(pages), TODAY, None) == 0
     assert version(kit)["calendar_start"] is None
+
+
+def test_a_numbered_list_stays_inside_its_charter_clause():
+    text = (
+        "=== 1.4 What counts as canon ===\n"
+        "In order of authority:\n"
+        "# the official maps;\n"
+        "## the decision log.\n"
+        "A missing page means not written yet.\n"
+        "== Part 2. Stewardship ==\n"
+        "Not part of 1.4.\n"
+    )
+    assert canon_pages._clause_sections(text)["1.4"] == (
+        "## 1.4 What counts as canon\nIn order of authority:\n# the official maps;\n"
+        "## the decision log.\nA missing page means not written yet."
+    )

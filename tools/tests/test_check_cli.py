@@ -170,7 +170,11 @@ def test_the_install_hint_names_the_python_that_runs_the_kit(tmp_path, monkeypat
     assert r'"C:\Program Files\Python313\python.exe" -m pip install humanizer-pro' in err
 
 
-FORM = "{{Proposal\n<!-- Ask on Discord first. -->\n| name = Vell\n| status = draft <!-- the stewards change this -->\n}}\n"
+FORM = (
+    "{{Proposal\n<!-- Ask on Discord first. -->\n| name = Vell\n| claim = Vell-claim.png\n"
+    "| family = Vellic\n| history = Founded in 1802.\n| capital = Port Vell\n"
+    "| problem = Its harbor silts up.\n| status = draft <!-- the stewards change this -->\n}}\n"
+)
 
 
 def test_a_proposal_form_is_not_held_to_the_article_rules(tmp_path, capsys):
