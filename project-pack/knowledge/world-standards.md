@@ -1,6 +1,6 @@
 # World Standards
 
-Copied from the Iceria wiki page "World Standards" (revision 3235) on 2026-11-01. The live page outranks this copy.
+Copied from the Iceria wiki page "World Standards" (revision 3282) on 2026-11-01. The live page outranks this copy.
 
 {{#seo:|description=Iceria's shared rules for seas, borders, the polar regions, dates, names and records that every nation follows.|keywords=interactive geofiction, collaborative worldbuilding, nation simulation, nation RP, fictional world, conworld, geofiction wiki}}{{SHORTDESC:Shared rules for Iceria's nations}}
 {{Iceria Meta Masthead|World Standards|The shared rules for seas, borders, dates and names}}
@@ -30,8 +30,8 @@ below.
 | Any other exception to the zone (10.2)
 |-
 ! Past
-| The shared history: humankind's origin in Mesaria, the age of sail, the Great War, ending in 1945 (13.1, 10.5); Earth's technology for each year, with a lead of a few in-world years at most (13.5)
-| Your own empires, kingdoms and ancestors (13.2); whether you were a colonizer, a colony, a protectorate, a trading partner or none of these (13.6); your faith's doctrines (13.3)
+| The shared history: humankind's origin in Mesaria, the age of sail, the Great War, ending in 1945 (13.1, 10.5); Earth's technology for each year, with a lead of a few in-world years at most (13.5); Leria's rule over its greatest extent (13.6)
+| Your own empires, kingdoms and ancestors (13.2); whether you were a colonizer, a colony, a protectorate, a trading partner or none of these (13.6); your part in Leria's rule (13.6); your faith's doctrines (13.3)
 | Making another player's nation your colonizer, enslaver or wartime enemy (13.6)
 |-
 ! Names
@@ -383,13 +383,15 @@ written up, by a few in-world years at most; anything beyond Earth is local cano
 nuclear weapons; no player nation starts with them, and the stewards may open them to established nations by a
 change to these standards.
 
+[[File:Iceria-holy-lands-lerian-empire.png|thumb|upright=1.6|The Lerian Empire at its greatest extent (13.6)]]
 '''13.6''' '''Hard history.''' A nation may have been a colonizer, a colony, a protectorate, a trading
 partner or never colonized. No nation makes another player's nation its colonizer, its enslaver or
 its wartime enemy without that player's agreement.
 * Where a written nation's history reaches land that no player has written yet, the player who later writes a nation there chooses its part in that history; a contact stub (12.3) fixes only the events a published story needs.
-* [[Alexandria]]'s history is the first such case. Leria was the classical republic and empire Alexandria descends from, and the [[Geography of Iceria|Thalassine]] is the sea at the middle of the world and the Ecliptic the busiest sea of the Old World:
-** a nation on the Ausonic shores of the Thalassine or on Mesaria's Numidic coast chooses whether its ancestors were provinces of the Lerian Empire, its allies or never ruled by it;
-** a nation in the old Lerian lands, the Hesperic lands or Alexandria's former colonies chooses whether its church follows the Pontiff of Leria;
+* [[Alexandria]]'s history is the first such case, with one fixed point: Leria's rule. Leria was the classical republic and empire Alexandria descends from, and the [[Geography of Iceria|Thalassine]] is the sea at the middle of the world and the Ecliptic the busiest sea of the Old World:
+** all land inside the Lerian Empire's greatest extent, shown on the map of the Lerian Empire, was ruled by Leria. A nation whose land lies there writes Leria into the history of that land, unless its page already does, and chooses its part in that rule: a loyal province, a client kingdom, a frontier that rose against it or a land that broke away early, and when that rule ended, as the empire gave up its provinces from about 450 on;
+** a nation on Mesaria's Numidic coast outside that extent chooses whether its ancestors were Leria's allies, its rivals or apart from it;
+** a nation inside the Lerian Empire's greatest extent or in Alexandria's former colonies chooses whether its church follows the Pontiff of Leria;
 ** a nation across the Thalassine, on Mesaria's coasts or in the Ecliptic islands chooses whether it was an Alexandrian colony.
 
 == 14. Beyond Earth ==

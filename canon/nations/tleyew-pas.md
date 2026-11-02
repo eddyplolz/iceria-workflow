@@ -1,6 +1,6 @@
 # Tleyew-Pas
 
-Copied from the Iceria wiki page "Tleyew-Pas" (revision 3256) on 2026-11-01. The live page outranks this copy.
+Copied from the Iceria wiki page "Tleyew-Pas" (revision 3280) on 2026-11-01. The live page outranks this copy.
 
 ## Infobox
 
@@ -45,5 +45,5 @@ Across the land, staffed highland watchtowers and mounted guardians protect the 
 <div style="max-width:1100px;margin:0.8em auto 1.5em;padding:10px 13px;background:#F0E5CF;border-top:2px solid #C99A4E;border-bottom:2px solid #C99A4E;text-align:center;color:#123C36;font-size:97%;line-height:1.7;">'''Choose your path:''' [[#The First Five Harbors|The First Five Harbors invitation]] · [[#Explore_Tleyew-Pas|Explore the republic]] · [[#The First Calling and the lifelong bond|The Pavar's First Calling]] · [[#Coastal sea companions|Meet the Ilyavai and Azharuun]] · [[#The Answer Beneath|The Answer Beneath]]</div>
 
 
-<!-- FIRST FIVE HARBORS: UNASSIGNED DIPLOMATIC OPENING. New files are wrapped
+<!-- FIRST FIVE HARBORS: ALEXANDRIA'S I OF V IS SIGNED, SEALED AND DISPATCHED; II THROUGH V REMAIN OPEN. New files are wrapped
      in #ifexist until uploaded; existing article illustrations remain intact. -->

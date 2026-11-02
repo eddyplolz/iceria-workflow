@@ -1,6 +1,6 @@
 # Manual of Style
 
-Copied from the Iceria wiki page "Manual of Style" (revision 2977) on 2026-11-01. The live page outranks this copy.
+Copied from the Iceria wiki page "Manual of Style" (revision 3257) on 2026-11-01. The live page outranks this copy.
 
 {{#seo:|description=Iceria's house style for articles: titles, leads, infoboxes, dates, names, references and categories.|keywords=interactive geofiction, collaborative worldbuilding, nation simulation, nation RP, fictional world, conworld, geofiction wiki}}{{SHORTDESC:House style for Iceria's articles}}
 {{Iceria Meta Masthead|Manual of Style|How articles on Iceria are written}}
@@ -27,7 +27,7 @@ The manual governs articles. Proposals, talk pages and the pages about the proje
 === 1.1 The encyclopedia inside the world ===
 Iceria's articles are written as an encyclopedia published inside Iceria. To the writer the world is real: its nations exist, its history happened and its people live there. An article never steps outside that world. It does not mention members, proposals, claims or the drawing of the map, it gives no dates from the real calendar, it compares nothing with a place on Earth ("the size of Belgium", "a second Malta"), and it does not treat a nation's arrival on the wiki as an event in the nation's history.
 
-That kind of talk has its own places: a nation's proposal, its meta page, talk pages, the [[Water cooler]] and the project pages. The text of a reference may also name a proposal or the Charter (13.1), because a reference is where a reader goes to check a fact, not part of the story. A work in the Library carries a credit to the member who wrote it at its foot (18.2).
+That kind of talk has its own places: a nation's proposal, its meta page, talk pages, the [[Water cooler]] and the project pages. The text of a reference may also name a proposal or the Charter (13.1), because a reference is where a reader goes to check a fact, not part of the story. A work in the Library carries a credit to the member who wrote it at its foot (18.2). A nation's article also ends with its Participants, the members who take part in the nation (8.5); like the categories, that list sits outside the story.
 
 Each nation may have a meta page in the project space, titled ''The World of Iceria:Nations/'' followed by the nation's name, as in ''The World of Iceria:Nations/Alexandria''. It holds what the nation's articles leave out: who writes the nation and how to reach them, which stories other nations may join, what is settled and what is still a draft, and plans. A banner on the talk page of the nation's article links to it; the article itself does not. A meta page is never canon and is never cited as a reference. When something on it is settled, it moves into the articles.
 
@@ -184,6 +184,7 @@ A heading may carry a date range when the section covers a period, as in Mantua'
 === 4.2 The closing sections ===
 After the body come the closing sections, always in this order, each only when it has something in it:
 
+# '''Participants''': on a nation's article only, the members who take part in the nation (8.5).
 # '''See also''': a short bulleted list of related articles that the body does not already link.
 # '''Notes''': explanatory footnotes (13.4).
 # '''References''': the list of references (13.3).
@@ -376,9 +377,23 @@ A nation's article counts as finished when it has all of these:
 * a lead that follows 8.1;
 * at least the History, Geography, Government and politics, and Economy sections, each with prose of its own;
 * a reference for its area, its population and every other figure, except a figure the article itself publishes first (13.2);
-* its categories (17).
+* its categories (17);
+* a Participants section that lists at least one member, its creator where it has one (8.5).
 
 A [[Good articles|good article]] asks for more: the checklist in section 19.
+
+=== 8.5 Participants ===
+Every nation's article has a ''Participants'' section, the first of its closing sections (4.2). It lists the members who take part in the nation: who write it, plan its stories or help run it. A reader can see at a glance who is really involved, and a new member can see whom to ask. Like the categories, it sits outside the story (1.1).
+
+* '''One line per member''', in a bulleted list: a link to the member's user page, then the role in parentheses. The role is ''creator'' for the member who holds the nation now ([[Charter]] 5.6), including after it is handed over (Charter 3.10), and ''participant'' for everyone else. Only the creator uses ''creator''. After a hand-over, the earlier creator's line becomes ''participant'', or is removed if they stop taking part.
+* '''A short note''' may follow the role, in a few words: what the member does for the nation, such as "writes the navy". A member adds a note to their own line only; anything longer goes on the nation's meta page.
+* '''Signing up.''' A member who takes part in a nation adds their own line, and removes it when they stop; nobody needs to ask first. The creator or a steward may remove the line of a member who is not taking part.
+* '''Shared powers and released nations.''' A shared power has no creator: everyone who writes it is a ''participant'', and only a steward removes a line. A released nation (Charter 4.4) keeps its section as it was, and each member may still remove their own line.
+
+<pre>
+== Participants ==
+* [[User:Edgard]] (creator)
+</pre>
 
 == 9. Biographies ==
 === 9.1 Titles ===

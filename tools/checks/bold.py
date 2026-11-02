@@ -81,7 +81,8 @@ def run(text: str, ctx: dict) -> list[Finding]:
                 first_line,
                 "bold",
                 WARNING,
-                f"bold name is not the title: bold {ctx['title'].strip()!r} in the first sentence (MoS 3.1)",
+                f"bold name is not the title: the first sentence bolds {lead_names[0]!r}; bold "
+                f"the title {ctx['title'].strip()!r} there, or retitle the page (MoS 3.1)",
             )
         )
     if first_line and not lead_bold:

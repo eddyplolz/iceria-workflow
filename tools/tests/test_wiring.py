@@ -181,3 +181,7 @@ def test_the_country_infobox_fields_are_known_even_when_the_wiki_doc_is_unreadab
     assert _run("{{Infobox Country\n| common_name = Vell\n| prime_minister = X\n}}\n") == [
         ("warning", "infobox field not in the template")
     ]
+
+
+def test_a_member_s_user_page_is_never_a_red_link():
+    assert _run("== Participants ==\n* [[User:Sample]] (creator)\n", FakeWiki()) == []

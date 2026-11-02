@@ -1,6 +1,6 @@
 # Seltana
 
-Copied from the Iceria wiki page "Seltana" (revision 2956) on 2026-11-01. The live page outranks this copy.
+Copied from the Iceria wiki page "Seltana" (revision 3264) on 2026-11-01. The live page outranks this copy.
 
 ## Infobox
 

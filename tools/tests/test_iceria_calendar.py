@@ -47,6 +47,29 @@ def test_the_reverse_lands_on_the_first_minute_of_every_day_for_four_years():
                 assert cal.in_world_date(begins - timedelta(minutes=1), START) != (year, month, day)
 
 
+LAUNCH = (2027, 1, 15)
+
+
+def test_a_start_day_begins_the_year_2000_that_day():
+    assert cal.in_world_date(datetime(2027, 1, 15), LAUNCH) == (2000, 1, 1)
+    assert cal.in_world_date(datetime(2027, 1, 14, 23, 59), LAUNCH) is None
+    # 1 + 14/28 - 14/31 months gone, halved, of 366 days is day 191 (0-based): 10 July
+    assert cal.in_world_date(datetime(2027, 2, 15), LAUNCH) == (2000, 7, 10)
+
+
+def test_the_reverse_lands_on_the_first_minute_of_every_day_from_a_start_day():
+    for year in range(2000, 2004):
+        for month in range(1, 13):
+            for day in range(1, calendar.monthrange(year, month)[1] + 1):
+                begins = cal.real_start((year, month, day), LAUNCH)
+                assert cal.in_world_date(begins, LAUNCH) == (year, month, day)
+                assert cal.in_world_date(begins - timedelta(minutes=1), LAUNCH) != (
+                    year,
+                    month,
+                    day,
+                )
+
+
 def test_a_badly_written_date_is_refused_with_the_form_to_use():
     with pytest.raises(ValueError, match="14 March 2001"):
         cal.parse_date("March 14, 2001")
@@ -76,3 +99,20 @@ def test_cli_before_launch_says_the_calendar_has_not_started(tmp_path, capsys):
 def test_cli_start_flag_overrides_version_json(tmp_path, capsys):
     assert cal.main(["--start", "2027-01", "--real", "2027-01-01"], kit(tmp_path, None)) == 0
     assert capsys.readouterr().out.strip() == "1 January 2000"
+
+
+def test_cli_takes_a_start_day(tmp_path, capsys):
+    assert cal.main(["--real", "2027-01-15"], kit(tmp_path, "2027-01-15")) == 0
+    assert capsys.readouterr().out.strip() == "1 January 2000"
+
+
+def test_cli_before_a_start_day_names_it(tmp_path, capsys):
+    assert cal.main(["--real", "2027-01-14"], kit(tmp_path, "2027-01-15")) == 0
+    assert (
+        capsys.readouterr().out.strip() == "2027-01-14 is before the calendar started (2027-01-15)"
+    )
+
+
+@pytest.mark.parametrize("start", ["2027-02-30", "2027-13", "2027/01"])
+def test_cli_refuses_a_bad_start(tmp_path, start):
+    assert cal.main(["--real", "2027-03-01"], kit(tmp_path, start)) == 2

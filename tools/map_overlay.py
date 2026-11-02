@@ -183,7 +183,18 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("plan", type=Path)
     ap.add_argument("--root", type=Path, default=KIT_ROOT, help=argparse.SUPPRESS)
     args = ap.parse_args(argv)
-    plan = json.loads(args.plan.read_text(encoding="utf-8-sig"))
+    try:
+        plan = json.loads(args.plan.read_text(encoding="utf-8-sig"))
+    except (FileNotFoundError, IsADirectoryError, PermissionError):
+        print(f"no file at {args.plan.resolve()}: check the name and folder.", file=sys.stderr)
+        return 2
+    except json.JSONDecodeError as e:
+        print(
+            f"{args.plan.name} is not valid JSON at line {e.lineno}, column {e.colno} ({e.msg}): "
+            "compare it with examples/plan.json and run this again.",
+            file=sys.stderr,
+        )
+        return 2
     try:
         svg = draw(plan, Claims.load(args.root), (args.root / BASE).resolve().as_uri())
     except Refused as e:

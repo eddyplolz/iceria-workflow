@@ -69,3 +69,12 @@ def test_a_title_case_heading_of_unlisted_words_is_a_warning():
     assert headings.run("== Port operations ==\n== Rise of the Vell League ==\n", {}) == []
     ctx = {"names": ["Vell"]}
     assert headings.run("== Vell Harbor ==\n", ctx) == []
+
+
+def test_participants_is_the_first_closing_section():
+    good = "== History ==\n== Participants ==\n== See also ==\n== Notes ==\n== References ==\n"
+    assert headings.run(good, {}) == []
+    late = "== History ==\n== References ==\n== Participants ==\n"
+    assert _rules(headings.run(late, {})) == [(3, "error", "closing sections out of order")]
+    low = "== History ==\n== participants ==\n"
+    assert _rules(headings.run(low, {})) == [(2, "error", "standard heading in the wrong case")]

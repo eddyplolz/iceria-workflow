@@ -321,6 +321,13 @@ def test_a_refresh_copies_the_calendar_start_from_the_module(kit):
     assert version(kit)["calendar_start"] == "2026-11"
 
 
+def test_a_refresh_copies_a_start_day_from_the_module(kit):
+    pages = wiki_pages(kit)
+    pages["Module:Iceria date"] = 'local p = {}\np.START = "2027-01-15"\nreturn p\n'
+    assert refresh_canon.refresh(kit, FakeWiki(pages), TODAY, None) == 0
+    assert version(kit)["calendar_start"] == "2027-01-15"
+
+
 @pytest.mark.parametrize("module", [None, 'p.START = ""\n'])
 def test_before_launch_the_calendar_start_is_none(kit, module):
     pages = wiki_pages(kit)

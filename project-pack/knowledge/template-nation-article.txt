@@ -90,6 +90,12 @@
 <!-- === Cuisine ===, === Festivals ===, === Arts and architecture ===, === Literature ===,
      === Media ===, === Sport === -->
 
+== Participants ==
+<!-- one line per member who takes part in the nation: put your own user name in place of
+     YourName. Only the nation's current holder is its creator; everyone else is a participant.
+     A short note may follow, as in: * [[User:Name]] (participant), writes the navy (MoS 8.5) -->
+* [[User:YourName]] (creator)
+
 == See also ==
 
 == Notes ==

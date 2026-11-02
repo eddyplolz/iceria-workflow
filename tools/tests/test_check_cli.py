@@ -155,6 +155,13 @@ def test_a_draft_in_another_encoding_is_refused_with_how_to_fix_it(tmp_path, cap
     assert "save it as UTF-8" in out.err
 
 
+def test_a_draft_that_is_not_there_is_named_with_how_to_fix_it(tmp_path, capsys):
+    code = check.main([str(tmp_path / "vell.wiki"), "--root", str(_kit(tmp_path)), "--offline"])
+    err = capsys.readouterr().err
+    assert code == 2
+    assert "no file at" in err and "vell.wiki" in err
+
+
 def test_the_install_hint_names_the_python_that_runs_the_kit(tmp_path, monkeypatch, capsys):
     # A bare "python" can be another install, or the Microsoft Store stub, so pip lands elsewhere.
     monkeypatch.setattr(check.sys, "executable", r"C:\Program Files\Python313\python.exe")

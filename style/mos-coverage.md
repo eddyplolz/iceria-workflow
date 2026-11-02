@@ -31,7 +31,7 @@ no row, so a new rule on the wiki cannot slip past the kit unnoticed.
 | 3.3 | Lead length | by hand |
 | 3.4 | The short description | check: markup; checklist 12 |
 | 4.1 | Sections and headings in sentence case | check: headings; checklist 7 |
-| 4.2 | Closing sections: See also, Notes, References; no External links | check: headings; template; checklist 11 |
+| 4.2 | Closing sections: Participants (a nation's only), See also, Notes, References; no External links | check: headings; check: participants; template; checklist 11 |
 | 4.3 | Prose over lists; wikitext, never Markdown | check: markup |
 | 4.4 | Main articles and summary sections | by hand |
 | 5.1 | The calendar: nothing after the present | check: dates; checklist 5 |
@@ -51,7 +51,8 @@ no row, so a new rule on the wiki cannot slip past the kit unnoticed.
 | 8.1 | A nation's lead | by hand |
 | 8.2 | A nation's infobox | template |
 | 8.3 | A nation's section order | template; checklist 11 |
-| 8.4 | A finished nation article | by hand |
+| 8.4 | A finished nation article | check: participants; by hand |
+| 8.5 | A nation's Participants: one line per member, at most one creator | check: participants; template |
 | 9.1 | Biography titles | by hand |
 | 9.2 | A biography's lead | by hand |
 | 9.3 | Names in the text | by hand |

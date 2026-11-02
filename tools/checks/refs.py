@@ -1,14 +1,15 @@
 """References as MoS 12.4, 13.1 and 13.3 set them.
 
 A ref points to a wiki page: never an outside site, Discord, a talk, user, template, help or
-project page, or the Water cooler. Proposals may be cited, but a body link never leads to one.
+project page, or the Water cooler. A nation's Participants list (8.5) is the one place a user page
+is linked. Proposals may be cited, but a body link never leads to one.
 Named refs are written in full inside <references> at the end, and every name defined there is
 cited in the text and the other way round.
 """
 
 import re
 
-from checks import ERROR, WARNING, Finding, blank, mask, voice
+from checks import ERROR, WARNING, Finding, blank, mask, participants_lines, voice
 
 # A self-closing ref has no group 3; a full ref has its body there.
 REF = re.compile(r"<ref\b([^>]*?)/>|<ref\b([^>]*)>(.*?)</ref\s*>", re.I | re.S)
@@ -33,6 +34,7 @@ PERSON = re.compile(
     r"personal communication|\bpers\. comm\b|private message|\bin conversation\b", re.I
 )
 PROPOSAL_LINK = re.compile(r"\[\[\s*:?\s*proposal\s*:", re.I)
+USER_LINK = re.compile(r"\[\[\s*user\s*:", re.I)
 
 
 def _name(attrs: str) -> str | None:
@@ -110,7 +112,11 @@ def run(text: str, ctx: dict) -> list[Finding]:
                 "body link to a proposal: link the article, cite the proposal in a ref (MoS 12.4)",
             )
         )
+    members = participants_lines(text)
     for m in (*META.finditer(outside_refs), *STEWARD_PAGE.finditer(outside_refs)):
+        # MoS 8.5: the Participants list names its members by their user pages.
+        if USER_LINK.match(m.group(0)) and line_of(m.start()) in members:
+            continue
         found.append(
             Finding(
                 line_of(m.start()),

@@ -26,8 +26,9 @@ jobs:
       # On the Mac runner this includes a real round trip through the login keychain, and on the
       # Windows runner one through Credential Manager.
       - run: python -m pytest -v -rs tools/tests
+      # The wiki refuses requests from GitHub's runners (403), so the wiring lookup is skipped here.
       - name: The checker runs on a template
-        run: python tools/check.py templates/city.wiki --title "Example"
+        run: python tools/check.py templates/city.wiki --title "Example" --offline
         shell: bash
 
   # A Mac's built-in python3 is 3.9: each tool must stop with the install message, not a traceback.

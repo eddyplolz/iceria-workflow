@@ -34,7 +34,8 @@ the [Charter](charter-extract.md). Where a line and the live page disagree, the 
     in ranges such as 1406–1632 (6.4). `(check: dashes)`
 11. **Section order.** Use the sections your kind of article takes, in its order: nations 8.3,
     people 9.6, places 10.3, events 11.4. Close with See also, Notes, References, and never
-    External links (4.2). The templates in `templates/` already follow these.
+    External links (4.2). A nation's article puts its Participants first among these: one line
+    per member, `* [[User:Name]] (creator)` or `(participant)` (8.5). `(check: participants)` The templates in `templates/` already follow these.
 12. **Wikipedia-grade.** Draft every section a good Wikipedia article on the same subject would
     carry, the infobox and short description included, in one pass (1.6, 3.4, 14).
     `(check: markup)`

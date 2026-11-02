@@ -1,6 +1,6 @@
 # History of Iceria
 
-Copied from the Iceria wiki page "History of Iceria" (revision 2968) on 2026-11-01. The live page outranks this copy.
+Copied from the Iceria wiki page "History of Iceria" (revision 3285) on 2026-11-01. The live page outranks this copy.
 
 {{#seo:|description=Iceria's shared past, from the first river cities and monsoon trade to the age of sail, independence and the year 2000: the backdrop every nation builds on.|keywords=interactive geofiction, collaborative worldbuilding, nation simulation, nation RP, fictional world, conworld, geofiction wiki}}{{SHORTDESC:Shared history of the planet Iceria}}
 {{Iceria Meta Masthead|History of Iceria|The broad history every nation shares}}
@@ -74,6 +74,7 @@ shapes, climates and peoples.''
 
 == The shape of the world ==
 [[File:Iceria-physical.png|thumb|upright=1.6|The land of Iceria by height, with the Dorsal Range at the middle of Mesaria]]
+[[File:Iceria-holy-lands-thalassine-crossing.png|thumb|upright=1.6|The Thalassine crossing from Eostria to Mesaria, about 1,200 kilometers at the closest points]]
 
 Iceria has six continents. Three of them form the Old World: Eostria in the north, Mesaria in the
 middle and Solandra in the south-east. Eostria lies about 1,200 kilometers from each of the other
@@ -122,19 +123,19 @@ to the Ausonic coast. Seric dynasties ruled the east and kept a written record u
 millennia. Kingdoms of the Occasic savanna grew rich on gold and the trade across the Numidic
 desert.
 
+[[File:Iceria-holy-lands-lerian-empire.png|thumb|upright=1.6|The Lerian Empire at its greatest extent]]
 About 2,480 years before 2000 the towns of the lower Lère valley joined in the Lerian Republic,
 with its capital at Leria, where the Corcovado meets the Lère. About 2,040 years before 2000 the
-Republic became an empire. The Lerian Empire ruled the Thalassine shores of the Ausonic lands and,
-for a time, the Numidic coast across the sea, and its language, Lerian, became the classical
-language of the Ausonic lands. From about 450 the empire gave up its provinces one by one,
+Republic became an empire. At its greatest extent the Lerian Empire ruled the Ausonic and Hesperic
+lands, most of the Numidic lands across the sea and parts of the Thulean and Sarmatic lands to the
+north and east. Its language, Lerian, became the classical language of the Ausonic lands. From about 450 the empire gave up its provinces one by one,
 but its heartland on the Lère was never conquered, and its seats became the kingdoms from which
 [[Alexandria]] descends.<ref name="alex" /> Lerian is the classical root of Alexandrian and
 Martino,<ref name="alex" /> and Mantuan, the island tongue of [[Mantua]], is of Lerian
 root.<ref name="mantua" /> Leria itself is now Geneva, the see of the Pontiff of Leria, head of
-the Lerian Soterian Church.<ref name="alex-lead" /> Where Alexandria's history reaches land that
-no player has written yet, a nation on the Ausonic shores of the Thalassine or on Mesaria's
-Numidic coast chooses whether its ancestors were provinces of the Lerian Empire, its allies or
-never ruled by it.<ref name="ws-history" />
+the Lerian Soterian Church.<ref name="alex-lead" /> Every nation whose land lies inside the
+Lerian Empire's greatest extent was once ruled by Leria, and chooses its own part in that rule,
+from loyal province to rebel frontier.<ref name="ws-history" />
 
 The Ecliptic Ocean became the busiest sea of the Old World. Erythraean, Numidic, Solandric and
 Nesiotic merchants carried spices, cloth, gold and ideas between three continents, and their
@@ -147,13 +148,15 @@ international use in 1945. The year 2000 is counted from it.<ref name="ws-histor
 north-east around the year 1000 and kept a few small stations there.
 
 == Faiths ==
+[[File:Iceria-holy-lands-faith-origins.png|thumb|upright=1.6|Where the Diathecan, Soterian and Deditan faiths were born]]
+[[File:Iceria-holy-lands-deditan-spread.png|thumb|upright=1.6|The Deditan faith's spread across Mesaria's north, the Ecliptic trade coasts and the Scythic steppe]]
 
 The great faiths of the Old World grew from the cradles and traveled the trade routes. The
 Soterian faith, a faith of one god born on the Ausonic east coast, spread west across the Ausonic
 and Hesperic lands, north to the Thulean and Sarmatic peoples, and later with the settlers to the
 frontier continents. The older Diathecan faith, born on the same coast, lives on in communities
 across the Old World. The Deditan faith, a second faith of one god, born in the Numidic desert,
-spread across Mesaria's north and along the Ecliptic trade coasts. In Solandra the Ritan faith of
+spread across Mesaria's north, along the Ecliptic trade coasts and onto the Scythic steppe. In Solandra the Ritan faith of
 eternal order and the younger Vigilan faith of the wheel took shape; the Vigilan faith spread to
 the Chrysic lands of Solandra's south and east and to the Seric east, where it joined the older
 Lararian rites of duty to family and ancestors. Native and folk traditions continue across all
@@ -231,8 +234,9 @@ as they fit the broad strokes on this page.
 A nation of the Old World may have been a colonizer, a colony, a protectorate, a trading partner
 or never colonized at all. No nation may make another player's nation its colonizer, its enslaver
 or its wartime enemy without that player's agreement. Where a written nation's history reaches land
-that no player has written yet, such as an old empire's provinces, a church's reach or a colonial
-power's colonies, the player who writes a nation there chooses whether it shared that history.<ref name="ws-history" />
+that no player has written yet, such as a church's reach or a colonial power's colonies, the
+player who writes a nation there chooses whether it shared that history. Leria's rule over its
+greatest extent is the one exception: it is fixed for every nation inside that extent.<ref name="ws-history" />
 
 == Chronology ==
 {| class="wikitable"
@@ -290,6 +294,8 @@ them ([[World Standards]] 6.4 and 12).
 | Humankind's origin in Mesaria; the northern-strait crossing || The names of every empire, kingdom and dynasty
 |-
 | The four river cradles, and native civilizations in two frontier highlands || Which old empire a nation descends from, if any
+|-
+| Leria's rule over all land inside its greatest extent || Each nation's part in Leria's rule, and when it ended
 |-
 | The Ecliptic trade and the Nesiotic and Thulean early voyages || Each colony's founders and its own road to independence
 |-

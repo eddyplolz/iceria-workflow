@@ -24,7 +24,7 @@ PROPOSAL = "Template:Proposal/preload"
 INFOBOXES = ("Infobox country", "Infobox Country")
 IN_WORLD_DATE = re.compile(r"^\d{1,2} \w+ \d{4}$")
 CALENDAR_MODULE = "Module:Iceria date"
-CALENDAR_START = re.compile(r'^\s*p\.START\s*=\s*"(\d{4}-\d{2})?"', re.M)
+CALENDAR_START = re.compile(r'^\s*p\.START\s*=\s*"(\d{4}-\d{2}(?:-\d{2})?)?"', re.M)
 REDIRECT = re.compile(r"^\s*#REDIRECT\s*\[\[([^\]|#]+)", re.I)
 CLAUSE_HEADING = re.compile(r"^(?:===\s*(\d+\.\d+)\s+(.+?)\s*===|### +(\d+\.\d+)\s+(.+?))\s*$")
 MOS_HEADING = re.compile(r"^=+\s*(\d+(?:\.\d+)*)[.\s]", re.M)
@@ -135,7 +135,8 @@ class Builder:
             _write(tree / "canon" / "nations" / f"{_slug(name)}.md", "\n".join(lines) + "\n")
 
     def calendar_start(self) -> str | None:
-        """The real month the in-world calendar began ("YYYY-MM"), or None before launch."""
+        """The real month or day the in-world calendar began ("YYYY-MM" or "YYYY-MM-DD"), or None
+        before launch."""
         try:
             text, _ = self.read(CALENDAR_MODULE)
         except PageMissing:

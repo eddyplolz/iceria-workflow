@@ -101,3 +101,14 @@ def test_a_route_whose_ends_are_home_may_not_cross_anothers_land_between_them():
     assert e.value.problems == [
         "Long road between (20, -60) and (20, 100) is in Brenn's land, not Vell's"
     ]
+
+
+def test_a_plan_that_is_not_there_or_is_not_json_is_named_with_how_to_fix_it(tmp_path, capsys):
+    kit = _kit(tmp_path / "kit")
+    plan = tmp_path / "vell-map.json"
+    assert map_overlay.main([str(plan), "--root", str(kit)]) == 2
+    assert "no file at" in capsys.readouterr().err
+    plan.write_text('{"nation": "Vell",\n "places": [}', encoding="utf-8")
+    assert map_overlay.main([str(plan), "--root", str(kit)]) == 2
+    assert "not valid JSON at line 2" in capsys.readouterr().err
+    assert not (tmp_path / "vell-map.svg").exists()

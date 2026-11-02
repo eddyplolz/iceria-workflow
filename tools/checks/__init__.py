@@ -52,12 +52,39 @@ def lines(text: str) -> list[str]:
     return [ln.rstrip("\r") for ln in mask(text).split("\n")]
 
 
-def prose_lines(text: str) -> list[tuple[int, str]]:
-    """(1-based line number, line) for running prose: not headings, templates, tables, lists of
-    files or categories, and nothing inside a {{template}} that spans lines."""
-    out, depth = [], 0
+# A nation's article is one with an Infobox Country; only nations list Participants (MoS 8.5).
+NATION = re.compile(r"\{\{\s*infobox[ _]+country\s*(?=[|}]|$)", re.I | re.M)
+
+
+def is_nation(text: str) -> bool:
+    return bool(NATION.search(mask(text)))
+
+
+def participants_lines(text: str) -> set[int]:
+    """1-based numbers of the lines in a nation's == Participants == list, up to the next heading,
+    leaving out furniture such as categories and templates, even ones spanning lines. MoS 1.1 and
+    8.5 put the list outside the story, like the categories, so prose checks skip it; anywhere
+    else a Participants heading is prose."""
+    if not is_nation(text):
+        return set()
+    inside, out, depth = False, set(), 0
     for i, ln in enumerate(lines(text), 1):
         furniture = depth > 0 or bool(FURNITURE.match(ln))
+        depth = max(0, depth + ln.count("{{") - ln.count("}}"))
+        if m := HEADING.match(ln):
+            inside = m.group(1) == m.group(3) == "==" and m.group(2).lower() == "participants"
+        elif inside and ln.strip() and not furniture:
+            out.add(i)
+    return out
+
+
+def prose_lines(text: str) -> list[tuple[int, str]]:
+    """(1-based line number, line) for running prose: not headings, templates, tables, lists of
+    files or categories, the Participants list, and nothing inside a {{template}} that spans
+    lines."""
+    out, depth, members = [], 0, participants_lines(text)
+    for i, ln in enumerate(lines(text), 1):
+        furniture = depth > 0 or bool(FURNITURE.match(ln)) or i in members
         depth = max(0, depth + ln.count("{{") - ln.count("}}"))
         if furniture or HEADING.match(ln) or not ln.strip():
             continue

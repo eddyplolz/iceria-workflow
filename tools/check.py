@@ -33,6 +33,7 @@ from checks import (
     markup,
     names,
     numbers,
+    participants,
     refs,
     spelling,
     voice,
@@ -50,6 +51,7 @@ CHECKS = [
     dates,
     numbers,
     names,
+    participants,
     clashes,
     voice,
     ai_tells,
@@ -123,6 +125,26 @@ def read_draft(path: Path) -> str:
     return data.decode(encoding).replace("\r\n", "\n").replace("\r", "\n")
 
 
+def open_draft(path: Path) -> str | None:
+    """The draft's text, or None after saying on stderr why it could not be read and how to fix it."""
+    try:
+        return read_draft(path)
+    # Windows refuses to open a folder with PermissionError, so a folder lands here too.
+    except (FileNotFoundError, IsADirectoryError, PermissionError):
+        print(
+            f"no file at {path.resolve()}: check the name and folder, or run the command from "
+            "the folder that holds the draft.",
+            file=sys.stderr,
+        )
+    except UnicodeDecodeError as e:
+        print(
+            f"{path.name} is not UTF-8 ({e.reason} at byte {e.start}): save it as UTF-8 and run "
+            "the check again.",
+            file=sys.stderr,
+        )
+    return None
+
+
 def main(argv=None) -> int:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
@@ -141,14 +163,8 @@ def main(argv=None) -> int:
     )
     args = ap.parse_args(argv)
 
-    try:
-        text = read_draft(args.draft)
-    except UnicodeDecodeError as e:
-        print(
-            f"{args.draft.name} is not UTF-8 ({e.reason} at byte {e.start}): save it as UTF-8 "
-            "and run the check again.",
-            file=sys.stderr,
-        )
+    text = open_draft(args.draft)
+    if text is None:
         return 2
     ctx = load_ctx(args.root)
     if args.title:

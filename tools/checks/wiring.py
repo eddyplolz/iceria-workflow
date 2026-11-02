@@ -11,7 +11,8 @@ import re
 from checks import ERROR, WARNING, Finding, lines, prose_lines, strip_refs
 from checks.links import CATEGORY, LINK, _norm
 
-NOT_PAGES = re.compile(r"^(?:File|Image|Media|Category)\s*:", re.I)
+# User pages are not articles: a member's own page (MoS 8.5) may well be unwritten.
+NOT_PAGES = re.compile(r"^(?:File|Image|Media|Category|User)\s*:", re.I)
 PLACEHOLDERS = {"nation", "other nation", "name"}
 # MoS 14.1.
 INFOBOXES = {
@@ -47,7 +48,7 @@ NATION_LEAD = re.compile(
 
 
 def targets(text: str) -> dict[str, int]:
-    """{page title: line it is first linked on}, leaving out files, categories and comments."""
+    """{page title: line it is first linked on}, leaving out files, categories, user pages and comments."""
     first = {}
     for n, line in enumerate(lines(text), 1):
         for m in LINK.finditer(line):

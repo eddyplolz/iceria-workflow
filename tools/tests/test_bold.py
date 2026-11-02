@@ -51,6 +51,10 @@ def test_the_bold_name_in_the_lead_is_the_title():
     assert [(f.level, f.message.split(":")[0]) for f in found] == [
         ("warning", "bold name is not the title")
     ]
+    assert found[0].message == (
+        "bold name is not the title: the first sentence bolds 'Port Alba City'; bold the title "
+        "'Port Alba' there, or retitle the page (MoS 3.1)"
+    )
     assert bold.run("'''Port Alba''' is a port city.\n", {"title": "Port Alba"}) == []
     assert (
         bold.run("'''Alba''' is a port, also called '''Port Alba'''.\n", {"title": "Port Alba"})

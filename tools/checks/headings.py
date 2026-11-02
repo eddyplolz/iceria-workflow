@@ -1,15 +1,15 @@
 """Headings as MoS 4.1 and 4.2 set them.
 
 Sentence case; start at level 2 and go down one level at a time; no links, bold, italics or
-templates; no final full stop; unique; never the article's title. Closing sections run See also,
-Notes, References, and Iceria has no External links or Further reading section.
+templates; no final full stop; unique; never the article's title. Closing sections run Participants
+(a nation's only), See also, Notes, References, and Iceria has no External links or Further reading section.
 """
 
 import re
 
 from checks import ERROR, HEADING, WARNING, Finding, lines
 
-CLOSING = ["See also", "Notes", "References"]
+CLOSING = ["Participants", "See also", "Notes", "References"]
 NOT_USED = {"external links", "further reading"}
 # Section words that are lower case mid-heading in sentence case. Title Case is only guessed from
 # these, since a capital on any other word may be a proper name ("Rise of the Vell League").
@@ -60,7 +60,10 @@ def run(text: str, ctx: dict) -> list[Finding]:
             at = CLOSING.index(standard)
             if at < closing_at:
                 add(
-                    n, ERROR, "closing sections out of order: See also, Notes, References (MoS 4.2)"
+                    n,
+                    ERROR,
+                    "closing sections out of order: Participants, See also, Notes, References "
+                    "(MoS 4.2)",
                 )
             closing_at = max(closing_at, at)
         elif not letters.isupper():

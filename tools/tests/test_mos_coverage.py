@@ -17,7 +17,7 @@ def _rows():
 
 def test_every_row_says_what_holds_its_rule():
     rows = _rows()
-    assert len(rows) == 83
+    assert len(rows) == 84
     bad = [(n, h) for n, held in rows for h in held if not HOLDERS.match(h)]
     assert bad == []
 

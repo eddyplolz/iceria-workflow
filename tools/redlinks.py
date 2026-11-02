@@ -5,7 +5,7 @@
 A red link means "not written yet" and nothing more (Charter 1.4): the place, person or treaty may
 well exist in Iceria, and the link waits for its page. Use the list to decide which links you mean
 to keep, and never as proof that something does not exist. It reads the wiki, one request per 50
-links, and writes nothing. Exit 0 with the list, 2 when the wiki could not be reached.
+links, and writes nothing. Exit 0 with the list, 2 when the draft or the wiki could not be read.
 """
 
 import argparse
@@ -15,7 +15,7 @@ from pathlib import Path
 import kit_python  # noqa: F401  stops on Python < 3.10
 
 # isort: split
-from check import read_draft
+from check import open_draft
 from checks.wiring import find, targets  # noqa: F401  re-exported for the tests
 from iceria_wiki import Wiki, WikiUnavailable
 
@@ -25,7 +25,10 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("draft", type=Path)
     args = ap.parse_args(argv)
-    first = targets(read_draft(args.draft))
+    text = open_draft(args.draft)
+    if text is None:
+        return 2
+    first = targets(text)
     try:
         red = find(first, Wiki())
     except WikiUnavailable as e:

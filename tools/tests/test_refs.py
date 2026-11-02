@@ -77,3 +77,19 @@ def test_a_link_to_the_shared_world_reference_pages_is_a_warning():
     ):
         assert ("warning", "link to a shared reference page") in _kinds(f"See {link}.\n")
     assert _kinds("It follows [[Charter]] in a ref.<ref>[[Charter]]</ref>\n")
+
+
+def test_a_user_link_is_allowed_only_in_a_nation_s_participants_list():
+    text = """{{Infobox Country
+}}
+'''Vell''' is a state. [[User:Ada]] wrote it.
+
+== Participants ==
+* [[User:Example]] (creator)
+* [[Water cooler]] (participant)
+"""
+    found = refs.run(text, {})
+    assert [(f.line, f.message.split(":")[0]) for f in found] == [
+        (3, "link to a meta page in the text"),
+        (7, "link to a meta page in the text"),
+    ]

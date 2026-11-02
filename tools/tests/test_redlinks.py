@@ -58,3 +58,12 @@ def test_a_draft_saved_as_utf16_by_powershell_is_read(tmp_path, capsys, monkeypa
     monkeypatch.setattr(redlinks, "Wiki", lambda: FakeWiki({"Mantua", "River Aster"}))
     assert redlinks.main([str(draft)]) == 0
     assert "2 of 4 linked pages are not written yet" in capsys.readouterr().out
+
+
+def test_a_draft_that_is_not_there_is_named_and_the_wiki_is_not_asked(
+    tmp_path, capsys, monkeypatch
+):
+    wiki = FakeWiki(())
+    monkeypatch.setattr(redlinks, "Wiki", lambda: wiki)
+    assert redlinks.main([str(tmp_path / "vell.wiki")]) == 2
+    assert "no file at" in capsys.readouterr().err and wiki.asked == []
