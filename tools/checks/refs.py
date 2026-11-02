@@ -8,7 +8,7 @@ cited in the text and the other way round.
 
 import re
 
-from checks import ERROR, WARNING, Finding, blank, mask
+from checks import ERROR, WARNING, Finding, blank, mask, voice
 
 # A self-closing ref has no group 3; a full ref has its body there.
 REF = re.compile(r"<ref\b([^>]*?)/>|<ref\b([^>]*)>(.*?)</ref\s*>", re.I | re.S)
@@ -19,6 +19,18 @@ META = re.compile(
     r"\[\[\s*(?:(?:\w+ )?talk|user|template|help|project|the world of iceria|mediawiki)\s*:"
     r"|\[\[\s*water cooler",
     re.I,
+)
+# Category:Meta Iceria's rules pages (a ref may cite them; prose may not link them).
+STEWARD_PAGE = re.compile(r"\[\[\s*(?:charter|world standards|manual of style)\s*[|\]]", re.I)
+# The stewards' world-reference pages sit in Category:Meta Iceria too, but say things about the
+# world, so a link is the writer's call.
+SHARED_REFERENCE = re.compile(
+    r"\[\[\s*(?:geography|history|culture zones|atlas) of iceria\s*[|\]]", re.I
+)
+# Links that leave the world: Wikipedia and its sister sites by prefix.
+INTERWIKI = re.compile(r"\[\[\s*(?:w|wikipedia|wikt|wiktionary|commons|wikimedia)\s*:", re.I)
+PERSON = re.compile(
+    r"personal communication|\bpers\. comm\b|private message|\bin conversation\b", re.I
 )
 PROPOSAL_LINK = re.compile(r"\[\[\s*:?\s*proposal\s*:", re.I)
 
@@ -63,6 +75,22 @@ def run(text: str, ctx: dict) -> list[Finding]:
                     n, "refs", ERROR, "outside source: refs point to wiki pages only (MoS 13.1)"
                 )
             )
+        if PERSON.search(content):
+            found.append(
+                Finding(
+                    n, "refs", ERROR, "ref cites a person: cite a wiki page, not a conversation"
+                )
+            )
+        if hits := voice._out_of_world(content):
+            found.append(
+                Finding(
+                    n,
+                    "refs",
+                    ERROR,
+                    f"out-of-world voice in a ref: {', '.join(hits)}; cite a page of the wiki "
+                    "world (MoS 13.1)",
+                )
+            )
         if META.search(content):
             found.append(
                 Finding(
@@ -80,6 +108,36 @@ def run(text: str, ctx: dict) -> list[Finding]:
                 "refs",
                 ERROR,
                 "body link to a proposal: link the article, cite the proposal in a ref (MoS 12.4)",
+            )
+        )
+    for m in (*META.finditer(outside_refs), *STEWARD_PAGE.finditer(outside_refs)):
+        found.append(
+            Finding(
+                line_of(m.start()),
+                "refs",
+                ERROR,
+                "link to a meta page in the text: write about the world, and link only its "
+                "articles (MoS 12.4)",
+            )
+        )
+    for m in SHARED_REFERENCE.finditer(outside_refs):
+        found.append(
+            Finding(
+                line_of(m.start()),
+                "refs",
+                WARNING,
+                "link to a shared reference page: a steward page, not part of this nation; "
+                "link the nation's own article or cite it in a ref (MoS 12.4)",
+            )
+        )
+    for m in INTERWIKI.finditer(outside_refs):
+        found.append(
+            Finding(
+                line_of(m.start()),
+                "refs",
+                ERROR,
+                "link to a meta page in the text: an outside wiki is not part of the world "
+                "(MoS 12.4)",
             )
         )
     for name, n in cited.items():

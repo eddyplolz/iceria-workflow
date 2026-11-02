@@ -4,6 +4,8 @@ Every numbered section of the [Manual of Style](manual-of-style.md) (MoS), and w
 holds it. Read it as the map of where a draft can still go wrong:
 
 - `check: x` means `tools/check.py` tests for it (module `tools/checks/x.py`). Fix every error.
+  `check: wiring` asks the live wiki (categories, infobox fields, red links) and is skipped with
+  `--offline`.
 - `checklist N` means rule N of [writing-checklist.md](writing-checklist.md) carries it.
 - `template` means the skeletons in `templates/` already follow it.
 - `steward` means a steward does it, never the writer.
@@ -20,7 +22,7 @@ no row, so a new rule on the wiki cannot slip past the kit unnoticed.
 | 1.4 | Plain, specific prose | check: ai_tells; checklist 4 |
 | 1.5 | Words to watch | check: voice; check: ai_tells; checklist 4 |
 | 1.6 | Wikipedia-grade: every section a good article would carry | checklist 12; by hand |
-| 2.1 | Titles use the common name, in sentence case | check: headings; checklist 7 |
+| 2.1 | Titles use the common name, in sentence case | checklist 7; by hand |
 | 2.2 | A nation's title is its short name | by hand |
 | 2.3 | Telling same-named pages apart | check: clashes; by hand |
 | 2.4 | Titles of people and events | by hand |
@@ -41,7 +43,7 @@ no row, so a new rule on the wiki cannot slip past the kit unnoticed.
 | 6.2 | Capital letters | by hand |
 | 6.3 | Bold in the lead only; italics for works, ships and foreign words | check: bold; checklist 8; checklist 9 |
 | 6.4 | Punctuation: no dashes in prose, en dash for ranges | check: dashes; checklist 10 |
-| 6.5 | Abbreviations without full stops | check: markup; by hand |
+| 6.5 | Abbreviations without full stops | by hand |
 | 7.1 | Place names fit the nation | by hand |
 | 7.2 | No real-world names | check: voice; check: clashes; checklist 5 |
 | 7.3 | The fixed names, and naming a new feature | check: names; checklist 19 |
@@ -63,15 +65,15 @@ no row, so a new rule on the wiki cannot slip past the kit unnoticed.
 | 11.2 | An event's lead | by hand |
 | 11.3 | Event infoboxes | template |
 | 11.4 | Event section order | template; checklist 11 |
-| 12.1 | What to link | by hand |
+| 12.1 | What to link | check: links; by hand |
 | 12.2 | What not to link: no self-links, no links in headings | check: links; check: headings |
 | 12.3 | Red links mean "not written yet" | checklist 18; checklist 19 |
-| 12.4 | Piped links and links to sections | check: refs; by hand |
+| 12.4 | Piped links and links to sections | check: links; by hand |
 | 13.1 | A reference cites a page on this wiki | check: refs; checklist 13; checklist 14 |
-| 13.2 | What needs a reference | check: markup; checklist 15; by hand |
+| 13.2 | What needs a reference | check: numbers; checklist 15; by hand |
 | 13.3 | How to write a reference | check: refs |
 | 13.4 | Notes take their own group | by hand |
-| 14.1 | Which infobox | template; checklist 18 |
+| 14.1 | Which infobox | check: wiring; template; checklist 18 |
 | 14.2 | The infobox repeats the article | by hand |
 | 14.3 | Leave out fields that do not apply | check: markup; checklist 18 |
 | 15.1 | Upload images here, with a description page and a category | checklist 17 |
@@ -81,12 +83,12 @@ no row, so a new rule on the wiki cannot slip past the kit unnoticed.
 | 16.1 | Short and long quotations | by hand |
 | 16.2 | Attribute every quotation inside the world | by hand |
 | 16.3 | Quotations never argue or praise | by hand |
-| 17.1 | The two category trees; every page has a category | check: markup; check: links; by hand |
-| 17.2 | One category per nation, made by a steward | check: links; steward; checklist 18 |
+| 17.1 | The two category trees; every page has a category | check: markup; check: links; check: wiring; by hand |
+| 17.2 | One category per nation, made by a steward | check: links; check: wiring; steward; checklist 18 |
 | 17.3 | Splitting a crowded nation category | by hand |
-| 17.4 | The most specific category only | by hand |
+| 17.4 | The most specific category only | check: wiring; by hand |
 | 17.5 | Pages that belong to no single nation | by hand |
-| 17.6 | Category names, and making a new one | check: links; checklist 18 |
+| 17.6 | Category names, and making a new one | check: links; check: wiring; checklist 18 |
 | 17.7 | Maintenance categories come from templates | steward |
 | 17.8 | Stewards tidy categories | steward |
 | 18.1 | What goes in the Library | checklist 6; by hand |

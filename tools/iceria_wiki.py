@@ -4,6 +4,7 @@ _call refuses any API action outside READ_ACTIONS, so the kit cannot post for a 
 import http.client
 import http.cookiejar
 import json
+import socket
 import ssl
 import urllib.parse
 import urllib.request
@@ -12,6 +13,50 @@ API = "https://www.iceria.org/w/api.php"
 USER_AGENT = "IceriaContributorKit/0.1 (https://www.iceria.org/wiki/; read-only)"
 # login is here only for the handshake that lets a member's own bot password read.
 READ_ACTIONS = frozenset({"query", "expandtemplates", "parse", "login"})
+
+
+def _ipv4_connection(address, timeout=socket._GLOBAL_DEFAULT_TIMEOUT, source_address=None):
+    """socket.create_connection limited to IPv4: Cloudflare challenges the IPv6 route some VPNs
+    use (tools/wiki/client.py forces IPv4 for the same reason)."""
+    host, port = address
+    error = None
+    for family, kind, proto, _, addr in socket.getaddrinfo(
+        host, port, socket.AF_INET, socket.SOCK_STREAM
+    ):
+        sock = socket.socket(family, kind, proto)
+        try:
+            if timeout is not socket._GLOBAL_DEFAULT_TIMEOUT:
+                sock.settimeout(timeout)
+            if source_address:
+                sock.bind(source_address)
+            sock.connect(addr)
+            return sock
+        except OSError as e:
+            sock.close()
+            error = e
+    raise error or OSError(f"no IPv4 address for {host}")
+
+
+class _IPv4Connection(http.client.HTTPConnection):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._create_connection = _ipv4_connection
+
+
+class _IPv4SConnection(http.client.HTTPSConnection):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._create_connection = _ipv4_connection
+
+
+class _IPv4HTTP(urllib.request.HTTPHandler):
+    def http_open(self, req):
+        return self.do_open(_IPv4Connection, req)
+
+
+class _IPv4HTTPS(urllib.request.HTTPSHandler):
+    def https_open(self, req):
+        return self.do_open(_IPv4SConnection, req, context=self._context)
 
 
 class WikiUnavailable(Exception):
@@ -28,7 +73,9 @@ class Wiki:
     def __init__(self, api: str = API, opener=None):
         self.api = api
         self.opener = opener or urllib.request.build_opener(
-            urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar())
+            _IPv4HTTP,
+            _IPv4HTTPS,
+            urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()),
         )
 
     def _call(self, method: str, **params) -> dict:
@@ -118,6 +165,25 @@ class Wiki:
                 for p in q["pages"]
             }
             out.update({t: live.get(to.get(t, t)) for t in batch})
+        return out
+
+    def categories_exist(self, names: list[str]) -> dict[str, bool]:
+        """{name: True when the category exists} for each name without "Category:", in batches
+        of 50. A category with members but no page of its own still exists."""
+        out = {}
+        for i in range(0, len(names), 50):
+            batch = names[i : i + 50]
+            q = self._call(
+                "GET",
+                action="query",
+                prop="categoryinfo",
+                titles="|".join(f"Category:{n}" for n in batch),
+            )["query"]
+            to = {n["from"]: n["to"] for n in q.get("normalized", [])}
+            live = {p["title"]: "categoryinfo" in p or not p.get("missing") for p in q["pages"]}
+            out.update(
+                {n: live.get(to.get(f"Category:{n}", f"Category:{n}"), False) for n in batch}
+            )
         return out
 
     def expand(self, text: str) -> str:

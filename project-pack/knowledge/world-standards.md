@@ -1,6 +1,6 @@
 # World Standards
 
-Copied from the Iceria wiki page "World Standards" (revision 3066) on 2026-11-01. The live page outranks this copy.
+Copied from the Iceria wiki page "World Standards" (revision 3235) on 2026-11-01. The live page outranks this copy.
 
 {{#seo:|description=Iceria's shared rules for seas, borders, the polar regions, dates, names and records that every nation follows.|keywords=interactive geofiction, collaborative worldbuilding, nation simulation, nation RP, fictional world, conworld, geofiction wiki}}{{SHORTDESC:Shared rules for Iceria's nations}}
 {{Iceria Meta Masthead|World Standards|The shared rules for seas, borders, dates and names}}
@@ -420,10 +420,10 @@ lists it with the nations that have opted in. The nation's own pages are written
 
 '''14.6''' '''The moon.''' [[Mene]] is part of the shared world (14.1). It has the size, mass, orbit and airless
 surface of Earth's Moon, and is called the moon in everyday speech. Mene belongs to no state and cannot be claimed.
-Crews landed on it before 2000. Its seas, basins, highlands and ranges keep the names on the Mene maps: Ecliptic-coast
+Crews landed on it before 2000; the nations that sent them, and where they landed, are entered on the Mene Register, and each of those nations names its own landing site. Its seas, basins, highlands and ranges keep the names on the Mene maps: Ecliptic-coast
 sailors and astronomers named those of the near side, and the astronomers who first mapped the far side named its
 features. Craters and smaller features take the name the first nation to publish one gives them, entered on the Mene
-Register; Mene names are final, since no nation can claim the ground. Seen from Iceria, Mene and Alteia both appear
+Register; Mene names are final, since no nation can claim the ground. Until Iceria opens, though, the large near-side craters the Mene Register lists as reserved are held from open naming for the nations the Register assigns them to, each of which names its own; any left unnamed then are open like every other crater. Seen from Iceria, Mene and Alteia both appear
 about half a degree across.
 
 '''14.7''' '''The sun.''' [[Alteia]] is part of the shared world (14.1). It is in every physical respect

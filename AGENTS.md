@@ -71,8 +71,8 @@ All tools read; none of them writes to the wiki.
 
 | Command | What it does |
 |---|---|
-| `python tools/check.py draft.wiki --title "Title"` | The style and canon checker, including name clashes with real countries and other nations |
-| `python tools/redlinks.py draft.wiki` | Lists each link in the draft that has no page on the live wiki |
+| `python tools/check.py draft.wiki --title "Title"` | The style and canon checker: name clashes, voice, and wiring (it asks the live wiki, read-only, whether each category, infobox field and link exists). `--offline` skips that lookup and says so; an unreachable wiki is reported, never passed over |
+| `python tools/redlinks.py draft.wiki` | Lists each link in the draft that has no page on the live wiki (check.py warns on the same links) |
 | `python tools/iceria_calendar.py --real 2027-01-15` | Today's in-world date with no option; `--real` and `--in-world` convert either way |
 | `python tools/map_overlay.py notes/plan.json` | Draws the member's places and routes on the map, inside their own land only; `examples/plan.json` shows the format |
 | `python tools/refresh_canon.py --check` | Says whether the wiki changed since the copy, without refreshing |
@@ -84,7 +84,7 @@ Every draft goes through these steps, in order:
 
 1. **Draft** from the member's notes and the matching template, in wikitext. When the notes are thin,
    interview the member first (`iceria-interview`). When done, list every **NEW fact**: each name, date, figure or relation the draft adds that no page in `canon/` holds.
-2. **Check.** Run `python tools/check.py <draft>.wiki --title "<Page title>"` and fix every error.
+2. **Check.** Run `python tools/check.py <draft>.wiki --title "<Page title>"` and fix every error and delete every guidance comment (`<!-- -->`) left from a template.
    Then compare each claim against `canon/` (the iceria-canon-check steps). Done when the checker
    reports 0 errors and every claim is matched to a source or listed as NEW.
 3. **The member reads the whole draft.** Hand it over in full, with the warnings you left and why.
@@ -96,6 +96,7 @@ Every draft goes through these steps, in order:
 
 ## Posting
 
+- The assistant never posts to the wiki, never names AI in an edit summary or page, and re-runs `check.py` after every edit until it reports 0 errors.
 - Pages carry no label for AI use; the wiki asks for none.
 - The edit summary is the member's choice.
 - If someone asks the member whether a page used AI, the honest answer is the right one.

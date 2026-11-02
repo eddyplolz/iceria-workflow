@@ -74,3 +74,61 @@ def test_a_self_closing_nowiki_hides_nothing_after_it():
         "[[Category:Vell]]\n"
     )
     assert markup.run(text, {}) == []
+
+
+def _msgs(text, ctx=None):
+    return [(f.level, f.message.split(":")[0]) for f in markup.run(text, ctx or {})]
+
+
+LEAD = "{{SHORTDESC:Port city in Alexandria}}\n"
+
+
+def test_a_markdown_h1_is_an_error_but_a_numbered_list_is_not():
+    assert ("error", "Markdown heading") in _msgs(
+        LEAD + "'''Vell''' is a port.\n# Economy\nGrain.\n"
+    )
+    listed = LEAD + "# The council meets.\n# It votes on the budget.\n"
+    assert ("error", "Markdown heading") not in _msgs(listed)
+
+
+def test_the_short_description_must_be_first_and_start_with_a_capital():
+    late = "{{Infobox Settlement\n| name = Vell\n}}\n{{SHORTDESC:Port city in Alexandria}}\n"
+    assert ("error", "short description is not the first line") in _msgs(late)
+    assert ("error", "short description starts in lower case") in _msgs(
+        "{{SHORTDESC:port city in Alexandria}}\n"
+    )
+    after_comment = "<!-- guidance -->\n{{SHORTDESC:Port city in Alexandria}}\n"
+    assert ("error", "short description is not the first line") not in _msgs(after_comment)
+
+
+def test_a_comment_left_in_the_draft_is_a_warning_naming_the_fix():
+    found = markup.run("{{SHORTDESC:Port city}}\n<!-- guidance -->\ntext\n", {})
+    hit = [f for f in found if f.message.startswith("comment left in the draft")]
+    assert [(f.line, f.level) for f in hit] == [(2, "warning")]
+    assert "delete" in hit[0].message
+
+
+def test_an_empty_section_is_a_warning_and_a_subsection_makes_it_whole():
+    assert ("warning", "empty section") in _msgs(
+        "== History ==\n\n== Economy ==\nGrain.\n== See also ==\n\n== References ==\n"
+    )
+    nested = "== History ==\n=== Early ===\nText.\n"
+    assert ("warning", "empty section") not in _msgs(nested)
+    assert _msgs("== See also ==\n\n== Notes ==\nx\n").count(("warning", "empty section")) == 1
+
+
+def test_a_comment_only_section_is_not_called_empty():
+    assert ("warning", "empty section") not in _msgs("== History ==\n<!-- say what -->\n")
+
+
+def test_categories_belong_once_each_at_the_end():
+    page = "text\n[[Category:Alexandria]]\n\n== Notes ==\nmore\n"
+    assert ("error", "category not at the end of the page") in _msgs(page)
+    twice = "text\n[[Category:Alexandria]]\n[[category:alexandria]]\n"
+    assert ("error", "category listed twice") in _msgs(twice)
+    ok = "text\n\n[[Category:Alexandria]]\n[[Category:Geography]]\n"
+    assert ("error", "category not at the end of the page") not in _msgs(ok)
+
+
+def test_a_meta_template_in_the_draft_is_an_error():
+    assert ("error", "meta template") in _msgs(LEAD + "{{Written for Iceria|user=Eddy}}\n")

@@ -118,7 +118,7 @@ none writes to the wiki.
 
 | Command | What it does |
 |---|---|
-| `python tools/check.py draft.wiki --title "Title"` | The style and canon checker. Add `--humanizer` for the AI-tell audit. |
+| `python tools/check.py draft.wiki --title "Title"` | The style and canon checker. It also asks the live wiki, read-only, whether each category, infobox field and link exists; `--offline` skips that and says so. Add `--humanizer` for the AI-tell audit. |
 | `python tools/doctor.py` | Checks this computer's setup, one line per part. Run it first when a tool fails. |
 | `python tools/redlinks.py draft.wiki` | Lists each link in the draft that has no page on the wiki yet. |
 | `python tools/map_overlay.py examples/plan.json` | Draws your places and routes on the map, inside your own land only. Copy `examples/plan.json` to `notes/` and make it yours. |
@@ -173,10 +173,11 @@ python3 -m pip install pytest
 ```
 
 ```bash
-python3 -m pytest
+python3 -m pytest tools/tests
 ```
 
-Run both inside the kit folder (on Windows, `py -m` in place of `python3 -m`).
+Run both inside the kit folder (on Windows, `py -m` in place of `python3 -m`). The path `tools/tests` keeps the run
+to the kit's own tests wherever you start it.
 
 </details>
 

@@ -43,3 +43,22 @@ def test_a_magic_word_before_the_title_does_not_hide_its_bold():
         "== History ==\nFounded in 1802.\n"
     )
     assert bold.run(text, {}) == []
+
+
+def test_the_bold_name_in_the_lead_is_the_title():
+    text = "'''Port Alba City''' is a port city.\n"
+    found = bold.run(text, {"title": "Port Alba"})
+    assert [(f.level, f.message.split(":")[0]) for f in found] == [
+        ("warning", "bold name is not the title")
+    ]
+    assert bold.run("'''Port Alba''' is a port city.\n", {"title": "Port Alba"}) == []
+    assert (
+        bold.run("'''Alba''' is a port, also called '''Port Alba'''.\n", {"title": "Port Alba"})
+        == []
+    )
+
+
+def test_an_unclosed_bold_runs_to_the_end_of_its_line_like_the_wiki_renders_it():
+    text = "'''Vell''' is a city.\n\n== History ==\nIt grew '''fast and then stopped.\n"
+    found = bold.run(text, {"title": "Vell"})
+    assert [(f.line, f.level) for f in found] == [(4, "error")]

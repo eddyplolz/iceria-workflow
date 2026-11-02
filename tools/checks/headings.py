@@ -20,6 +20,7 @@ COMMON = set(
     administration divisions symbols etymology formation founding reception aftermath origins name
     names art arts music literature cuisine law policy trade industry agriculture people""".split()
 )
+FUNCTION_WORDS = {"And", "Or", "Of", "The", "In", "On", "For", "To", "With", "At", "By"}
 
 
 def run(text: str, ctx: dict) -> list[Finding]:
@@ -64,7 +65,19 @@ def run(text: str, ctx: dict) -> list[Finding]:
             closing_at = max(closing_at, at)
         elif not letters.isupper():
             words = name.split()[1:]
-            if any(w[:1].isupper() and w.lower() in COMMON for w in words):
+            known = {
+                p.lower()
+                for nm in (*ctx.get("names", []), *ctx.get("families", []), *ctx.get("nations", {}))
+                for p in nm.split()
+            }
+            # Every word capitalized, none a known name, is Title Case; a lower-case word
+            # ("of the") marks a proper-name phrase.
+            all_caps = len(words) >= 1 and all(w[:1].isupper() for w in name.split())
+            if (
+                any(w[:1].isupper() and w.lower() in COMMON for w in words)
+                or any(w in FUNCTION_WORDS for w in words)
+                or (all_caps and not any(w.lower().strip(",") in known for w in name.split()))
+            ):
                 add(n, WARNING, "heading may be in title case: use sentence case (MoS 4.1)")
         # A linked title still repeats it: "History of [[Vell]]" reads as "History of Vell".
         plain = re.sub(r"\[\[(?:[^\]|]*\|)?([^\]]*)\]\]", r"\1", low)

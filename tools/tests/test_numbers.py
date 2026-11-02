@@ -43,3 +43,49 @@ def test_infobox_refs_and_list_items_are_not_read():
 def test_the_finding_quotes_the_whole_number():
     found = numbers.run("The bay is 120km wide and 1,200km² in area.\n", {})
     assert "120km, 1,200km²" in found[0].message
+
+
+def _kinds(text):
+    return [(f.level, f.message.split(":")[0]) for f in numbers.run(text, {})]
+
+
+SMALL = ("warning", "small number as a numeral")
+
+
+def test_numerals_from_zero_to_nine_in_prose_are_spelled_out():
+    assert SMALL in _kinds("The harbor has 3 quays and 7 ferries.\n")
+    assert SMALL not in _kinds("The harbor has three quays and 13 ferries.\n")
+
+
+def test_numbers_that_are_not_counts_keep_their_numerals():
+    for ok in (
+        "It lies 5 km away.\n",
+        "It rose 8% in 1700.\n",
+        "It was founded on 3 March 1406.\n",
+        "On March 3 it opened.\n",
+        "The fee was 3 billion écu.\n",
+        "Rates of 2.5 and 1,200 apply.\n",
+        "Article 3 of the Charter applies.\n",
+        'The ship was called "Seven Seas 3".\n',
+        "Between 5 and 12 ships sailed.\n",
+        "It came 3rd.\n",
+    ):
+        assert SMALL not in _kinds(ok), ok
+
+
+def test_a_figure_with_no_reference_in_its_line_is_a_warning():
+    uncited = ("warning", "figure without a reference")
+    assert uncited in _kinds("About 4,000 sailors work there.\n")
+    assert uncited in _kinds("About 3 million people live there.\n")
+    assert uncited not in _kinds('About 4,000 sailors work there.<ref name="a" />\n')
+    assert uncited not in _kinds("It was founded in 1406.\n")
+
+
+def test_a_figure_in_an_uncited_sentence_is_a_warning_though_the_line_has_a_ref():
+    line = 'It had 120,000 people.<ref name="nation" /> About 4,000 sailors work there.\n'
+    found = numbers.run(line, {})
+    assert [(f.level, f.message.split(":")[0]) for f in found] == [
+        ("warning", "figure without a reference")
+    ]
+    cited = 'It had 120,000 people.<ref name="nation" /> The ref follows its sentence.\n'
+    assert numbers.run(cited, {}) == []

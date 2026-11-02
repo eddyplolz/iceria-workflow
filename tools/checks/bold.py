@@ -9,7 +9,8 @@ import re
 
 from checks import ERROR, FURNITURE, HEADING, WARNING, Finding, lines
 
-BOLD = re.compile(r"'''.+?'''|<(b|strong)\b[^>]*>.*?</\1\s*>", re.IGNORECASE)
+# MediaWiki closes an unclosed ''' at the end of its line, so the span runs there.
+BOLD = re.compile(r"'''.+?(?:'''|$)|<(b|strong)\b[^>]*>.*?</\1\s*>", re.IGNORECASE)
 
 
 def _table_cells(rows: list[str]) -> set[int]:
@@ -39,6 +40,7 @@ def run(text: str, ctx: dict) -> list[Finding]:
     rows = lines(text)
     cells = _table_cells(rows)
     found, depth, in_lead, para, lead_bold, first_line = [], 0, True, "before", False, None
+    lead_names: list[str] = []
     for i, line in enumerate(rows):
         n = i + 1
         if HEADING.match(line):
@@ -65,12 +67,23 @@ def run(text: str, ctx: dict) -> list[Finding]:
                 continue
             elif in_lead and para == "first":
                 lead_bold = True
+                lead_names.append(re.sub(r"<[^>]*>|'", "", m.group(0)).strip())
                 continue
             elif in_lead:
                 why = "bold in the lead after its first paragraph (MoS 6.3)"
             else:
                 why = "bold in the body (MoS 6.3)"
             found.append(Finding(n, "bold", ERROR, f"{m.group(0)}: {why}"))
+    title = (ctx.get("title") or "").strip().lower()
+    if lead_bold and title and title not in {b.lower() for b in lead_names}:
+        found.append(
+            Finding(
+                first_line,
+                "bold",
+                WARNING,
+                f"bold name is not the title: bold {ctx['title'].strip()!r} in the first sentence (MoS 3.1)",
+            )
+        )
     if first_line and not lead_bold:
         found.append(
             Finding(first_line, "bold", WARNING, "the lead does not bold the title (MoS 3.1)")

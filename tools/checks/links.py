@@ -17,9 +17,12 @@ FILE = re.compile(r"\[\[\s*(?:File|Image)\s*:", re.I)
 PIXELS = re.compile(r"^\d*x?\d+px$")
 CAPTION_OPENER = re.compile(
     r"^(?:an? )?(?:picture|photo|photograph|image|view|drawing)\s+(?:of|showing)\b"
-    r"|^(?:image|photo|picture) shows\b",
+    r"|^(?:image|photo|picture) shows\b"
+    r"|^artist['’]?s\s+(?:interpretation|impression|rendering|concept)\b",
     re.I,
 )
+PIPED_SAME = re.compile(r"\[\[\s*([^\]|#:]+?)\s*\|\s*\1\s*\]\]", re.I)
+YEAR_LINK = re.compile(r"\[\[\s*\d{3,4}\s*(?:\|[^\]]*)?\]\]")
 OPTIONS = re.compile(
     r"^(?:thumb|thumbnail|frame|framed|frameless|border|left|right|center|centre|none"
     r"|upright(?:=.*)?|\d*x?\d+px|(?:alt|link|page|lang|class)=.*)$",
@@ -58,6 +61,28 @@ def _file_params(line: str, start: int) -> list[str]:
     return params[1:] + [cur.strip()]
 
 
+def _unlinked_nation(text: str, ctx: dict) -> list[Finding]:
+    """MoS 12.1: a nation in the first sentence is linked, unless a later prose line links it.
+
+    A link in the infobox or a category does not count: the reader meets the lead first."""
+    lead = next(iter(prose_lines(text)), None)
+    if not lead:
+        return []
+    n, line = lead
+    prose = strip_refs(line)
+    body = "\n".join(strip_refs(ln) for _, ln in prose_lines(text))
+    title = (ctx.get("title") or "").strip().lower()
+    return [
+        Finding(
+            n, "links", WARNING, f"nation not linked: link {nation} at its first mention (MoS 12.1)"
+        )
+        for nation in ctx.get("nations", {})
+        if nation.lower() != title
+        and re.search(rf"(?<![\w\[|]){re.escape(nation)}\b", prose)
+        and not re.search(rf"\[\[\s*{re.escape(nation)}\b", body, re.I)
+    ]
+
+
 def run(text: str, ctx: dict) -> list[Finding]:
     title = (ctx.get("title") or "").strip()
     found = []
@@ -72,6 +97,19 @@ def run(text: str, ctx: dict) -> list[Finding]:
                     "link to the article itself: bold the title, do not link it (MoS 12.2)",
                 )
             )
+        if PIPED_SAME.search(prose):
+            found.append(
+                Finding(
+                    n,
+                    "links",
+                    WARNING,
+                    "piped link to the same name: write [[Page]] without the pipe (MoS 12.2)",
+                )
+            )
+        if YEAR_LINK.search(prose):
+            found.append(
+                Finding(n, "links", WARNING, "linked year: years are plain text (MoS 12.2)")
+            )
         if OUTSIDE.search(prose):
             found.append(
                 Finding(
@@ -81,6 +119,7 @@ def run(text: str, ctx: dict) -> list[Finding]:
                     "link outside the wiki: Iceria pages link only to Iceria pages (MoS 12.2)",
                 )
             )
+    found += _unlinked_nation(text, ctx)
     for n, line in enumerate(lines(text), 1):
         for m in FILE.finditer(line):
             params = _file_params(line, m.start())
@@ -107,6 +146,15 @@ def run(text: str, ctx: dict) -> list[Finding]:
                 )
         for m in CATEGORY.finditer(line):
             name = m.group(1)
+            if m.group(0)[2:3] == "c":
+                found.append(
+                    Finding(
+                        n,
+                        "links",
+                        WARNING,
+                        "category keyword starts lowercase: write [[Category:...]] (MoS 17.6)",
+                    )
+                )
             if name.lower() == "meta iceria" and title and ":" not in title:
                 found.append(
                     Finding(
@@ -114,6 +162,15 @@ def run(text: str, ctx: dict) -> list[Finding]:
                         "links",
                         ERROR,
                         "article in Meta Iceria: that category is for project pages (MoS 17.1)",
+                    )
+                )
+            elif name[:1].islower():
+                found.append(
+                    Finding(
+                        n,
+                        "links",
+                        WARNING,
+                        f"category starts lowercase: {name}; begin it with a capital (MoS 17.6)",
                     )
                 )
             elif name.lower() == "countries":

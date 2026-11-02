@@ -1,6 +1,6 @@
 # Rossheim-Amannia
 
-Copied from the Iceria wiki page "Rossheim-Amannia" (revision 2863) on 2026-11-01. The live page outranks this copy.
+Copied from the Iceria wiki page "Rossheim-Amannia" (revision 3253) on 2026-11-01. The live page outranks this copy.
 
 ## Infobox
 
@@ -32,7 +32,7 @@ Copied from the Iceria wiki page "Rossheim-Amannia" (revision 2863) on 2026-11-0
 - established_event4: Grand Duchy of Rossheim
 - established_date4: 1450
 - area_km2: 1,055,014
-- population_estimate: 30,020,009
+- population_estimate: 30,005,465
 - population_estimate_year: 2000
 - currency: Rossmark
 - utc_offset: +2

@@ -144,3 +144,21 @@ def test_latest_revids_splits_more_than_50_titles_into_batches():
     opener = FakeOpener(pages(titles[:50]), pages(titles[50:]))
     revids = iceria_wiki.Wiki(opener=opener).latest_revids(titles)
     assert len(opener.requests) == 2 and len(revids) == 51 and set(revids.values()) == {1}
+
+
+def test_the_default_client_resolves_ipv4_only(monkeypatch):
+    # Cloudflare challenges the IPv6 route some VPNs use, so the kit never asks for it
+    # (tools/wiki/client.py does the same for the workspace's own client).
+    import socket
+
+    families = []
+
+    def fake_getaddrinfo(host, port, family=0, type=0, proto=0, flags=0):
+        families.append(family)
+        raise socket.gaierror("stop here")
+
+    monkeypatch.setattr(socket, "getaddrinfo", fake_getaddrinfo)
+    wiki = iceria_wiki.Wiki("https://www.iceria.org/w/api.php")
+    with pytest.raises(iceria_wiki.WikiUnavailable):
+        wiki.whoami()
+    assert families == [socket.AF_INET]

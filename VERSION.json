@@ -13,16 +13,12 @@
     "Seltana",
     "Tleyew-Pas",
     "Axxannuzru",
-    "Rossheim-Amannia",
-    "Xuna"
-  ],
-  "missing_nations": [
-    "Xuna"
+    "Rossheim-Amannia"
   ],
   "pages": [
     {
       "title": "World Standards",
-      "revid": 3066,
+      "revid": 3235,
       "source": "live"
     },
     {
@@ -62,7 +58,7 @@
     },
     {
       "title": "Alexandria",
-      "revid": 3153,
+      "revid": 3230,
       "source": "live"
     },
     {
@@ -77,7 +73,7 @@
     },
     {
       "title": "Tleyew-Pas",
-      "revid": 3226,
+      "revid": 3256,
       "source": "live"
     },
     {
@@ -87,7 +83,7 @@
     },
     {
       "title": "Rossheim-Amannia",
-      "revid": 2863,
+      "revid": 3253,
       "source": "live"
     },
     {
@@ -95,5 +91,8 @@
       "revid": 1212,
       "source": "live"
     }
+  ],
+  "missing_nations": [
+    "Xuna"
   ]
 }

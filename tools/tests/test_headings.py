@@ -59,3 +59,13 @@ def test_a_heading_that_links_the_title_still_repeats_it():
         (3, "error", "markup in a heading"),
         (3, "warning", "heading repeats the title"),
     ]
+
+
+def test_a_title_case_heading_of_unlisted_words_is_a_warning():
+    kinds = [
+        (f.level, f.message.split(":")[0]) for f in headings.run("== Port Operations ==\n", {})
+    ]
+    assert kinds == [("warning", "heading may be in title case")]
+    assert headings.run("== Port operations ==\n== Rise of the Vell League ==\n", {}) == []
+    ctx = {"names": ["Vell"]}
+    assert headings.run("== Vell Harbor ==\n", ctx) == []

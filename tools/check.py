@@ -36,7 +36,9 @@ from checks import (
     refs,
     spelling,
     voice,
+    wiring,
 )
+from iceria_wiki import Wiki, WikiUnavailable
 
 CHECKS = [
     markup,
@@ -132,6 +134,11 @@ def main(argv=None) -> int:
     ap.add_argument(
         "--humanizer", action="store_true", help="also run humanizer-audit if it is installed"
     )
+    ap.add_argument(
+        "--offline",
+        action="store_true",
+        help="skip the read-only wiki query (categories, infobox fields and red links)",
+    )
     args = ap.parse_args(argv)
 
     try:
@@ -146,12 +153,34 @@ def main(argv=None) -> int:
     ctx = load_ctx(args.root)
     if args.title:
         ctx["title"] = args.title
-    found = sorted((f for c in CHECKS for f in c.run(text, ctx)), key=lambda f: f.line)
+    # A {{Proposal}} form is filled in on a Proposal: page, not written as an article: it has no
+    # lead, short description or category, and its guidance comments are the form itself.
+    form = re.match(r"\s*\{\{\s*Proposal\s*(?:\||\n|<)", text, re.I)
+    ctx["form"] = bool(form)
+    found = [f for c in CHECKS if not (form and c is markup) for f in c.run(text, ctx)]
+    if not args.offline:
+        try:
+            found += wiring.run(text, {**ctx, "wiki": Wiki()})
+        except WikiUnavailable as e:
+            print(
+                f"NOT CHECKED: the wiki could not be reached ({e}), so categories, infobox "
+                "fields and links were not looked up. Check your connection and run again, or "
+                "add --offline to skip them.",
+                file=sys.stderr,
+            )
+            return 2
+    found.sort(key=lambda f: f.line)
     name = args.draft.name
     for f in found:
         print(f.format(name))
     errors = sum(f.level == ERROR for f in found)
     print(f"{name}: {_plural(errors, 'error')}, {_plural(len(found) - errors, 'warning')}")
+
+    if args.offline:
+        print(
+            "wiring skipped (--offline): categories, infobox fields and links not checked",
+            file=sys.stderr,
+        )
 
     if args.humanizer:
         # The audit writes to the same stream; flush so its report follows ours when piped.

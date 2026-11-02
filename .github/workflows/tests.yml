@@ -25,7 +25,7 @@ jobs:
       - run: python -m pip install pytest
       # On the Mac runner this includes a real round trip through the login keychain, and on the
       # Windows runner one through Credential Manager.
-      - run: python -m pytest -v -rs
+      - run: python -m pytest -v -rs tools/tests
       - name: The checker runs on a template
         run: python tools/check.py templates/city.wiki --title "Example"
         shell: bash

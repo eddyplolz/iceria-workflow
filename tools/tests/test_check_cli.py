@@ -68,7 +68,12 @@ def test_clean_draft_exits_zero(tmp_path, capsys):
     draft = tmp_path / "vell.wiki"
     draft.write_text(GOOD, encoding="utf-8")
     (tmp_path / "kit").mkdir()
-    assert check.main([str(draft), "--title", "Vell", "--root", str(_kit(tmp_path / "kit"))]) == 0
+    assert (
+        check.main(
+            [str(draft), "--title", "Vell", "--root", str(_kit(tmp_path / "kit")), "--offline"]
+        )
+        == 0
+    )
     assert capsys.readouterr().out.strip() == "vell.wiki: 0 errors, 0 warnings"
 
 
@@ -81,7 +86,12 @@ def test_errors_print_by_line_and_exit_one(tmp_path, capsys):
         encoding="utf-8",
     )
     (tmp_path / "kit").mkdir()
-    assert check.main([str(draft), "--title", "Vell", "--root", str(_kit(tmp_path / "kit"))]) == 1
+    assert (
+        check.main(
+            [str(draft), "--title", "Vell", "--root", str(_kit(tmp_path / "kit")), "--offline"]
+        )
+        == 1
+    )
     out = capsys.readouterr().out.splitlines()
     assert out == [
         "vell.wiki:2: names: warning: unofficial feature name: 'Serenyan Ocean' is not on the world map (MoS 7.3)",
@@ -98,7 +108,7 @@ def _run(tmp_path, data: bytes, capsys, name="vell.wiki"):
     if not kit.exists():
         kit.mkdir()
         _kit(kit)
-    code = check.main([str(draft), "--title", "Vell", "--root", str(kit)])
+    code = check.main([str(draft), "--title", "Vell", "--root", str(kit), "--offline"])
     return code, capsys.readouterr()
 
 
@@ -118,7 +128,7 @@ def _humanize(tmp_path, monkeypatch, on_path, installed):
     draft = tmp_path / "vell.wiki"
     draft.write_text(GOOD, encoding="utf-8")
     (tmp_path / "kit").mkdir()
-    check.main([str(draft), "--humanizer", "--root", str(_kit(tmp_path / "kit"))])
+    check.main([str(draft), "--humanizer", "--offline", "--root", str(_kit(tmp_path / "kit"))])
     return ran, str(draft)
 
 
@@ -151,3 +161,22 @@ def test_the_install_hint_names_the_python_that_runs_the_kit(tmp_path, monkeypat
     _humanize(tmp_path, monkeypatch, None, None)
     err = capsys.readouterr().err
     assert r'"C:\Program Files\Python313\python.exe" -m pip install humanizer-pro' in err
+
+
+FORM = "{{Proposal\n<!-- Ask on Discord first. -->\n| name = Vell\n| status = draft <!-- the stewards change this -->\n}}\n"
+
+
+def test_a_proposal_form_is_not_held_to_the_article_rules(tmp_path, capsys):
+    draft = tmp_path / "proposal.wiki"
+    draft.write_text(FORM, encoding="utf-8")
+    assert check.main([str(draft), "--root", str(tmp_path), "--offline"]) == 0
+    assert "no category" not in capsys.readouterr().out
+
+
+def test_a_form_value_is_still_read_for_out_of_world_voice(tmp_path, capsys):
+    draft = tmp_path / "proposal.wiki"
+    draft.write_text(
+        FORM.replace("name = Vell", "name = Vell, as agreed on Discord"), encoding="utf-8"
+    )
+    assert check.main([str(draft), "--root", str(tmp_path), "--offline"]) == 1
+    assert "Discord" in capsys.readouterr().out

@@ -29,3 +29,74 @@ def test_plain_in_world_prose_passes():
 
 def test_members_of_an_in_world_body_are_not_out_of_world():
     assert voice.run("The Council elects one of its members High Warden.\n", {}) == []
+
+
+def _levels(text, ctx=None):
+    return {(f.line, f.level) for f in voice.run(text, ctx or {})}
+
+
+def test_unambiguous_out_of_world_words_are_errors():
+    for word in (
+        "Details were agreed on Discord.",
+        "As announced on the forum.",
+        "Port Alba is a popular RP location.",
+        "This wiki has no page on its mayor.",
+        "The nation owner added a harbor.",
+        "Port Alba is a fictional city.",
+        "It is like the real world.",
+        "This text was written with an AI assistant.",
+        "Made by artificial intelligence.",
+        "ChatGPT suggested the name.",
+        "Port Alba joined Iceria in October.",
+        "This is fan fiction.",
+        "A geofiction city on a conworld.",
+        "It trades with the Micras nations.",
+        "WIP section, more to come.",
+        "The quay is old.[citation needed]",
+        "Editor's note: a placeholder.",
+        "As Claude, I cannot confirm it.",
+        "(Written for the nation Alexandria by its owner.)",
+    ):
+        assert _levels(word) == {(1, "error")}, word
+
+
+def test_words_with_an_in_world_sense_stay_warnings():
+    for word in (
+        "The member who writes Alexandria is away.",
+        "The city sits inside the land the claim covers on the official map.",
+        "The steward of the harbor keeps the keys.",
+        "If you visit, you will see the quay.",
+        "At the time of writing the quay is closed.",
+    ):
+        assert _levels(word) == {(1, "warning")}, word
+
+
+def test_the_letters_ai_in_a_word_are_not_the_chatbot():
+    assert voice.run("The Aileron road runs past the Said quarter.\n", {}) == []
+
+
+def test_the_full_real_places_list_warns():
+    for word in (
+        "The harbor is like Malta's.",
+        "The city is often compared with Monaco.",
+        "Residents speak English, Spanish and French.",
+        "The harbor was rebuilt after World War II.",
+        "Its guard carries AK-47 rifles.",
+        "It lies near Singapore.",
+    ):
+        assert _levels(word) == {(1, "warning")}, word
+
+
+def test_a_real_name_that_is_an_iceria_name_is_exempt():
+    text = "The road leads to Mantua and on to Malta.\n"
+    found = voice.run(text, {"nations": {"Mantua": "Mantua City"}})
+    assert [f.message for f in found if "Mantua" in f.message] == []
+    assert any("Malta" in f.message for f in found)
+
+
+def test_out_of_world_words_hide_nowhere():
+    comment = "Text.\n<!-- the player will add this later -->\n"
+    assert (2, "error") not in _levels(comment)  # player alone is only a warning
+    assert (2, "error") in _levels("Text.\n<!-- agreed on Discord -->\n")
+    assert (1, "error") in _levels("<nowiki>This article is a draft.</nowiki>\n")
+    assert (3, "error") in _levels("a\nb\n<pre>\nforum post\n</pre>\n")
