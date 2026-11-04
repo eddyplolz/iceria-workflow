@@ -1,6 +1,6 @@
 # Template:Infobox Country/doc
 
-Copied from the Iceria wiki page "Template:Infobox Country/doc" (revision 1131) on 2026-11-01. The live page outranks this copy.
+Copied from the Iceria wiki page "Template:Infobox Country/doc" (revision 1131) on 2026-11-03. The live page outranks this copy.
 
 '''Template:Infobox Country''' is the fact box on the right of a nation's page ([[World Standards]] 7.1). It follows Wikipedia's Infobox country: the same field names and layout, so a box copied from a Wikipedia-style draft works as it is. <code><nowiki>{{Infobox country}}</nowiki></code>, with a small c, works too. [[Alexandria]] shows one filled in.
 

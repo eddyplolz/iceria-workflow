@@ -42,7 +42,7 @@ def test_a_working_setup_is_all_ok_and_exits_zero(tmp_path, monkeypatch, capsys)
     _setup(monkeypatch)
     assert doctor.main(_kit(tmp_path), Wiki(), TODAY) == 0
     out = capsys.readouterr().out.splitlines()
-    end = out.index("6 of 6 checks are OK.")
+    end = out.index("7 of 7 checks are OK.")
     assert all(line.startswith("OK ") for line in out[:end])
     assert any("Ana@kit" in line and "Credential Manager" in line for line in out)
 
@@ -56,7 +56,7 @@ def test_each_problem_is_a_fix_line_with_one_step(tmp_path, monkeypatch, capsys)
     assert "FIX wiki" in out and "timed out" in out
     assert "FIX canon copy" in out and "80 days old" in out and "refresh_canon.py --check" in out
     assert "FIX humanizer" not in out  # optional, so never a fix
-    assert "3 of 6 checks are OK; fix the 3 above, then run this again." in out
+    assert "4 of 7 checks are OK; fix the 3 above, then run this again." in out
 
 
 def test_a_missing_humanizer_is_an_optional_line_and_still_exits_zero(
@@ -137,7 +137,7 @@ def test_the_support_block_carries_the_setup_and_never_the_login(tmp_path, monke
     assert f"Python: {doctor.sys.version.split()[0]} at /usr/local/bin/python3.13" in block
     assert "Kit commit: ab12cd3" in block
     assert (
-        "Checks: Python OK, certificates OK, bot login OK, wiki OK, canon copy OK, humanizer OK"
+        "Checks: Python OK, certificates OK, bot login OK, wiki OK, canon copy OK, refreshed files OK, humanizer OK"
         in block
     )
     assert "Bot login saved: yes" in block
@@ -156,3 +156,55 @@ def test_the_support_block_says_no_login_and_marks_each_fix(tmp_path, monkeypatc
     block = _block(capsys.readouterr().out)
     assert "Bot login saved: no" in block and "certificates FIX" in block
     assert "Kit commit: unknown (git is not installed)" in block
+
+
+RESTORE = "git restore canon style templates project-pack/knowledge VERSION.json"
+
+
+def test_refreshed_files_are_a_note_with_the_restore_command_not_a_failure(
+    tmp_path, monkeypatch, capsys
+):
+    # refresh_canon.py rewrites files that git pull also updates, so the two clash. The README
+    # offers the refresh, so doctor must not fail after it (Eddy: "Note, not FIX").
+    _setup(monkeypatch)
+    monkeypatch.setattr(
+        doctor,
+        "refreshed_files",
+        lambda kit: ["canon/a.md", "canon/b.md", "style/c.md", "templates/d.md"],
+        raising=False,
+    )
+    assert doctor.main(_kit(tmp_path), Wiki(), TODAY) == 0
+    out = capsys.readouterr().out
+    assert (
+        f"OK  refreshed files: canon/a.md and 3 more refreshed locally; before git pull, run: {RESTORE}"
+        in out
+    )
+    assert "FIX refreshed files" not in out
+    assert "refreshed files OK" in _block(out)
+
+
+def _git(path, *args):
+    subprocess.run(
+        ["git", "-C", str(path), "-c", "user.email=a@b.c", "-c", "user.name=t", *args],
+        check=True,
+        capture_output=True,
+    )
+
+
+def test_refreshed_files_lists_exactly_the_modified_tracked_files_of_the_refreshed_folders(
+    tmp_path,
+):
+    for rel in ("canon/a.md", "style/b.md", "notes/mine.md", "tools/x.py"):
+        (tmp_path / rel).parent.mkdir(exist_ok=True)
+        (tmp_path / rel).write_text("old", encoding="utf-8")
+    _git(tmp_path, "init", "-q")
+    _git(tmp_path, "add", "-A")
+    _git(tmp_path, "commit", "-qm", "kit")
+    assert doctor.refreshed_files(tmp_path) == []
+    for rel in ("canon/a.md", "notes/mine.md", "tools/x.py"):
+        (tmp_path / rel).write_text("new", encoding="utf-8")
+    assert doctor.refreshed_files(tmp_path) == ["canon/a.md"]  # not the member's notes or tools
+
+
+def test_a_folder_that_is_not_a_clone_has_no_refresh_clash(tmp_path):
+    assert doctor.refreshed_files(tmp_path) == []

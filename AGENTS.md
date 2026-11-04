@@ -31,6 +31,12 @@ When the member corrects you, or the checker or a canon page shows you got somet
 3. **When the kit itself is wrong** (a tool, a skill, a template or `canon/`), never edit it to work
    around the problem. Write a report with `iceria-report` for the member to send.
 
+## Where drafts go
+
+Save every draft in `notes/drafts/` (make the folder if it is missing), for example
+`notes/drafts/capital-city.wiki`. The `notes/` folder stays out of git, so a pull or a canon refresh
+never touches a draft. Run `python tools/check.py notes/drafts/<name>.wiki --title "<Page title>"`.
+
 ## New nation: before anything else
 
 A member with no nation yet starts with the claim, not with pages: they must be 18 or older and
@@ -92,7 +98,7 @@ All tools read; none of them writes to the wiki.
 
 Every draft goes through these steps, in order:
 
-1. **Draft** from the member's notes and the matching template, in wikitext. When the notes are thin,
+1. **Draft** from the member's notes and the matching template, in wikitext, saved in `notes/drafts/`. When the notes are thin,
    interview the member first (`iceria-interview`). When done, list every **NEW fact**: each name, date, figure or relation the draft adds that no page in `canon/` holds.
 2. **Check.** Run `python tools/check.py <draft>.wiki --title "<Page title>"` and fix every error and delete every guidance comment (`<!-- -->`) left from a template.
    Then compare each claim against `canon/` (the iceria-canon-check steps). Done when the checker

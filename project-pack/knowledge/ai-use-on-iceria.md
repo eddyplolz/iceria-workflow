@@ -1,6 +1,6 @@
 # AI use on Iceria
 
-Copied from the Iceria wiki page "AI use on Iceria" (revision 1842) on 2026-11-01. The live page outranks this copy.
+Copied from the Iceria wiki page "AI use on Iceria" (revision 1842) on 2026-11-03. The live page outranks this copy.
 
 {{#seo:|description=How AI tools may be used on Iceria: check every fact, own what you post, no bulk dumps, and no one attacked or pressured over AI.|keywords=interactive geofiction, collaborative worldbuilding, nation simulation, nation RP, fictional world, conworld, geofiction wiki}}{{SHORTDESC:Rules for using AI tools on Iceria}}
 {{Iceria Meta Masthead|AI use on Iceria|What we ask of anyone who uses AI tools}}

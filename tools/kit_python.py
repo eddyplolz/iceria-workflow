@@ -10,5 +10,5 @@ if sys.version_info < (3, 10):  # noqa: UP036  the point of the module
     sys.exit(
         f"The kit needs Python 3.10 or newer, and this is Python {sys.version.split()[0]}. "
         "Install the latest Python from https://www.python.org/downloads/ and run the command "
-        "again (README.md, 'Set up your computer', step 1)."
+        "again (README.md, 'Set up a Mac (once)' or 'Set up Windows (once)', step 1)."
     )

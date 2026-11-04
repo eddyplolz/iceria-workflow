@@ -20,7 +20,10 @@ assistant is specific to your nation, checked against canon, and yours.
 
 **Contents:** [Start](#start) · [New nation](#new-nation-before-anything-else) · [Set up a Mac](#set-up-a-mac-once) ·
 [Set up Windows](#set-up-windows-once) · [Running the tools](#running-the-tools) ·
+[Install and start Claude Code](#install-and-start-claude-code) ·
 [Use it with Claude Code](#use-it-with-claude-code) ·
+[Where your drafts go](#where-your-drafts-go) ·
+[Making your plan last](#making-your-plan-last) ·
 [How a page gets written](#how-a-page-gets-written) · [Running the tests](#running-the-tests) ·
 [Keeping it current](#keeping-it-current) · [What is in here](#what-is-in-here) ·
 [License](#license)
@@ -29,9 +32,9 @@ assistant is specific to your nation, checked against canon, and yours.
 
 | You use | Do this |
 |---|---|
-| Claude Code | Open this folder and ask for the page you want. `CLAUDE.md` and the skills load by themselves. |
-| Codex, Cursor or another coding assistant | Open this folder; it reads `AGENTS.md`. |
-| A claude.ai or ChatGPT Project | Paste `project-pack/instructions.md` into the project's instructions and upload every file in `project-pack/knowledge/`. |
+| Claude Code | Install it once ([steps below](#install-and-start-claude-code)), open this folder and ask for the page you want. `CLAUDE.md` and the skills load by themselves. This is the one path a person has run start to finish. |
+| Codex, Cursor or another coding assistant (**untested**) | Open this folder; it reads `AGENTS.md`. No person has run this path yet, so expect rough edges and tell the maintainer. |
+| A claude.ai or ChatGPT Project (**untested**) | Paste `project-pack/instructions.md` into the project's instructions and upload every file in `project-pack/knowledge/`. No person has run this path yet either. |
 
 ## New nation: before anything else
 
@@ -133,16 +136,76 @@ none writes to the wiki.
 | `python tools/refresh_canon.py` | Rebuilds the canon copy from today's wiki; `--check` only says whether a refresh is due. |
 | `python tools/setup_bot.py` | Saves your own bot password in your computer's password store; `--check` tests it. |
 
-To test the setup, run the checker on any `.wiki` file:
+To test the setup, run the checker on any `.wiki` file (your assistant keeps drafts in
+[`notes/drafts/`](#where-your-drafts-go)):
 
 ```bash
-python tools/check.py my-draft.wiki --title "Page title"
+python tools/check.py notes/drafts/my-draft.wiki --title "Page title"
 ```
 
 It prints each problem with its line and the rule it breaks, and exits 1 while any error is left.
 If it says the kit needs Python 3.10 or newer, Python is not installed yet. With `--humanizer` it
 also runs [humanizer-pro](https://pypi.org/project/humanizer-pro/)'s audit for AI-sounding prose;
 without humanizer-pro installed, the checker says so and skips that audit.
+
+## Install and start Claude Code
+
+Do this once, after the kit is on your computer (Mac steps 1 to 6 above, or the Windows table). It
+needs a Claude account on a paid plan. These commands come from Anthropic's own pages,
+[Advanced setup](https://code.claude.com/docs/en/setup) and the
+[terminal guide](https://code.claude.com/docs/en/terminal-guide); if either has changed, theirs wins.
+
+**On a Mac:**
+
+1. **Open Terminal in the kit folder.** If the window from Mac step 5 is still open, you are
+   already there. Otherwise press `Cmd + Space`, type `Terminal`, press `Enter`, then type:
+
+   ```bash
+   cd ~/Documents/iceria-workflow
+   ```
+
+2. **Install Claude Code.** Paste this line (`Cmd + V`) and press `Enter`. It shows no progress
+   while it downloads, so leave the window open until you see "Claude Code successfully installed!":
+
+   ```bash
+   curl -fsSL https://claude.ai/install.sh | bash
+   ```
+
+3. **Open a new Terminal window and go to the kit folder again** (the `cd` line above). The old
+   window does not know about `claude` yet.
+4. **Start it.** Type this and press `Enter`:
+
+   ```bash
+   claude
+   ```
+
+5. **Log in.** The first time, it asks you to log in with your Claude account. A browser window
+   opens; sign in there, then go back to Terminal. After that, `claude` starts straight away.
+
+If Terminal says `command not found: claude`, the install folder is not on your PATH yet: see
+["command not found: claude"](https://code.claude.com/docs/en/troubleshoot-install#command-not-found-claude-after-installation)
+on Anthropic's troubleshooting page.
+
+In Claude Code you type and press `Enter`; you cannot click, so use the arrow keys. `Esc`
+stops Claude when it is working, and `exit` leaves. Always start `claude` from inside the
+`iceria-workflow` folder, or it will not see the kit.
+
+<details>
+<summary><b>On Windows</b></summary>
+
+<br>
+
+Open PowerShell (`Win + X`, then **Windows PowerShell** or **Terminal**; the prompt starts with
+`PS`) and paste this line:
+
+```powershell
+irm https://claude.ai/install.ps1 | iex
+```
+
+Then open the kit folder in File Explorer, type `cmd` in its address bar, and run `claude` there.
+Log in as on a Mac.
+
+</details>
 
 ## Use it with Claude Code
 
@@ -157,6 +220,21 @@ write a page about my capital city". `CLAUDE.md` and these six skills load by th
 | `iceria-canon-check` | Matches every claim in a draft to a canon page and lists the NEW facts. |
 | `iceria-self-audit` | The style and AI-tell pass before you read the draft. |
 | `iceria-report` | Writes a problem report for you to send when the kit gets something wrong. |
+
+## Where your drafts go
+
+Your assistant saves drafts in `notes/drafts/` inside the kit folder (it makes the folder if it is
+missing). The `notes/` folder is not part of git, so `git pull` and a canon refresh never touch your
+drafts. Run the checker on a draft there, as in the example above.
+
+## Making your plan last
+
+Your Claude plan has a usage limit that fills as you work. Four habits keep it going:
+
+1. Write one article per session, then type `/clear` before the next one.
+2. For checking and fixing passes, type `/model sonnet`; save the bigger model for drafting.
+3. Chatting on claude.ai uses the same limit as Claude Code, and switching models does not reset it.
+4. Start each session from the kit folder, so Claude reads only what the kit points it to.
 
 ## How a page gets written
 
@@ -203,8 +281,9 @@ It only reads. It builds the new copy aside and then moves it in folder by folde
 and if it cannot put one back it names the folder and where the old copy is waiting. When a page
 has changed since your last refresh, you can also paste the live page into the chat.
 
-A refresh rewrites files that `git pull` also updates, so the two can clash. Before you pull, drop
-the refreshed copy and take git's:
+A refresh rewrites files that `git pull` also updates, so the two can clash. `python tools/doctor.py`
+reminds you of the restore line before you pull. It is this: drop the refreshed copy and take
+git's:
 
 ```bash
 git restore canon style templates project-pack/knowledge VERSION.json

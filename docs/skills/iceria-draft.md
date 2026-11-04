@@ -8,7 +8,8 @@
 3. **Ask** the member about every gap the notes leave, before you fill it. When the gaps are many,
    run `iceria-interview` and draft from its confirmed summary. A political outcome or a
    character's choice is the member's to make: offer options.
-4. **Write** the page in wikitext, following `style/writing-checklist.md`: in-world voice, sentence
+4. **Write** the page in wikitext, saved in `notes/drafts/<name>.wiki` (make the folder if it is
+   missing; `notes/` stays out of git), following `style/writing-checklist.md`: in-world voice, sentence
    case, bold in the lead only, figures for 2000, a reference on every figure. Fill every infobox
    line you have a fact for and delete the rest. Delete the template's comments.
 5. **List the NEW facts**: every name, date, figure or relation the draft adds that no page in

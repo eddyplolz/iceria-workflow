@@ -93,7 +93,10 @@ class _WindowsStore:
             UserName=user,
         )
         if not self.api.CredWriteW(ctypes.byref(cred), 0):
-            raise OSError(ctypes.get_last_error(), "CredWriteW failed")
+            raise NoStore(
+                f"Windows Credential Manager could not save the login (error "
+                f"{ctypes.get_last_error()}); try again, or set {ENV_USER} and {ENV_PASS} in your shell"
+            )
 
 
 class _MacStore:

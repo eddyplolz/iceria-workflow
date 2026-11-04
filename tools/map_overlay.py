@@ -19,6 +19,7 @@ SVG lands beside the plan, cropped to your land, and opens in any browser. It re
 import argparse
 import bisect
 import json
+import os
 import sys
 from html import escape
 from pathlib import Path
@@ -196,8 +197,20 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 2
     claims = Claims.load(args.root)
+    out = args.plan.with_suffix(".svg")
+    # A path from the SVG's own folder, so the file names nothing of the member's computer when
+    # it is shared. Two drives have no relative path between them.
     try:
-        svg = draw(plan, claims, (args.root / BASE).resolve().as_uri())
+        base_href = Path(os.path.relpath(args.root / BASE, out.resolve().parent)).as_posix()
+    except ValueError:
+        print(
+            f"{args.plan.name} is not on the same drive as the kit: move the plan into the kit's "
+            "notes folder and run this again, so the map can be found from beside the SVG.",
+            file=sys.stderr,
+        )
+        return 2
+    try:
+        svg = draw(plan, claims, base_href)
     except Refused as e:
         for p in e.problems:
             print(f"refused: {p}", file=sys.stderr)
@@ -210,7 +223,6 @@ def main(argv: list[str] | None = None) -> int:
             fix = "Move those points inside your land, then run this again"
         print(f"Nothing was written: {fix}.", file=sys.stderr)
         return 1
-    out = args.plan.with_suffix(".svg")
     out.write_text(svg, encoding="utf-8", newline="\n")
     print(f"wrote {out.name}; open it in a browser")
     return 0

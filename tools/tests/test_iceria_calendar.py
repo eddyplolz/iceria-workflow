@@ -116,3 +116,21 @@ def test_cli_before_a_start_day_names_it(tmp_path, capsys):
 @pytest.mark.parametrize("start", ["2027-02-30", "2027-13", "2027/01"])
 def test_cli_refuses_a_bad_start(tmp_path, start):
     assert cal.main(["--real", "2027-03-01"], kit(tmp_path, start)) == 2
+
+
+def test_cli_converts_a_real_time_with_an_offset_to_utc_first(tmp_path, capsys):
+    # Audit finding 3: 03:00 at +05:00 on 1 December is 22:00 UTC on 30 November. The calendar has
+    # not started on the live kit, so the test gives it a start.
+    k = kit(tmp_path, "2026-11")
+    assert cal.main(["--real", "2026-11-30 22:00"], k) == 0
+    in_utc = capsys.readouterr().out
+    assert cal.main(["--real", "2026-12-01T03:00+05:00"], k) == 0
+    assert capsys.readouterr().out == in_utc
+    assert cal.main(["--real", "2026-12-01 03:00"], k) == 0
+    assert capsys.readouterr().out != in_utc  # control: the same clock face without an offset
+
+
+def test_cli_names_the_utc_date_of_an_offset_time_before_the_start(tmp_path, capsys):
+    # 02:00 at +05:00 on 1 November 2026 is 21:00 UTC on 31 October, before a 2026-11 start.
+    assert cal.main(["--real", "2026-11-01T02:00+05:00"], kit(tmp_path, "2026-11")) == 0
+    assert capsys.readouterr().out.startswith("2026-10-31 is before the calendar started")

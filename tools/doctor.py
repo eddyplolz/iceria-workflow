@@ -25,6 +25,7 @@ import kit_python  # noqa: F401  stops on Python < 3.10, which is the Python che
 import check
 import cred_store
 from iceria_wiki import Wiki, WikiUnavailable
+from refresh_canon import REBUILT
 
 KIT_ROOT = Path(__file__).resolve().parent.parent
 NO_LOGIN = "none saved"
@@ -93,6 +94,35 @@ def canon_copy(kit: Path, today: datetime.date) -> Result:
     )
 
 
+def refreshed_files(kit: Path) -> list[str]:
+    """Tracked files in the folders refresh_canon.py rewrites that differ from the kit's copy."""
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(kit), "status", "--porcelain", "-uno", "--", *REBUILT],
+            capture_output=True,
+            text=True,
+        )
+    except FileNotFoundError:
+        return []
+    if out.returncode:
+        return []
+    # Porcelain lines are "XY path"; anything else is not a file entry.
+    return [line[3:] for line in out.stdout.splitlines() if len(line) > 3 and line[2] == " "]
+
+
+def refresh_clash(kit: Path) -> Result:
+    # A refresh rewrites files that git pull also updates, so the two clash: restore, then pull.
+    changed = refreshed_files(kit)
+    if not changed:
+        return Result("refreshed files", "the canon folders match the kit's copy")
+    more = f" and {len(changed) - 1} more" if len(changed) > 1 else ""
+    # A note, not a fix: the README offers the refresh, so doctor must not fail after it.
+    return Result(
+        "refreshed files",
+        f"{changed[0]}{more} refreshed locally; before git pull, run: git restore {' '.join(REBUILT)}",
+    )
+
+
 def humanizer() -> Result:
     if check.humanizer_command():
         return Result("humanizer", "installed")
@@ -138,6 +168,7 @@ def main(kit: Path = KIT_ROOT, wiki=None, today: datetime.date | None = None) ->
         login(),
         wiki_reachable(wiki or Wiki()),
         canon_copy(kit, today or datetime.date.today()),
+        refresh_clash(kit),
         humanizer(),
     ]
     for r in results:

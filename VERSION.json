@@ -1,8 +1,8 @@
 {
-  "kit_version": "0.1.0",
-  "map_lock_version": "1.11",
+  "kit_version": "0.1.1",
+  "map_lock_version": "1.12",
   "read_as": "anonymous",
-  "built": "2026-11-01",
+  "built": "2026-11-03",
   "source": "live",
   "in_world_date": null,
   "calendar_start": null,
@@ -13,7 +13,8 @@
     "Seltana",
     "Tleyew-Pas",
     "Axxannuzru",
-    "Rossheim-Amannia"
+    "Rossheim-Amannia",
+    "Tuvallia"
   ],
   "pages": [
     {
@@ -23,7 +24,7 @@
     },
     {
       "title": "History of Iceria",
-      "revid": 3319,
+      "revid": 3427,
       "source": "live"
     },
     {
@@ -58,7 +59,7 @@
     },
     {
       "title": "Alexandria",
-      "revid": 3288,
+      "revid": 3451,
       "source": "live"
     },
     {
@@ -68,27 +69,32 @@
     },
     {
       "title": "Seltana",
-      "revid": 3264,
+      "revid": 3478,
       "source": "live"
     },
     {
       "title": "Tleyew-Pas",
-      "revid": 3339,
+      "revid": 3363,
       "source": "live"
     },
     {
       "title": "Axxannuzru",
-      "revid": 3262,
+      "revid": 3459,
       "source": "live"
     },
     {
       "title": "Rossheim-Amannia",
-      "revid": 3263,
+      "revid": 3465,
+      "source": "live"
+    },
+    {
+      "title": "Tuvallia",
+      "revid": 3261,
       "source": "live"
     },
     {
       "title": "Module:Iceria date",
-      "revid": 1212,
+      "revid": 3378,
       "source": "live"
     }
   ],

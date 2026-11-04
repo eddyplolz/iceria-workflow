@@ -1,6 +1,6 @@
 # History of Iceria
 
-Copied from the Iceria wiki page "History of Iceria" (revision 3319) on 2026-11-01. The live page outranks this copy.
+Copied from the Iceria wiki page "History of Iceria" (revision 3427) on 2026-11-03. The live page outranks this copy.
 
 {{#seo:|description=Iceria's shared past, from the first river cities and monsoon trade to the age of sail, independence and the year 2000: the backdrop every nation builds on.|keywords=interactive geofiction, collaborative worldbuilding, nation simulation, nation RP, fictional world, conworld, geofiction wiki}}{{SHORTDESC:Shared history of the planet Iceria}}
 {{Iceria Meta Masthead|History of Iceria|The broad history every nation shares}}
@@ -327,11 +327,11 @@ players' to write. [[Names of Iceria]] lists them beside the 31 culture families
 {| class="wikitable"
 ! Name !! Meaning !! Anchor !! Born !! Spread
 |-
-| Soterian || Greek soter, "savior" || Christianity || the Ausonic east coast || Ausonic, Hesperic, Thulean, Sarmatic lands; settlers to the frontier
+| Soterian * || Greek soter, "savior" || Christianity || the Ausonic east coast || Ausonic, Hesperic, Thulean, Sarmatic lands; settlers to the frontier
 |-
-| Diathecan || Greek diatheke, "covenant" || Judaism || the Ausonic east coast, older than the Soterian faith || communities across the Old World
+| Diathecan * || Greek diatheke, "covenant" || Judaism || the Ausonic east coast, older than the Soterian faith || communities across the Old World
 |-
-| Deditan || Latin deditio, "surrender" to God || Islam || the Numidic desert || Mesaria's north, the Ecliptic coasts, the Scythic steppe
+| Deditan * || Latin deditio, "surrender" to God || Islam || the Numidic desert || Mesaria's north, the Ecliptic coasts, the Scythic steppe
 |-
 | Ritan || Latin ritus, "rite", akin to the old word for cosmic order || Hinduism || Solandra's river cities || Solandra
 |-
@@ -340,7 +340,7 @@ players' to write. [[Names of Iceria]] lists them beside the 31 culture families
 | Lararian rites || the Lares, household and ancestral spirits || Confucian and Shinto traditions || the warm Seric south || the Seric east
 |}
 
-
+* Abean faiths
 
 <div style="max-width:40em;margin:1em 0;padding:0.7em 1.2em;border-left:4px solid #36c;background:#eaf3ff">
 Your path into Iceria runs from [[Start Here]] through the [[Culture zones of Iceria|culture zones]] and the '''history''' to the [[Start Here#How to join|Claim Studio]] and [[Nation proposals|your proposal]].

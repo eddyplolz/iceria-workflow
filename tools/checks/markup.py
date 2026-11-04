@@ -157,13 +157,14 @@ def run(text: str, ctx: dict) -> list[Finding]:
     for n, line in enumerate(rows, 1):
         for m in SHORTDESC.finditer(line):
             found += _shortdesc(n, m.group(1).strip())
-        if EMPTY_FIELD.match(line):
+        if m := EMPTY_FIELD.match(line):
             found.append(
                 Finding(
                     n,
                     "markup",
                     ERROR,
-                    "empty infobox value: leave the field out instead (MoS 14.3)",
+                    f"placeholder infobox value: {m.group(1)}; leave the field out instead"
+                    " (MoS 14.3)",
                 )
             )
         for rx, level, msg in LINE_RULES:

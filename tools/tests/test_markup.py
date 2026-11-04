@@ -22,7 +22,7 @@ def test_each_markup_fault_is_named():
         (1, "error", "short description starts with an article"),
         (1, "error", "short description ends with a full stop"),
         (1, "warning", "short description says current or former"),
-        (4, "error", "empty infobox value"),
+        (4, "error", "placeholder infobox value"),
         (6, "error", "Markdown bold"),
         (6, "error", "Latin abbreviation"),
         (7, "error", "Markdown heading"),
@@ -132,3 +132,10 @@ def test_categories_belong_once_each_at_the_end():
 
 def test_a_meta_template_in_the_draft_is_an_error():
     assert ("error", "meta template") in _msgs(LEAD + "{{Written for Iceria|user=Eddy}}\n")
+
+
+def test_placeholder_value_is_named_in_the_message():
+    found = markup.run("{{Infobox Country\n| capital = unknown\n}}\n", {})
+    assert [f.message for f in found if f.line == 2] == [
+        "placeholder infobox value: unknown; leave the field out instead (MoS 14.3)"
+    ]

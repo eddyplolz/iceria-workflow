@@ -6,7 +6,7 @@ Prints one line per finding (file:line: check: level: message) and a count. Exit
 finding is an error, and 2 when the draft is not saved as UTF-8; warnings are for the writer to
 judge and never fail the run. Reads the kit's canon/geography.json, canon/culture-zones.json and
 VERSION.json when they exist, so names and dates are checked against the world as built. With
---humanizer, also runs humanizer-audit (setup step 5) when it is installed.
+--humanizer, also runs humanizer-audit (README.md: step 7 on a Mac, step 5 on Windows) when it is installed.
 """
 
 import argparse
@@ -208,7 +208,8 @@ def main(argv=None) -> int:
         else:
             print(
                 "humanizer-audit is not installed, so the AI-tell audit was skipped. Install it "
-                f"with: {pip_install('humanizer-pro')} (setup step 5 in README.md)",
+                f"with: {pip_install('humanizer-pro')} (README.md: 'Set up a Mac (once)' step 7, "
+                "or 'Set up Windows (once)' step 5)",
                 file=sys.stderr,
             )
     return 1 if errors else 0

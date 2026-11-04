@@ -137,6 +137,8 @@ def main(argv: list[str] | None = None, kit: Path = KIT) -> int:
             return 0
         if args.real:
             real = datetime.fromisoformat(args.real)
+            if real.tzinfo:  # a time with an offset is that moment, read as UTC
+                real = real.astimezone(timezone.utc).replace(tzinfo=None)
         else:
             real = datetime.now(timezone.utc).replace(tzinfo=None)
     except ValueError as e:

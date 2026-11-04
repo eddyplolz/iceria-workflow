@@ -1,6 +1,8 @@
 """map_overlay.py: the member's places and routes drawn over the canon map, inside their own land."""
 
 import json
+import re
+import sys
 
 import map_overlay
 import pytest
@@ -79,7 +81,7 @@ def test_main_writes_the_svg_beside_the_plan_and_copies_nothing(tmp_path, capsys
     plan.write_text(json.dumps(_plan(places=[{"name": "Orra", "at": [20, -60]}])), encoding="utf-8")
     assert map_overlay.main([str(plan), "--root", str(kit)]) == 0
     svg = (tmp_path / "vell-map.svg").read_text(encoding="utf-8")
-    assert "Orra" in svg and (kit / "maps" / "iceria-base.png").as_uri() in svg
+    assert "Orra" in svg
     assert "vell-map.svg" in capsys.readouterr().out
 
 
@@ -125,3 +127,35 @@ def test_a_nation_with_no_land_yet_is_told_why_not_to_move_points(tmp_path, caps
         "a new nation has land here only once the stewards accept its claim; then run "
         "tools/refresh_canon.py and this again" in err
     )
+
+
+@pytest.mark.parametrize("folder", ["examples", "notes"])
+def test_the_svg_names_the_map_by_a_path_from_its_own_folder(tmp_path, folder):
+    # Audit finding 5: an absolute file: URI put the member's folder names in a file they share.
+    kit = _kit(tmp_path / "kit")
+    plan = kit / folder / "plan.json"
+    plan.parent.mkdir()
+    plan.write_text(json.dumps(_plan(places=[{"name": "Orra", "at": [20, -60]}])), encoding="utf-8")
+    assert map_overlay.main([str(plan), "--root", str(kit)]) == 0
+    svg = plan.with_suffix(".svg").read_text(encoding="utf-8")
+    href = re.search(r'<image href="([^"]*)"', svg).group(1)
+    assert href == "../maps/iceria-base.png"
+    assert (plan.parent / href).resolve() == (kit / "maps" / "iceria-base.png").resolve()
+    for leak in ("file:", "/Users/", "\\", str(tmp_path)):
+        assert leak not in svg
+    assert not re.search(r"\b[A-Za-z]:[/\\]", svg.replace("http://", ""))
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="only Windows has drives")
+def test_a_plan_on_another_drive_is_refused_with_the_fix(tmp_path, capsys, monkeypatch):
+    # No relative path exists between two drives; say so instead of a traceback.
+    kit = _kit(tmp_path / "kit")
+    plan = tmp_path / "plan.json"
+    plan.write_text(json.dumps(_plan()), encoding="utf-8")
+
+    def other_drive(path, start):
+        raise ValueError("path is on mount 'D:', start on mount 'C:'")
+
+    monkeypatch.setattr(map_overlay.os.path, "relpath", other_drive)
+    assert map_overlay.main([str(plan), "--root", str(kit)]) == 2
+    assert "same drive" in capsys.readouterr().err

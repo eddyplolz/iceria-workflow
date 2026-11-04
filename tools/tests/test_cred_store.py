@@ -273,3 +273,27 @@ def test_an_unreadable_windows_store_is_a_store_error_not_a_traceback(monkeypatc
     with pytest.raises(cred_store.NoStore, match="error 5") as e:
         s.who()
     assert cred_store.ENV_PASS in str(e.value)
+
+
+def test_a_windows_write_that_fails_is_a_store_error_with_the_fix(capsys):
+    """A stub of advapi32, so this proves the message path and not the real CredWriteW call.
+
+    Credential Manager's refusal (a locked profile, a policy) used to escape as a bare OSError and
+    setup_bot.py printed a traceback."""
+    import ctypes
+
+    store = cred_store._WindowsStore.__new__(cred_store._WindowsStore)
+    store.ctypes = types.SimpleNamespace(
+        c_ubyte=ctypes.c_ubyte,
+        cast=lambda buf, kind: buf,
+        POINTER=ctypes.POINTER,
+        byref=lambda cred: cred,
+        get_last_error=lambda: 1312,
+    )
+    store.CREDENTIAL = lambda **fields: types.SimpleNamespace(**fields)
+    store.api = types.SimpleNamespace(CredWriteW=lambda cred, flags: 0)
+    with pytest.raises(cred_store.NoStore) as err:
+        store.write("Ana@kit", PW)
+    assert "error 1312" in str(err.value)
+    assert cred_store.ENV_USER in str(err.value) and cred_store.ENV_PASS in str(err.value)
+    assert PW not in str(err.value)
