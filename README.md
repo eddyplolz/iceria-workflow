@@ -171,15 +171,22 @@ needs a Claude account on a paid plan. These commands come from Anthropic's own 
    curl -fsSL https://claude.ai/install.sh | bash
    ```
 
-3. **Open a new Terminal window and go to the kit folder again** (the `cd` line above). The old
+3. **If it printed "Setup notes" saying `~/.local/bin is not in your PATH`**, paste this line and
+   press `Enter`. It tells new Terminal windows where `claude` is:
+
+   ```bash
+   echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
+   ```
+
+4. **Open a new Terminal window and go to the kit folder again** (the `cd` line above). The old
    window does not know about `claude` yet.
-4. **Start it.** Type this and press `Enter`:
+5. **Start it.** Type this and press `Enter`:
 
    ```bash
    claude
    ```
 
-5. **Log in.** The first time, it asks you to log in with your Claude account. A browser window
+6. **Log in.** The first time, it asks you to log in with your Claude account. A browser window
    opens; sign in there, then go back to Terminal. After that, `claude` starts straight away.
 
 If Terminal says `command not found: claude`, the install folder is not on your PATH yet: see

@@ -47,3 +47,176 @@ jobs:
             echo "$out"
             grep -q "needs Python 3.10 or newer" <<<"$out" || { echo "$tool: no install message"; exit 1; }
           done
+
+  # The README's "Set up a Mac (once)" steps in order, with python.org's Python as a member installs
+  # it, then each tool from the README's table and the Claude Code install. A runner is not a new
+  # member's Mac (it has Homebrew and git already), so the job pins the Python the steps install.
+  readme-mac:
+    runs-on: macos-latest
+    timeout-minutes: 30
+    env:
+      # One network blip must not skip a Python version or fail the job.
+      CURL: curl --retry 3 --retry-all-errors --max-time 300 -fsSL
+    steps:
+      - name: "Step 1: install the latest Python from python.org"
+        shell: bash
+        run: |
+          set -euo pipefail
+          # The newest directory with a final macOS installer; a prerelease's directory has none.
+          for v in $($CURL https://www.python.org/ftp/python/ \
+              | grep -oE 'href="[0-9]+\.[0-9]+\.[0-9]+/"' | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' \
+              | sort -Vr); do
+            pkg="python-$v-macos11.pkg"
+            if $CURL -I "https://www.python.org/ftp/python/$v/$pkg" >/dev/null; then
+              found=$v
+              break
+            fi
+          done
+          [ -n "${found:-}" ] || { echo "no python.org macOS installer found"; exit 1; }
+          echo "installing Python $found"
+          $CURL -o "$RUNNER_TEMP/$pkg" "https://www.python.org/ftp/python/$found/$pkg"
+          sudo installer -pkg "$RUNNER_TEMP/$pkg" -target /
+          echo "MINOR=${found%.*}" >> "$GITHUB_ENV"
+      - name: "Step 2: install the certificates"
+        shell: bash
+        run: |
+          set -euo pipefail
+          py="/Library/Frameworks/Python.framework/Versions/$MINOR/bin/python3"
+          count='import ssl; print(ssl.create_default_context().cert_store_stats()["x509_ca"])'
+          echo "root certificates before: $("$py" -c "$count")"
+          "/Applications/Python $MINOR/Install Certificates.command"
+          echo "root certificates after: $("$py" -c "$count")"
+      # A new Terminal is a login zsh with a clean environment. Its python3 may be the installer's
+      # link in /usr/local/bin, so the check follows links to the file that runs.
+      - name: "Step 3: a new Terminal finds python.org's python3"
+        shell: bash
+        run: |
+          set -euo pipefail
+          found=$(env -i HOME="$HOME" USER="$USER" zsh -lic \
+            'python3 -c "import os, sys; print(os.path.realpath(sys.executable))"')
+          echo "a new Terminal runs $found"
+          [[ "$found" == /Library/Frameworks/Python.framework/Versions/$MINOR/* ]] \
+            || { echo "a new Terminal does not run python.org's Python $MINOR"; exit 1; }
+          # The later steps run in this job's shell, where Homebrew's python3 would come first.
+          echo "/Library/Frameworks/Python.framework/Versions/$MINOR/bin" >> "$GITHUB_PATH"
+      - name: "Step 3 check: python3 is python.org's"
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -c "import sys; print(sys.executable, sys.version.split()[0])"
+          python3 -c "import sys; assert 'Python.framework' in sys.executable, sys.executable"
+      - name: "Step 4: check Git"
+        run: git --version
+      # The README clones the public repo's master; the job clones this run's commit, so a pushed
+      # change is tested before it reaches a member.
+      - name: "Step 5: get the kit"
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ~/Documents
+          cd ~/Documents
+          git clone "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git"
+          cd "${GITHUB_REPOSITORY#*/}"
+          git fetch origin "$GITHUB_SHA"
+          git checkout --detach "$GITHUB_SHA"
+          echo "KIT=$PWD" >> "$GITHUB_ENV"
+      - name: "Step 6: check everything"
+        shell: bash
+        run: |
+          set +e -uo pipefail  # the runner's bash starts with -e
+          cd "$KIT"
+          out=$(python3 tools/doctor.py 2>&1); code=$?
+          echo "$out"
+          echo "doctor exited $code"
+          ! grep -q Traceback <<<"$out" || { echo "doctor crashed"; exit 1; }
+          for line in "OK  Python: $MINOR." "OK  certificates:" "OK  bot login: none saved" \
+              "OK  refreshed files:" "OK  humanizer: optional, not installed"; do
+            grep -qF "$line" <<<"$out" || { echo "missing: $line"; exit 1; }
+          done
+          # Two FIX lines are the runner's, not the kit's: iceria.org refuses GitHub's runners
+          # (403), and the canon copy goes stale 30 days after VERSION.json's build date. A wiki
+          # FIX for any other reason (a certificate failure above all) fails the job.
+          bad=$(grep '^FIX ' <<<"$out" \
+            | grep -vE '^FIX wiki: could not reach|^FIX canon copy: copied .*, [0-9]+ days old$' || true)
+          [ -z "$bad" ] || { echo "unexpected FIX: $bad"; exit 1; }
+          if grep -q '^FIX wiki:' <<<"$out"; then
+            grep -q "HTTPError 403" <<<"$out" || { echo "the wiki FIX is not the runner's 403"; exit 1; }
+          fi
+          want=0; grep -q '^FIX ' <<<"$out" && want=1
+          [ "$code" = "$want" ] || { echo "doctor exited $code, expected $want"; exit 1; }
+      - name: "Step 7: the AI-tell audit"
+        shell: bash
+        run: |
+          set +e -uo pipefail  # the runner's bash starts with -e
+          cd "$KIT"
+          python3 -m pip install humanizer-pro
+          out=$(python3 tools/doctor.py 2>&1)
+          grep -qF "OK  humanizer: installed" <<<"$out" || { echo "$out"; echo "humanizer not found"; exit 1; }
+      - name: "Tools: each command in the README's table"
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$KIT"
+          python3 tools/check.py templates/city.wiki --title "Example" --offline --humanizer
+          python3 tools/iceria_calendar.py
+          python3 tools/iceria_calendar.py --real 2027-01-15
+          python3 tools/iceria_calendar.py --in-world "14 March 2001"
+          python3 tools/map_overlay.py examples/plan.json
+          test -s examples/plan.svg
+          # With no login saved, --check names the setup step and exits 1.
+          set +e; out=$(python3 tools/setup_bot.py --check 2>&1); code=$?; set -e
+          echo "$out"
+          [ "$code" = 1 ] && grep -qF "Run python tools/setup_bot.py first" <<<"$out" \
+            || { echo "setup_bot --check exited $code"; exit 1; }
+          # These two need the wiki, which refuses the runner. Exit 0 passes; 2 passes only for the
+          # runner's 403; refresh_canon's 1 passes only when it says a refresh is due.
+          for cmd in "tools/redlinks.py templates/city.wiki" "tools/refresh_canon.py --check"; do
+            set +e; out=$(python3 $cmd 2>&1); code=$?; set -e
+            echo "$out"; echo "$cmd exited $code"
+            ! grep -q Traceback <<<"$out" || { echo "$cmd crashed"; exit 1; }
+            case "$code" in
+              0) ;;
+              2) grep -q "HTTPError 403" <<<"$out" || { echo "$cmd: not the runner's 403"; exit 1; } ;;
+              1) grep -q "^a refresh is due" <<<"$out" || { echo "$cmd exited 1"; exit 1; } ;;
+              *) echo "$cmd exited $code"; exit 1 ;;
+            esac
+          done
+      - name: "Tests: the README's test commands"
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$KIT"
+          python3 -m pip install pytest
+          python3 -m pytest tools/tests
+      # The README pipes install.sh into bash; the job saves the same script, then runs it. The
+      # installer is Anthropic's, so a change to its success line fails this step with no kit change.
+      - name: "Claude Code: install and start"
+        shell: bash
+        run: |
+          set +e -uo pipefail  # the runner's bash starts with -e
+          $CURL -o "$RUNNER_TEMP/install.sh" https://claude.ai/install.sh || exit 1
+          profiles=(~/.zshrc ~/.zprofile ~/.zshenv ~/.bashrc ~/.bash_profile ~/.profile)
+          for f in "${profiles[@]}"; do cp "$f" "$f.before" 2>/dev/null || : > "$f.before"; done
+          # The install runs with a Mac Terminal's environment: zsh's login PATH and SHELL. The
+          # runner's own PATH already holds ~/.local/bin, which would hide a missing profile line.
+          term_path=$(env -i HOME="$HOME" USER="$USER" zsh -lic 'print -r -- $PATH')
+          echo "a new Terminal's PATH: $term_path"
+          out=$(env -i HOME="$HOME" USER="$USER" SHELL=/bin/zsh PATH="$term_path" \
+            bash "$RUNNER_TEMP/install.sh" 2>&1); code=$?
+          echo "$out"
+          for f in "${profiles[@]}"; do
+            [ -f "$f" ] && ! cmp -s "$f.before" "$f" && { echo "the install changed $f:"; diff "$f.before" "$f"; }
+          done
+          [ "$code" = 0 ] || { echo "install exited $code"; exit 1; }
+          grep -qF "Claude Code successfully installed!" <<<"$out" || { echo "no success line"; exit 1; }
+          # README step 3: on a Mac with no ~/.local/bin on its PATH, the installer prints a note
+          # instead of editing a profile, and the member pastes the README's line, run here as written.
+          if grep -qF "/.local/bin is not in your PATH" <<<"$out"; then
+            line=$(grep -m1 -E '^ *echo .*>> ~/\.zshrc$' "$KIT/README.md" | sed 's/^ *//')
+            [ -n "$line" ] || { echo "the README has no PATH line for this note"; exit 1; }
+            echo "README step 3: $line"
+            bash -c "$line"
+          fi
+          # The README's new Terminal window: a login zsh with a clean environment.
+          env -i HOME="$HOME" USER="$USER" zsh -lic 'command -v claude && claude --version' \
+            || { echo "a new Terminal does not find claude"; exit 1; }
