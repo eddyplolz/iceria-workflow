@@ -20,6 +20,7 @@ assistant is specific to your nation, checked against canon, and yours.
 
 **Contents:** [Start](#start) · [New nation](#new-nation-before-anything-else) · [Set up a Mac](#set-up-a-mac-once) ·
 [Set up Windows](#set-up-windows-once) · [Running the tools](#running-the-tools) ·
+[Use the Claude desktop app](#use-the-claude-desktop-app) ·
 [Install and start Claude Code](#install-and-start-claude-code) ·
 [Use it with Claude Code](#use-it-with-claude-code) ·
 [Where your drafts go](#where-your-drafts-go) ·
@@ -32,7 +33,7 @@ assistant is specific to your nation, checked against canon, and yours.
 
 | You use | Do this |
 |---|---|
-| Claude Code | Install it once ([steps below](#install-and-start-claude-code)), open this folder and ask for the page you want. `CLAUDE.md` and the skills load by themselves. This is the one path a person has run start to finish. |
+| Claude Code | Open this folder in the Claude desktop app ([steps below](#use-the-claude-desktop-app)), or install Claude Code in Terminal ([steps](#install-and-start-claude-code)). Then ask for the page you want. `CLAUDE.md` and the skills load by themselves. This is the one path a person has run start to finish. |
 | Codex, Cursor or another coding assistant (**untested**) | Open this folder; it reads `AGENTS.md`. No person has run this path yet, so expect rough edges and tell the maintainer. |
 | A claude.ai or ChatGPT Project (**untested**) | Paste `project-pack/instructions.md` into the project's instructions and upload every file in `project-pack/knowledge/`. No person has run this path yet either. |
 
@@ -148,7 +149,39 @@ If it says the kit needs Python 3.10 or newer, Python is not installed yet. With
 also runs [humanizer-pro](https://pypi.org/project/humanizer-pro/)'s audit for AI-sounding prose;
 without humanizer-pro installed, the checker says so and skips that audit.
 
+## Use the Claude desktop app
+
+The Claude desktop app runs Claude Code in a window you click, so you install nothing more in
+Terminal. Do this after the kit is on your computer (Mac steps 1 to 6 above, or the Windows table).
+It needs a Claude account on a paid plan. These steps come from Anthropic's
+[desktop quickstart](https://code.claude.com/docs/en/desktop-quickstart); if it has changed, theirs
+wins.
+
+1. **Install the app.** Download it from the
+   [desktop quickstart](https://code.claude.com/docs/en/desktop-quickstart), open it, and sign in
+   with your Claude account.
+2. **Open the Code tab.** Click **Code** at the top of the app's sidebar.
+3. **Choose the kit folder.** In the row under the prompt box, click the first control and choose
+   the top entry in the **Local** group. Then click the folder control beside it, choose
+   **Open folder…**, and pick the `iceria-workflow` folder (on a Mac, it is in **Documents**).
+4. **Check the setup.** Type this and press `Enter` (on Windows, say `py` in place of `python3`):
+
+   ```text
+   Run python3 tools/doctor.py and tell me what it says.
+   ```
+
+   Before Claude runs a command or edits a file, it asks you. Read what it wants to do, then click
+   to approve it or decline it.
+5. **Ask for the page you want**, for example "help me write a page about my capital city".
+   `CLAUDE.md` and the skills load by themselves.
+
+Each session keeps its own folder. To start a new one, click **+ New** in the sidebar (`Cmd + N` on
+a Mac, `Ctrl + N` on Windows) and check that the folder control shows `iceria-workflow` before you
+ask. To stop Claude while it is working, click the stop button or press `Esc`.
+
 ## Install and start Claude Code
+
+This is the Terminal way to run Claude Code. Using the desktop app above? Skip this section.
 
 Do this once, after the kit is on your computer (Mac steps 1 to 6 above, or the Windows table). It
 needs a Claude account on a paid plan. These commands come from Anthropic's own pages,
@@ -238,8 +271,10 @@ drafts. Run the checker on a draft there, as in the example above.
 
 Your Claude plan has a usage limit that fills as you work. Four habits keep it going:
 
-1. Write one article per session, then type `/clear` before the next one.
-2. For checking and fixing passes, type `/model sonnet`; save the bigger model for drafting.
+1. Write one article per session, then start a fresh one: type `/clear` in Terminal, or click
+   **+ New** in the desktop app.
+2. For checking and fixing passes, switch to Sonnet: type `/model sonnet` in Terminal, or pick it
+   in the desktop app's model picker under the prompt box. Save the bigger model for drafting.
 3. Chatting on claude.ai uses the same limit as Claude Code, and switching models does not reset it.
 4. Start each session from the kit folder, so Claude reads only what the kit points it to.
 

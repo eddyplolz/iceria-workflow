@@ -4,6 +4,19 @@ Every release of the kit gets an entry here, newest first. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the version numbers follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.1.3] - 2026-11-04
+
+### Added
+
+- README: "Use the Claude desktop app", the steps for running the kit from the desktop app's Code
+  tab with no Terminal install. "Making your plan last" now gives the desktop app's way to start a
+  fresh session and switch models.
+
+### Fixed
+
+- `refresh_canon.py`'s own notes no longer suggest a bot password gets past the wiki's firewall or
+  browser check. It does not: when the wiki asks for one, the read is refused either way.
+
 ## [0.1.2] - 2026-11-04
 
 ### Fixed

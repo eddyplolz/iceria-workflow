@@ -4,10 +4,10 @@
     python tools/refresh_canon.py --check    exit 0 current, 1 a refresh is due, 2 could not check
 
 With a bot password (python tools/setup_bot.py) it reads the wiki logged in as your bot; without
-one it reads as a visitor, which works until the wiki asks visitors for a browser check. Either
-way it reads only, and a bot password with more than Basic rights is refused. The new copy is
-built aside and renamed in path by path; a failure puts back each path already renamed, and names
-any it could not.
+one it reads as a visitor. Neither gets past a firewall or browser check: if the wiki asks for one,
+the read is refused either way. In both cases it reads only, and a bot password with more than
+Basic rights is refused. The new copy is built aside and renamed in path by path; a failure puts
+back each path already renamed, and names any it could not.
 """
 
 import argparse
