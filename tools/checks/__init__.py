@@ -38,9 +38,14 @@ FURNITURE = re.compile(
 MONTH = r"(?:January|February|March|April|May|June|July|August|September|October|November|December)"
 
 
+def blank_text(s: str) -> str:
+    """The text with every character but newlines turned to spaces, so line numbers hold."""
+    return re.sub(r"[^\n]", " ", s)
+
+
 def blank(m: re.Match) -> str:
-    """The match with every character but newlines turned to spaces, so line numbers hold."""
-    return re.sub(r"[^\n]", " ", m.group(0))
+    """blank_text for a match, as a re.sub replacement."""
+    return blank_text(m.group(0))
 
 
 def mask(text: str) -> str:

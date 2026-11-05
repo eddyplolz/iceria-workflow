@@ -153,12 +153,39 @@ def test_the_claim_is_the_name_of_an_image_file():
         assert _run(FULL.replace("Halvorden-claim.png", ok)) == []
 
 
-def test_a_guidance_comment_left_in_the_form_is_a_warning():
+def test_a_comment_in_the_form_is_left_to_the_comments_check():
     text = FULL.replace("= Thulean", "= Thulean <!-- your culture family -->")
-    assert _run(text) == [
-        (
-            4,
-            "warning",
-            "comment left in the draft: delete template guidance comments before handing in",
-        )
+    assert _run(text) == []
+
+
+def test_an_answer_may_start_on_the_line_below_its_field():
+    # Accepted proposals (Axxannuzru, Xuna) write the history as paragraphs under "| history =".
+    text = FULL.replace(
+        "| history    = Settlers reached the fjord around 1190.\n",
+        "| history    =\nSettlers reached the fjord around 1190.\n\nThe jarls ruled it after.\n",
+    )
+    assert _run(text) == []
+    assert proposal._fields(text)["history"] == (
+        6,
+        "Settlers reached the fjord around 1190.\n\nThe jarls ruled it after.",
+    )
+
+
+def test_a_value_ends_at_the_next_field_or_the_close_of_the_form():
+    fields = proposal._fields(FULL.replace("| status     = draft\n}}", "| status = draft }}"))
+    assert fields["status"] == (11, "draft")
+    assert fields["problem"] == (9, "The fish stocks have thinned.")
+
+
+def test_a_field_the_kit_does_not_know_still_ends_the_answer_above_it():
+    # On the wiki any top-level "| x =" starts a new field, whatever its name.
+    text = FULL.replace("| family", "| flag       = Halvorden-flag.png\n| family")
+    assert _run(text) == []
+
+
+def test_one_line_outside_the_form_is_counted_in_the_singular():
+    body, found = proposal.scope("A note.\n{{Proposal\n| name = Vell\n}}\n")
+    assert [(f.line, f.message.split(":")[0]) for f in found] == [
+        (1, "1 line outside the {{Proposal}} form was not checked")
     ]
+    assert body.splitlines()[0].strip() == ""

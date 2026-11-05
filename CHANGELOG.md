@@ -4,6 +4,36 @@ Every release of the kit gets an entry here, newest first. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the version numbers follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.1.4] - 2026-11-05
+
+### Added
+
+- `templates/page-guide.md`: what each section of each page template asks. The templates
+  themselves now carry no `<!-- -->` comments.
+- `templates/proposal-guide.md`, built by `refresh_canon.py` from the wiki's proposal form: the
+  form's guidance, field by field. The copy in `templates/proposal.wiki` carries no comments.
+- `check.py --own-nation "Name"`: checks a page of a nation that is already canon without
+  reporting its own name and capital as taken.
+
+### Changed
+
+- A `<!-- -->` comment anywhere in a draft is now an error, not a warning: pages on Iceria carry
+  none.
+- A page with a `{{Proposal}}` form is read as a form even when text sits above it. Lines outside
+  the form are not checked, and a warning says how many.
+- A project page (the Iceria Meta Masthead or Category:Meta Iceria) is checked only for hidden
+  comments, since the Manual of Style is for articles.
+
+### Fixed
+
+- A proposal answer written on the lines under its `| history =` line is read whole, not as empty.
+  It ends at the next `| field =` line, whatever the field's name.
+- Page names inside links and HTML tags (`<span style="...">`) are no longer read as prose, so a
+  hyphen in them is not a dash error.
+- "A claim to the coast" and "its claim that" are no longer flagged as talk about the claim map.
+- `templates/infobox-cheatsheet.md` carries no `<!-- -->` comments: each note from the wiki's
+  page is plain text, and a note on a field is listed under the box as "`field`: note".
+
 ## [0.1.3] - 2026-11-04
 
 ### Added

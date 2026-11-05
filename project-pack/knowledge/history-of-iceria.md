@@ -1,6 +1,6 @@
 # History of Iceria
 
-Copied from the Iceria wiki page "History of Iceria" (revision 3427) on 2026-11-04. The live page outranks this copy.
+Copied from the Iceria wiki page "History of Iceria" (revision 3427) on 2026-11-05. The live page outranks this copy.
 
 {{#seo:|description=Iceria's shared past, from the first river cities and monsoon trade to the age of sail, independence and the year 2000: the backdrop every nation builds on.|keywords=interactive geofiction, collaborative worldbuilding, nation simulation, nation RP, fictional world, conworld, geofiction wiki}}{{SHORTDESC:Shared history of the planet Iceria}}
 {{Iceria Meta Masthead|History of Iceria|The broad history every nation shares}}
@@ -307,7 +307,7 @@ them ([[World Standards]] 6.4 and 12).
 |-
 | The Great War, ending in 1945, nuclear weapons at its end, the Concord of Nations founded in 1945 and the bombs placed in its custody || Every nation's own faith, within its tradition or apart from it
 |-
-| The common reckoning: year 1 is an old astronomical epoch of the Ecliptic coasts || 
+| The common reckoning: year 1 is an old astronomical epoch of the Ecliptic coasts ||
 |-
 | Technology at Earth's 2000 level ||
 |}

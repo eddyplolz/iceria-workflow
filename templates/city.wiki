@@ -1,9 +1,4 @@
-<!--
-  City or town skeleton (MoS 10). Replace "Name" and "Nation", fill each section in prose, and
-  delete every comment before posting. A building takes History, Architecture and Use instead,
-  with {{Infobox building}} (MoS 10.3). Leave out infobox lines you have no fact for (MoS 14.3).
--->
-{{SHORTDESC:City in Nation}}<!-- under 60 characters, no full stop (MoS 3.4) -->
+{{SHORTDESC:City in Nation}}
 {{Infobox Settlement
 | name               =
 | native_name        =
@@ -22,11 +17,6 @@
 | utc_offset         =
 }}
 '''Name''' is a city in [[Nation]].<ref name="nation" />
-<!--
-  The lead follows MoS 10: what kind of place, which nation and region, where it sits, and its
-  population in 2000. Example from the manual: "Port-Réal is a port city in Alexandria, at the
-  mouth of the Lère in the region of Baudrix. It had about 4.6 million people in 2000."
--->
 
 == History ==
 

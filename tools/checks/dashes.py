@@ -3,12 +3,12 @@
 No dashes in running prose; the en dash appears only in ranges, unspaced unless a side of the
 range has a space in it ("14 March – 2 April 1898"); hyphens join compound modifiers; quotation
 marks are straight. Infobox, table and heading lines are not prose and are not read; nor are ref
-bodies, which quote page titles as they are.
+bodies, which quote page titles as they are, link targets (another page's name) or HTML tags.
 """
 
 import re
 
-from checks import ERROR, MONTH, Finding, prose_lines, strip_refs
+from checks import ERROR, MONTH, Finding, blank, prose_lines, strip_refs
 
 RULES = [
     (re.compile("—"), "em dash: recast the sentence; MoS 6.4 allows no dashes in prose"),
@@ -16,6 +16,9 @@ RULES = [
     (re.compile("[“”‘’]"), "curly quote: use straight quotes (MoS 6.4)"),
     (re.compile(r"(?<=\w) - (?=\w)"), "spaced hyphen: recast the sentence (MoS 6.4)"),
 ]
+# An HTML tag, or a link's target (a page name, not prose). The brackets stay, so a dash beside
+# the link still has a word on that side.
+NOT_PROSE = re.compile(r"<[^<>]*>|(?<=\[\[)[^\[\]|]*(?=\||\]\])")
 SPACED_EN = re.compile(r"(\S+) – (\S+)")
 # A tight range joins years, decades or months, and may run to "present" (MoS 5.2).
 RANGE_END = rf"(?:\d{{1,4}}s?|{MONTH})"
@@ -32,7 +35,7 @@ def _range_side(before: str, after: str) -> bool:
 def run(text: str, ctx: dict) -> list[Finding]:
     found = []
     for n, line in prose_lines(text):
-        prose = strip_refs(line)
+        prose = NOT_PROSE.sub(blank, strip_refs(line))
         for rx, msg in RULES:
             if rx.search(prose):
                 found.append(Finding(n, "dashes", ERROR, msg))

@@ -11,7 +11,8 @@
 4. **Write** the page in wikitext, saved in `notes/drafts/<name>.wiki` (make the folder if it is
    missing; `notes/` stays out of git), following `style/writing-checklist.md`: in-world voice, sentence
    case, bold in the lead only, figures for 2000, a reference on every figure. Fill every infobox
-   line you have a fact for and delete the rest. Delete the template's comments.
+   line you have a fact for and delete the rest. What each section asks is in
+   `templates/page-guide.md`; the draft carries no `<!-- -->` comments (check.py fails one).
 5. **List the NEW facts**: every name, date, figure or relation the draft adds that no page in
    `canon/` holds, each with the line it appears on. Facts that touch another nation are marked
    "needs that nation's agreement".

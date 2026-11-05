@@ -1,10 +1,4 @@
-<!--
-  Biography skeleton (MoS 9). Replace "Name" and "Nation", fill each section in prose, and delete
-  every comment before posting. A monarch takes Reign for Career, and may add a succession box
-  ({{S-start}}, {{S-bef}}, {{S-ttl}}, {{S-aft}}, {{S-end}}) above the categories.
-  Leave out infobox lines you have no fact for (MoS 14.3).
--->
-{{SHORTDESC:Politician of Nation}}<!-- what the person is known for; under 60 characters (MoS 3.4) -->
+{{SHORTDESC:Politician of Nation}}
 {{Infobox Person
 | name         =
 | image        =
@@ -25,10 +19,6 @@
 | children     =
 }}
 '''Name''' (born 1941) is a politician of [[Nation]].<ref name="nation" />
-<!--
-  The lead says who the person is, when they lived, and why they matter (MoS 9). Give dates
-  as 14 March 1941 (MoS 5.2). A living person is described as of 2000 (MoS 5.1).
--->
 
 == Early life ==
 
@@ -41,7 +31,6 @@
 == Honors ==
 
 == Death and legacy ==
-<!-- leave this section out for a person still alive in 2000 -->
 
 == See also ==
 

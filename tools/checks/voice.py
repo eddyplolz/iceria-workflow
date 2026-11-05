@@ -1,7 +1,8 @@
 """Encyclopedic, in-world voice: MoS 1.1, 1.2, 1.5 (words to watch) and 7.2.
 
 Words that can only come from outside the world (Discord, a chatbot's name, "this wiki") are
-errors, and they are read inside comments and nowiki too, where the other checks look away. Words
+errors, and they are read inside nowiki and pre too, where the other checks look away (a comment is
+an error of its own, in checks/comments.py). Words
 with a fair in-world use ("the steward of the harbor", "a claim to the throne") and real-world
 names are warnings, so the writer decides. Ref bodies are not read.
 """
@@ -23,7 +24,7 @@ claimed|admitted|insisted|revealed|conceded|so-called|supposed|alleged"""
 # drafting (MoS 1.1). "Member" is left out: councils and parliaments have members in-world too.
 FOURTH_WALL = """player|players|steward|stewards|proposal|proposals|
 not yet written|will be added|to be written|to be added|artist's interpretation|in-character|
-claim|claims|official map|the member who|who writes|who wrote"""
+official map|the member who|who writes|who wrote"""
 # Words no sentence inside the world can hold (MoS 1.1): always an error, in any case.
 OUT_OF_WORLD = """Discord|forum|roleplay|role-play|role play|out of character|
 this wiki|the wiki|Wikipedia|Britannica|nation owner|fictional|real world|real-world|
@@ -67,9 +68,11 @@ OUT_OF_WORLD_CAPS_RX = _pattern(OUT_OF_WORLD_CAPS, 0)
 UNFINISHED_RX = re.compile(UNFINISHED, re.I)
 REAL_RX = _pattern(REAL, 0)
 ADDRESS_RX = _pattern(ADDRESS)
+# "A claim to the coast" and "its claim that" are in-world claims, not the claim on the map.
+FOURTH_WALL_RX = re.compile(_pattern(FOURTH_WALL).pattern + r"|\bclaims?\b(?! (?:to|that)\b)", re.I)
 GROUPS = [
     (_pattern(WATCH), "words to watch", "say it plainly or attribute it (MoS 1.5)"),
-    (_pattern(FOURTH_WALL), "out-of-world voice", "write from inside the world (MoS 1.1)"),
+    (FOURTH_WALL_RX, "out-of-world voice", "write from inside the world (MoS 1.1)"),
 ]
 
 
@@ -135,19 +138,19 @@ def run(text: str, ctx: dict) -> list[Finding]:
                     f"real-world name: {', '.join(hits)}; Iceria has its own places (MoS 7.2)",
                 )
             )
-    # Comments, nowiki and pre are blanked for the other checks, so out-of-world text hides there.
+    # Nowiki and pre are blanked for the other checks, so out-of-world text hides there.
     if ctx.get("form"):
         # A proposal may speak about Iceria as a project (Manual of Style intro), so its typed
         # values are not read for out-of-world voice.
         return sorted(found, key=lambda f: f.line)
     for m in HIDDEN.finditer(text):
-        if not m.group(0).startswith("__") and (hits := _out_of_world(m.group(0))):
+        if not m.group(0).startswith(("__", "<!--")) and (hits := _out_of_world(m.group(0))):
             found.append(
                 Finding(
                     text.count("\n", 0, m.start()) + 1,
                     "voice",
                     ERROR,
-                    f"out-of-world voice inside a comment or nowiki: {', '.join(hits)}; "
+                    f"out-of-world voice inside nowiki or pre: {', '.join(hits)}; "
                     "delete it (MoS 1.1)",
                 )
             )

@@ -10,8 +10,11 @@ names. Only a form (ctx["form"]) is read.
 
 import re
 
-from checks import ERROR, HIDDEN, WARNING, Finding, bold, clashes, dashes, lines, voice
+from checks import ERROR, WARNING, Finding, blank_text, bold, clashes, dashes, lines, mask, voice
 
+# A line that opens a {{Proposal}} form; text may sit above it (a note, a heading).
+START = re.compile(r"^[ \t]*\{\{\s*Proposal\s*(?:\||<|$)", re.I | re.M)
+BRACES = re.compile(r"\{\{|\}\}")
 CORE = ("name", "claim", "family", "history", "capital")
 ONE_OF = ("differs", "problem", "neighbor")
 PROSE = ("history", "differs", "problem", "neighbor", "twist", "concept")
@@ -19,14 +22,60 @@ FIELD = re.compile(r"^\s*\|\s*(\w+)\s*=(.*)$")
 CLAIM_FILE = re.compile(r"[^/\\|\[\]]+\.(?:png|jpe?g|svg)", re.I)
 
 
+def scope(text: str) -> tuple[str, list[Finding]] | None:
+    """For a page holding a {{Proposal}} form: the text with everything outside the form blanked
+    (newlines kept, so line numbers hold), and a warning naming the lines left unread. None when
+    the page holds no form."""
+    hidden = mask(text)
+    if not (m := START.search(hidden)):
+        return None
+    depth, end = 0, len(text)
+    for b in BRACES.finditer(hidden, m.start()):
+        depth += 1 if b.group() == "{{" else -1
+        if depth == 0:
+            end = b.end()
+            break
+    before, after = hidden[: m.start()], hidden[end:]
+    outside = [
+        n
+        for n, ln in enumerate(lines(before + blank_text(text[m.start() : end]) + after), 1)
+        if ln.strip()
+    ]
+    found = []
+    if outside:
+        found.append(
+            Finding(
+                outside[0],
+                "proposal",
+                WARNING,
+                f"{len(outside)} line{'s' if len(outside) != 1 else ''} outside the {{{{Proposal}}}} "
+                f"form {'were' if len(outside) != 1 else 'was'} not checked: the stewards read the form, so keep notes out of it or "
+                "check them as a page of their own",
+            )
+        )
+    return blank_text(text[: m.start()]) + text[m.start() : end] + blank_text(text[end:]), found
+
+
 def _fields(text: str) -> dict[str, tuple[int, str]]:
-    """{field: (line, value)} for the form's top-level fields, comments left out."""
-    found, depth = {}, 0
+    """{field: (line, value)} for the form's top-level fields, comments left out. A value runs on
+    over the lines below it until the next field or the close of the form, since an answer may be
+    paragraphs written under its "| history =" line. Any top-level "| x =" is a field, as it is on
+    the wiki, whether or not Template:Proposal names it."""
+    found, depth, current = {}, 0, None  # current: [key, line, value lines]
     for n, ln in enumerate(lines(text), 1):
-        if depth == 1 and (m := FIELD.match(ln)):
-            found.setdefault(m.group(1).lower(), (n, m.group(2).strip()))
+        before = depth
         depth += ln.count("{{") - ln.count("}}")
-    return found
+        if before == 1 and (m := FIELD.match(ln)):
+            current = [m.group(1).lower(), n, []]
+            found.setdefault(current[0], current)
+            ln = m.group(2)
+        if before < 1 or not current:
+            continue
+        if depth <= 0:  # the line that closes the form
+            current[2].append(ln[: ln.rfind("}}")])
+            break
+        current[2].append(ln)
+    return {key: (n, "\n".join(value).strip()) for key, (_, n, value) in found.items()}
 
 
 def _prose(n: int, value: str, ctx: dict) -> list[Finding]:
@@ -47,18 +96,6 @@ def run(text: str, ctx: dict) -> list[Finding]:
     if not ctx.get("form"):
         return []
     fields, found = _fields(text), []
-    # An unfilled field already has its own error; the comment only matters beside a typed answer.
-    filled = {n for n, value in fields.values() if value}
-    found += [
-        Finding(
-            n,
-            "proposal",
-            WARNING,
-            "comment left in the draft: delete template guidance comments before handing in",
-        )
-        for m in HIDDEN.finditer(text)
-        if m.group(0).startswith("<!--") and (n := text.count("\n", 0, m.start()) + 1) in filled
-    ]
     for key in PROSE:
         n, value = fields.get(key, (1, ""))
         if value:
@@ -123,7 +160,9 @@ def run(text: str, ctx: dict) -> list[Finding]:
     n, capital = fields.get("capital", (1, ""))
     n_name, raw_name = fields.get("name", (1, ""))
     name = clashes.plain(raw_name)
-    if name and any(name.lower() == nation.lower() for nation in ctx.get("nations", {})):
+    own = clashes.plain(ctx.get("own_nation", "")).lower()
+    others = [nation for nation in ctx.get("nations", {}) if nation.lower() != own]
+    if name and any(name.lower() == nation.lower() for nation in others):
         found.append(
             Finding(
                 n_name,
@@ -148,6 +187,7 @@ def run(text: str, ctx: dict) -> list[Finding]:
             capital
             and theirs
             and nation != name
+            and nation.lower() != own
             and clashes.plain(capital).lower() == theirs.lower()
         ):
             found.append(

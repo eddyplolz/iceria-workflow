@@ -105,6 +105,57 @@ def test_an_anonymous_refresh_rebuilds_from_the_wiki_and_says_so(kit, capsys):
     assert "NOTICE" in capsys.readouterr().err
 
 
+def test_the_proposal_form_is_built_without_comments_and_its_guidance_goes_to_a_guide(kit):
+    # Pages on Iceria carry no hidden comments, and check.py fails one; the wiki's preload has them.
+    pages = wiki_pages(kit)
+    pages[canon_pages.PROPOSAL] = (
+        "<noinclude>How to use.</noinclude>{{Proposal\n"
+        "<!-- THE CORE: fill in these six. -->\n"
+        "| name       =\n"
+        "| claim      = <!-- the file name\n   of your claim image -->\n"
+        "| status     = draft <!-- the stewards change this -->\n"
+        "}}\n"
+    )
+    assert refresh_canon.refresh(kit, FakeWiki(pages), TODAY, None) == 0
+    form = (kit / "templates/proposal.wiki").read_text("utf-8")
+    assert form == "{{Proposal\n| name       =\n| claim      =\n| status     = draft\n}}\n"
+    guide = (kit / "templates/proposal-guide.md").read_text("utf-8")
+    assert "THE CORE: fill in these six." in guide
+    assert "- `claim`: the file name of your claim image" in guide
+    assert "- `status`: the stewards change this" in guide
+    assert guide.index("THE CORE") < guide.index("`claim`") < guide.index("`status`")
+    assert (kit / "project-pack/knowledge/proposal-guide.md").exists()
+
+
+def test_a_copied_page_keeps_its_hidden_comments_as_plain_notes(kit):
+    # The infobox cheat sheet's sample box is copied into drafts; the wiki's doc page has comments.
+    pages = wiki_pages(kit)
+    pages["Template:Infobox Country/doc"] = (
+        "== Parameters ==\n"
+        "<pre>{{Infobox country\n"
+        "| common_name   =\n"
+        '| largest_city  = <!-- "capital" if it\n   is the capital -->\n'
+        "| tier          = <!-- set by the stewards -->\n"
+        "}}</pre>\n"
+        "<!-- Keep this list in step with the template. -->\n"
+        "== What the World Standards ask ==\n"
+    )
+    assert refresh_canon.refresh(kit, FakeWiki(pages), TODAY, None) == 0
+    sheet = (kit / "templates/infobox-cheatsheet.md").read_text("utf-8")
+    assert "<!--" not in sheet
+    assert (
+        "<pre>{{Infobox country\n"
+        "| common_name   =\n"
+        "| largest_city  =\n"
+        "| tier          =\n"
+        "}}</pre>\n"
+        '- `largest_city`: "capital" if it is the capital\n'
+        "- `tier`: set by the stewards\n"
+        "Keep this list in step with the template.\n"
+        "== What the World Standards ask ==\n"
+    ) in sheet
+
+
 def test_with_a_bot_password_it_logs_in_first(kit):
     wiki = FakeWiki(wiki_pages(kit))
     assert refresh_canon.refresh(kit, wiki, TODAY, ("Ana@kitbot", PW)) == 0

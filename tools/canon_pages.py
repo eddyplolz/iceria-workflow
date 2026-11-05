@@ -21,6 +21,8 @@ PAGES = (
 CHARTER = ("Charter", "style/charter-extract.md")
 CHARTER_CLAUSES = ("1.4", "3.1", "3.8", "5.1", "5.4", "5.6", "6.1")
 PROPOSAL = "Template:Proposal/preload"
+COMMENT = re.compile(r"<!--(.*?)-->", re.S)
+FORM_FIELD = re.compile(r"^\s*\|\s*(\w+)\s*=")
 INFOBOXES = ("Infobox country", "Infobox Country")
 IN_WORLD_DATE = re.compile(r"^\d{1,2} \w+ \d{4}$")
 CALENDAR_MODULE = "Module:Iceria date"
@@ -92,7 +94,7 @@ class Builder:
 
     def page_file(self, tree: Path, title: str, dest: str):
         text, record = self.read(title)
-        text = text.replace("{{Documentation subpage}}", "").strip()
+        text = _lift_comments(text.replace("{{Documentation subpage}}", "").strip())
         _write(tree / dest, f"# {title}\n\n{self.provenance(record)}\n\n{text}\n")
 
     def charter(self, tree: Path):
@@ -110,10 +112,30 @@ class Builder:
         _write(tree / dest, head + body + "\n")
 
     def proposal(self, tree: Path):
-        text, _ = self.read(PROPOSAL)
+        """The form a member fills in, and its guidance as a guide beside it: pages on Iceria carry
+        no hidden comments (check.py fails one), and the wiki's preload is full of them."""
+        text, record = self.read(PROPOSAL)
         text = re.sub(r"<noinclude>.*?</noinclude>", "", text, flags=re.S)
         text = re.sub(r"</?includeonly>", "", text).strip()
-        _write(tree / "templates" / "proposal.wiki", text + "\n")
+        text = COMMENT.sub(lambda m: " ".join(m.group(0).split()), text)  # one line each
+        form, guide = [], []
+        for line in text.splitlines():
+            notes = [" ".join(c.split()) for c in COMMENT.findall(line)]
+            rest = COMMENT.sub("", line).rstrip()
+            if notes and not rest.strip():
+                guide += ["", *notes, ""]
+                continue
+            if notes:
+                field = FORM_FIELD.match(rest)
+                guide += [f"- `{field.group(1)}`: {n}" if field else n for n in notes]
+            form.append(rest)
+        _write(tree / "templates" / "proposal.wiki", "\n".join(form) + "\n")
+        head = (
+            f"# The proposal form, field by field\n\n{self.provenance(record)} The form in "
+            "`templates/proposal.wiki` carries no comments; what each part asks is here, in the "
+            "form's order.\n\n"
+        )
+        _write(tree / "templates" / "proposal-guide.md", head + "\n".join(guide).strip("\n") + "\n")
 
     def nations(self, tree: Path, names: list[str]):
         for name in names:
@@ -199,7 +221,8 @@ def knowledge(tree: Path):
         shutil.copyfile(path, dest / f"nation-{path.name}")
     for path in sorted((tree / "templates").glob("*.wiki")):
         shutil.copyfile(path, dest / f"template-{path.stem}.txt")
-    shutil.copyfile(tree / "templates" / "infobox-cheatsheet.md", dest / "infobox-cheatsheet.md")
+    for path in sorted((tree / "templates").glob("*.md")):
+        shutil.copyfile(path, dest / path.name)
     shutil.copyfile(tree / "VERSION.json", dest / "VERSION.json")
 
 
@@ -248,6 +271,25 @@ def template_fields(text: str, names) -> dict:
                 fields[k.strip()] = v.strip()
         return fields
     return {}
+
+
+def _lift_comments(text: str) -> str:
+    """The page with each hidden comment turned into a plain note, since a member copies boxes out
+    of these pages and pages on Iceria carry no comments. A note on a field inside a <pre> block
+    goes in a list under the block, so the block stays ready to copy."""
+    text = COMMENT.sub(lambda m: " ".join(m.group(0).split()), text)  # one line each
+    out, notes, in_pre = [], [], False
+    for line in text.splitlines():
+        found = [" ".join(c.split()) for c in COMMENT.findall(line)]
+        rest = COMMENT.sub("", line).rstrip()
+        field = FORM_FIELD.match(rest)
+        notes += [f"- `{field.group(1)}`: {n}" if field else n for n in found]
+        if rest.strip() or not found:
+            out.append(rest)
+        in_pre = (in_pre or "<pre>" in line) and "</pre>" not in line
+        if not in_pre:
+            out, notes = out + notes, []
+    return "\n".join(out + notes)
 
 
 def _clause_sections(text: str) -> dict[str, str]:

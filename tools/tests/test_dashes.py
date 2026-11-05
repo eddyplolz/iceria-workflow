@@ -42,3 +42,20 @@ def test_month_decade_and_open_ranges_pass():
 
 def test_a_word_beside_a_month_is_still_an_en_dash_outside_a_range():
     assert [f.line for f in dashes.run("The March–north road is long.\n", {})] == [1]
+
+
+def test_page_names_and_html_tags_are_not_prose():
+    # A linked page's title is that page's own name, and a tag's attributes are not read text.
+    clean = (
+        "See [[Tleyew-Pas: Living Stories - The Three Lights|the Three Lights]] and "
+        "[[Tleyew-Pas: 02 Land - Climate]].\n"
+        '<span style="margin:0 -- 0">The port</span> grew.\n'
+    )
+    assert dashes.run(clean, {}) == []
+    assert [f.line for f in dashes.run("[[Vell|the port - the only one]] is small.\n", {})] == [1]
+
+
+def test_a_dash_beside_an_unpiped_link_is_still_read():
+    # The link's name is blanked, but the link still stands as a word beside the dash.
+    for bad in ("Vell was founded by [[Aldric]] – a king.\n", "[[Vell]]–[[Brannvik]] road.\n"):
+        assert [f.line for f in dashes.run(bad, {})] == [1], bad

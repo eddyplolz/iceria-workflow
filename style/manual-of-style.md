@@ -1,6 +1,6 @@
 # Manual of Style
 
-Copied from the Iceria wiki page "Manual of Style" (revision 3257) on 2026-11-04. The live page outranks this copy.
+Copied from the Iceria wiki page "Manual of Style" (revision 3257) on 2026-11-05. The live page outranks this copy.
 
 {{#seo:|description=Iceria's house style for articles: titles, leads, infoboxes, dates, names, references and categories.|keywords=interactive geofiction, collaborative worldbuilding, nation simulation, nation RP, fictional world, conworld, geofiction wiki}}{{SHORTDESC:House style for Iceria's articles}}
 {{Iceria Meta Masthead|Manual of Style|How articles on Iceria are written}}

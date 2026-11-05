@@ -23,14 +23,18 @@ import kit_python  # noqa: F401  stops on Python < 3.10
 # isort: split
 from checks import (
     ERROR,
+    WARNING,
+    Finding,
     ai_tells,
     bold,
     clashes,
+    comments,
     dashes,
     dates,
     headings,
     links,
     markup,
+    mask,
     names,
     numbers,
     participants,
@@ -42,6 +46,7 @@ from checks import (
 )
 from iceria_wiki import Wiki, WikiBlocked, WikiUnavailable
 
+# comments runs apart, on the whole text, since no page of any kind may carry one.
 CHECKS = [
     markup,
     headings,
@@ -59,6 +64,11 @@ CHECKS = [
     ai_tells,
     spelling,
 ]
+# Article rules a {{Proposal}} form is not held to (its prose answers get them as warnings).
+ARTICLE_ONLY = (markup, headings, bold, dashes, refs, clashes)
+PROJECT_PAGE = re.compile(
+    r"\{\{\s*Iceria[ _]Meta[ _]Masthead\s*[|}]|\[\[\s*Category\s*:\s*Meta[ _]Iceria\s*[|\]]", re.I
+)
 KIT_ROOT = Path(__file__).resolve().parent.parent
 # The "# Title" heading and "- key: value" infobox lines that canon_pages.Builder.nations writes.
 INFOBOX_LINE = re.compile(r"^- (common_name|capital): (.*)$", re.M)
@@ -163,6 +173,12 @@ def main(argv=None) -> int:
         action="store_true",
         help="skip the read-only wiki query (categories, infobox fields and red links)",
     )
+    ap.add_argument(
+        "--own-nation",
+        metavar="NATION",
+        help="the nation this draft belongs to, when it is already canon: its own name and "
+        "capital are not reported as taken",
+    )
     args = ap.parse_args(argv)
 
     text = open_draft(args.draft)
@@ -171,14 +187,35 @@ def main(argv=None) -> int:
     ctx = load_ctx(args.root)
     if args.title:
         ctx["title"] = args.title
+    if args.own_nation:
+        ctx["own_nation"] = args.own_nation
     # A {{Proposal}} form is filled in on a Proposal: page, not written as an article: it has no
-    # lead, short description or category, and its guidance comments are the form itself.
-    form = re.match(r"\s*\{\{\s*Proposal\s*(?:\||\n|<)", text, re.I)
+    # lead, short description or category, and its answers are prose the article rules read
+    # only as warnings (checks/proposal.py). Text outside the form is not checked, save comments.
+    form = proposal.scope(text)
     ctx["form"] = bool(form)
-    found = [f for c in CHECKS if not (form and c is markup) for f in c.run(text, ctx)]
-    if not args.offline:
+    found = comments.run(text, ctx)
+    body, checks = text, CHECKS
+    if form:
+        body, found = form[0], found + form[1]
+        checks = [c for c in checks if c not in ARTICLE_ONLY]
+    elif PROJECT_PAGE.search(mask(text)):
+        # A project page (World Standards, Dice table) is the project speaking about itself, so
+        # its out-of-world voice and missing lead are right; it still carries no comments.
+        checks = []
+        found.append(
+            Finding(
+                1,
+                "markup",
+                WARNING,
+                "a project page (Iceria Meta Masthead or Category:Meta Iceria): only hidden "
+                "comments were checked, since the Manual of Style is for articles",
+            )
+        )
+    found += [f for c in checks for f in c.run(body, ctx)]
+    if checks and not args.offline:
         try:
-            found += wiring.run(text, {**ctx, "wiki": Wiki()})
+            found += wiring.run(body, {**ctx, "wiki": Wiki()})
         except WikiBlocked as e:
             print(
                 f"NOT CHECKED: categories, infobox fields and links were not looked up. {e}",

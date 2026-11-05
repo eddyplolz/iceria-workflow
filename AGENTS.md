@@ -77,6 +77,7 @@ stewards make it provisional.
 | Other nations | `canon/nations/` |
 | The calendar and today's in-world date | `canon/calendar.md` |
 | A page skeleton | `templates/` (nation, city, person, organization, event, treaty, proposal) |
+| What each template section or proposal field asks | `templates/page-guide.md`, `templates/proposal-guide.md` |
 | Infobox fields | `templates/infobox-cheatsheet.md` |
 | Which nation holds a place on the map | `canon/claims.json` (read by `tools/map_overlay.py`) |
 | The world map | `maps/iceria-base.png` |
@@ -87,7 +88,7 @@ All tools read; none of them writes to the wiki.
 
 | Command | What it does |
 |---|---|
-| `python tools/check.py draft.wiki --title "Title"` | The style and canon checker: name clashes, voice, and wiring (it asks the live wiki, read-only, whether each category, infobox field and link exists). `--offline` skips that lookup and says so; an unreachable wiki is reported, never passed over |
+| `python tools/check.py draft.wiki --title "Title"` | The style and canon checker: name clashes, voice, and wiring (it asks the live wiki, read-only, whether each category, infobox field and link exists). `--offline` skips that lookup and says so; an unreachable wiki is reported, never passed over. `--own-nation "Name"` checks a page of a nation already in `canon/`, so its own name and capital are not reported as taken. On a project page (the Iceria Meta Masthead or Category:Meta Iceria) it checks only for hidden comments |
 | `python tools/redlinks.py draft.wiki` | Lists each link in the draft that has no page on the live wiki (check.py warns on the same links) |
 | `python tools/iceria_calendar.py --real 2027-01-15` | Today's in-world date with no option; `--real` and `--in-world` convert either way |
 | `python tools/map_overlay.py notes/plan.json` | Draws the member's places and routes on the map, inside their own land only; `examples/plan.json` shows the format |
@@ -100,7 +101,7 @@ Every draft goes through these steps, in order:
 
 1. **Draft** from the member's notes and the matching template, in wikitext, saved in `notes/drafts/`. When the notes are thin,
    interview the member first (`iceria-interview`). When done, list every **NEW fact**: each name, date, figure or relation the draft adds that no page in `canon/` holds.
-2. **Check.** Run `python tools/check.py <draft>.wiki --title "<Page title>"` and fix every error and delete every guidance comment (`<!-- -->`) left from a template.
+2. **Check.** Run `python tools/check.py <draft>.wiki --title "<Page title>"` and fix every error. A `<!-- -->` comment is an error: pages on Iceria carry none.
    Then compare each claim against `canon/` (the iceria-canon-check steps). Done when the checker
    reports 0 errors and every claim is matched to a source or listed as NEW.
 3. **The member reads the whole draft.** Hand it over in full, with the warnings you left and why.

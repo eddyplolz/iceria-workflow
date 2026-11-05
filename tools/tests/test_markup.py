@@ -101,11 +101,9 @@ def test_the_short_description_must_be_first_and_start_with_a_capital():
     assert ("error", "short description is not the first line") not in _msgs(after_comment)
 
 
-def test_a_comment_left_in_the_draft_is_a_warning_naming_the_fix():
+def test_markup_leaves_comments_to_the_comments_check():
     found = markup.run("{{SHORTDESC:Port city}}\n<!-- guidance -->\ntext\n", {})
-    hit = [f for f in found if f.message.startswith("comment left in the draft")]
-    assert [(f.line, f.level) for f in hit] == [(2, "warning")]
-    assert "delete" in hit[0].message
+    assert [f for f in found if "comment" in f.message] == []
 
 
 def test_an_empty_section_is_a_warning_and_a_subsection_makes_it_whole():

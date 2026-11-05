@@ -71,6 +71,16 @@ def test_words_with_an_in_world_sense_stay_warnings():
         assert _levels(word) == {(1, "warning")}, word
 
 
+def test_a_claim_to_or_that_is_an_in_world_claim_not_the_claim_map():
+    for line in (
+        "Vell lays claim to the coast.",
+        "The jarls press their claims to the islands.",
+        "Its claim that the river was its own held for a century.",
+    ):
+        assert voice.run(line + "\n", {}) == [], line
+    assert _levels("The claim covers the north shore.") == {(1, "warning")}
+
+
 def test_the_letters_ai_in_a_word_are_not_the_chatbot():
     assert voice.run("The Aileron road runs past the Said quarter.\n", {}) == []
 
@@ -95,8 +105,8 @@ def test_a_real_name_that_is_an_iceria_name_is_exempt():
 
 
 def test_out_of_world_words_hide_nowhere():
-    comment = "Text.\n<!-- the player will add this later -->\n"
-    assert (2, "error") not in _levels(comment)  # player alone is only a warning
-    assert (2, "error") in _levels("Text.\n<!-- agreed on Discord -->\n")
+    # A comment is an error of its own (checks/comments.py), so voice does not report it twice.
+    assert _levels("Text.\n<!-- agreed on Discord -->\n") == set()
     assert (1, "error") in _levels("<nowiki>This article is a draft.</nowiki>\n")
+    assert (1, "error") in _levels("<nowiki>agreed on Discord</nowiki>\n")
     assert (3, "error") in _levels("a\nb\n<pre>\nforum post\n</pre>\n")

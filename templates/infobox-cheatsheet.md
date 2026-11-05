@@ -1,6 +1,6 @@
 # Template:Infobox Country/doc
 
-Copied from the Iceria wiki page "Template:Infobox Country/doc" (revision 1131) on 2026-11-04. The live page outranks this copy.
+Copied from the Iceria wiki page "Template:Infobox Country/doc" (revision 1131) on 2026-11-05. The live page outranks this copy.
 
 '''Template:Infobox Country''' is the fact box on the right of a nation's page ([[World Standards]] 7.1). It follows Wikipedia's Infobox country: the same field names and layout, so a box copied from a Wikipedia-style draft works as it is. <code><nowiki>{{Infobox country}}</nowiki></code>, with a small c, works too. [[Alexandria]] shows one filled in.
 
@@ -35,7 +35,7 @@ The full list, ready to copy. Leave out any line you don't need.
 | image_map              =
 | map_caption            =
 | capital                =
-| largest_city           = <!-- "capital" if it is the capital -->
+| largest_city           =
 | official_languages     =
 | languages_type         =
 | languages              =
@@ -52,16 +52,16 @@ The full list, ready to copy. Leave out any line you don't need.
 | legislature            =
 | upper_house            =
 | lower_house            =
-| sovereignty_type       = <!-- "Independence" or "Formation" -->
+| sovereignty_type       =
 | established_event1     =
 | established_date1      =
-| area_km2               = <!-- the Claims Desk's figure -->
+| area_km2               =
 | percent_water          =
 | population_estimate    =
 | population_estimate_year =
 | population_census      =
 | population_census_year =
-| GDP_nominal            = <!-- in IRU, like 412 billion -->
+| GDP_nominal            =
 | GDP_nominal_year       =
 | Gini                   =
 | Gini_year              =
@@ -69,17 +69,25 @@ The full list, ready to copy. Leave out any line you don't need.
 | HDI_year               =
 | currency               =
 | currency_code          =
-| utc_offset             = <!-- like +2 -->
+| utc_offset             =
 | time_zone              =
 | drives_on              =
 | calling_code           =
 | continent              =
 | culture_zone           =
 | culture_twist          =
-| people                 = <!-- Septentria, Meridia and Selenara: native, settler or mixed -->
-| tier                   = <!-- set by the stewards -->
-| status                 = <!-- set by the stewards: provisional or admitted -->
+| people                 =
+| tier                   =
+| status                 =
 }}</pre>
+- `largest_city`: "capital" if it is the capital
+- `sovereignty_type`: "Independence" or "Formation"
+- `area_km2`: the Claims Desk's figure
+- `GDP_nominal`: in IRU, like 412 billion
+- `utc_offset`: like +2
+- `people`: Septentria, Meridia and Selenara: native, settler or mixed
+- `tier`: set by the stewards
+- `status`: set by the stewards: provisional or admitted
 Leaders run to six (<code>leader_title1</code> to <code>leader_title6</code>, with their names) and founding events to eight (<code>established_event1</code> to <code>established_event8</code>, with their dates).
 
 == What the World Standards ask ==

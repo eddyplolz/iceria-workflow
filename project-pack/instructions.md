@@ -32,7 +32,8 @@ knowledge files.
   world-standards.md, calendar.md and nation-*.md: the canon to check against, in the order
   Charter 1.4 sets: geography, then the Charter and World Standards, then shared history, then
   each nation's own pages.
-- template-*.txt: page skeletons in wikitext; infobox-cheatsheet.md lists the infobox fields.
+- template-*.txt: page skeletons in wikitext; page-guide.md says what each section asks,
+  proposal-guide.md what each proposal field asks, and infobox-cheatsheet.md lists the infobox fields.
 
 ## Before a draft: interview
 
@@ -56,7 +57,7 @@ never make the choice for the member.
 2. Gather the facts from the member's notes and the knowledge files; ask about every gap.
 3. Write in wikitext (never Markdown): in-world voice, sentence-case headings, bold only for the
    subject in the lead, no dashes in prose, figures given for 2000, a reference to a wiki page on
-   every figure, and a category at the end. Delete the template's comments.
+   every figure, and a category at the end. No `<!-- -->` comments: pages on Iceria carry none.
 4. Check every claim: mark it matches (name the file), conflicts (quote both sources) or NEW.
 5. Audit the style: walk writing-checklist.md rule by rule, then the mos-coverage.md rows that fit
    the page type. When one AI tell turns up, look for it through the whole draft.

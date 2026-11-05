@@ -8,7 +8,7 @@ has a category). Markdown does not render on the wiki, so it is an error whereve
 
 import re
 
-from checks import ERROR, HEADING, HIDDEN, WARNING, Finding, lines
+from checks import ERROR, HEADING, WARNING, Finding, lines
 
 SHORTDESC = re.compile(r"\{\{\s*(?:SHORTDESC\s*:|short description\s*\|)(.*?)\}\}", re.I)
 EMPTY_FIELD = re.compile(r"^\s*\|\s*[\w ]+?\s*=\s*(none|n/?a|unknown|-|–|—|\?)\s*$", re.I)
@@ -94,19 +94,6 @@ def _first_line(rows: list[str]) -> list[Finding]:
             "short description is not the first line: put {{SHORTDESC:...}} above the infobox "
             "and the lead (MoS 3.4)",
         )
-    ]
-
-
-def _comments(text: str) -> list[Finding]:
-    return [
-        Finding(
-            text.count("\n", 0, m.start()) + 1,
-            "markup",
-            WARNING,
-            "comment left in the draft: delete template guidance comments before handing in",
-        )
-        for m in HIDDEN.finditer(text)
-        if m.group(0).startswith("<!--")
     ]
 
 
@@ -211,5 +198,5 @@ def run(text: str, ctx: dict) -> list[Finding]:
                 "no reference list: add <references> under == References == (MoS 13.3)",
             )
         )
-    found += _first_line(rows) + _comments(text) + _empty_sections(text, rows) + _categories(rows)
+    found += _first_line(rows) + _empty_sections(text, rows) + _categories(rows)
     return sorted(found, key=lambda f: f.line)

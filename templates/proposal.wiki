@@ -1,33 +1,30 @@
 {{Proposal
-<!-- THE CORE: fill in these six. Write in your own words; about 200 words in all is plenty. -->
 | name       =
-| claim      = <!-- upload the image the Claim Studio downloads, exactly as saved, and give its file name -->
-| family     = <!-- your culture family: see Culture zones of Iceria -->
-| twist      = <!-- only if your culture is not your zone's: one line -->
-| history    = <!-- a short history, with a few dates, for example one before 1450, one between 1450 and 1945, and one after 1945. Write years as plain numbers in the common reckoning, the one the year 2000 is counted from (see History of Iceria). Your nation may keep a calendar of its own too; give the common year beside it. -->
-| capital    = <!-- its name: fits your language, not a real country's name, not another nation's capital (World Standards 6) -->
-<!-- Answer one of these three, in a few sentences; leave the other two blank if you like: -->
-| differs    = <!-- how it differs from its Earth anchor -->
-| problem    = <!-- one problem it faces in 2000 -->
-| neighbor   = <!-- one neighbor or region it deals with, and how -->
-| status     = draft <!-- the stewards change this -->
+| claim      =
+| family     =
+| twist      =
+| history    =
+| capital    =
+| differs    =
+| problem    =
+| neighbor   =
+| status     = draft
 
-<!-- EVERYTHING BELOW IS OPTIONAL: fill in what you like, now or later. Proposal:Alexandria shows most of them filled in. -->
-| concept    = <!-- what kind of nation this is -->
-| culture    = <!-- how its people live and speak, and its main faith (World Standards 13.3) -->
-| capital_site = <!-- where the capital lies in your claim -->
-| cities     = <!-- other cities, one per line, starting each line with *, for example:  * Name, where it lies -->
+| concept    =
+| culture    =
+| capital_site =
+| cities     =
 | government =
 | language   =
-| land       = <!-- climate and terrain -->
-| area_km2   = <!-- as the Claim Studio shows it; the Claims Desk figure is official -->
-| people     = <!-- Septentria, Meridia and Selenara: native, settler or mixed -->
-| zones      = <!-- the culture zones the Claim Studio lists for your claim -->
-| features   = <!-- named rivers, ranges, lakes, islands and seas in or beside your claim -->
-| era        = <!-- when your nation became independent, or that it was never colonized (World Standards 10.5) -->
-| local_canon = <!-- only if your nation has things beyond Earth (World Standards 14): one line each; others see them only if they agree -->
+| land       =
+| area_km2   =
+| people     =
+| zones      =
+| features   =
+| era        =
+| local_canon =
 | creator    = ~~~
-| discord    = <!-- your Discord name -->
+| discord    =
 | national_motto =
 | population_estimate =
 | population_estimate_year =
@@ -39,10 +36,10 @@
 | demonym    =
 | religion   =
 | currency   =
-| image_map  = <!-- a locator map of your claim; once your claim is on the claims map, draw it from there (Manual of Style 8.2) -->
+| image_map  =
 | map_caption =
-| politics   = <!-- Government and politics -->
+| politics   =
 | regions    =
 | economy    =
-| symbols    = <!-- National symbols: motto, colors, national day; your flag and arms go in when you have them -->
+| symbols    =
 }}

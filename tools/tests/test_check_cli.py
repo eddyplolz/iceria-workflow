@@ -172,10 +172,21 @@ def test_the_install_hint_names_the_python_that_runs_the_kit(tmp_path, monkeypat
 
 
 FORM = (
-    "{{Proposal\n<!-- Ask on Discord first. -->\n| name = Vell\n| claim = Vell-claim.png\n"
+    "{{Proposal\n| name = Vell\n| claim = Vell-claim.png\n"
     "| family = Vellic\n| history = Founded in 1802.\n| capital = Port Vell\n"
-    "| problem = Its harbor silts up.\n| status = draft <!-- the stewards change this -->\n}}\n"
+    "| problem = Its harbor silts up.\n| status = draft\n}}\n"
 )
+
+
+def test_a_hidden_comment_fails_a_form_and_an_article_alike(tmp_path, capsys):
+    form, article = tmp_path / "proposal.wiki", tmp_path / "vell.wiki"
+    form.write_text(FORM.replace("| status = draft", "| status = draft <!-- x -->"), "utf-8")
+    article.write_text(GOOD.replace("== History ==", "== History ==\n<!-- x -->"), "utf-8")
+    for draft, line in ((form, 8), (article, 5)):
+        code = check.main([str(draft), "--title", "Vell", "--root", str(tmp_path), "--offline"])
+        out = capsys.readouterr().out
+        assert code == 1
+        assert f"{draft.name}:{line}: comments: error: hidden comment" in out
 
 
 def test_a_proposal_form_is_not_held_to_the_article_rules(tmp_path, capsys):
@@ -183,6 +194,61 @@ def test_a_proposal_form_is_not_held_to_the_article_rules(tmp_path, capsys):
     draft.write_text(FORM, encoding="utf-8")
     assert check.main([str(draft), "--root", str(tmp_path), "--offline"]) == 0
     assert "no category" not in capsys.readouterr().out
+
+
+def test_a_form_after_other_text_is_still_read_as_a_form(tmp_path, capsys):
+    # Accepted proposals open with a note or a heading above the form (Tleyew-Pas has 51 lines).
+    draft = tmp_path / "proposal.wiki"
+    draft.write_text(
+        "== Proposal ==\nSent by '''Vell''' - with thanks.\n\n"
+        + FORM.replace("| capital = Port Vell", "| capital ="),
+        encoding="utf-8",
+    )
+    assert check.main([str(draft), "--root", str(tmp_path), "--offline"]) == 1
+    out = capsys.readouterr().out
+    assert "proposal.wiki:9: proposal: error: the core field 'capital' is empty" in out
+    assert (
+        "proposal.wiki:1: proposal: warning: 2 lines outside the {{Proposal}} form were not "
+        "checked: the stewards read the form" in out
+    )
+    for rule in ("headings", "bold", "dashes", "markup", "refs"):
+        assert f": {rule}: " not in out, rule
+
+
+def test_a_nation_checking_its_own_accepted_proposal_is_not_told_it_clashes(tmp_path, capsys):
+    # Once Vell is admitted its proposal names a canon nation and that nation's capital.
+    (tmp_path / "kit").mkdir()
+    kit = _kit(tmp_path / "kit")
+    (kit / "canon" / "nations").mkdir()
+    (kit / "canon" / "nations" / "vell.md").write_text(
+        "# Vell\n\n- common_name: Vell\n- capital: Port Vell\n", encoding="utf-8"
+    )
+    draft = tmp_path / "proposal.wiki"
+    draft.write_text(FORM, encoding="utf-8")
+    args = [str(draft), "--root", str(kit), "--offline"]
+    assert check.main(args) == 1
+    assert "name is already a nation of Iceria: Vell" in capsys.readouterr().out
+    assert check.main([*args, "--own-nation", "Vell"]) == 0
+    assert "already" not in capsys.readouterr().out
+
+
+def test_a_project_page_is_checked_only_for_hidden_comments(tmp_path, capsys):
+    # Pages such as World Standards are the project speaking about itself, not in-world articles.
+    body = "In Iceria a war is a story - agreed on Discord.\n<!-- x -->\n"
+    for page in (
+        "{{Iceria Meta Masthead|Dice table|How a war is settled}}\n" + body,
+        body + "[[Category:Meta Iceria]]\n",
+    ):
+        draft = tmp_path / "dice.wiki"
+        draft.write_text(page, encoding="utf-8")
+        assert check.main([str(draft), "--root", str(tmp_path), "--offline"]) == 1
+        out = capsys.readouterr().out
+        found = [ln.split(": ")[1] for ln in out.splitlines()[:-1]]
+        assert found == ["markup", "comments"], out
+        assert (
+            "dice.wiki:1: markup: warning: a project page (Iceria Meta Masthead or Category:Meta "
+            "Iceria): only hidden comments were checked, since the Manual of Style is for articles"
+        ) in out
 
 
 def test_a_form_value_may_speak_about_the_project(tmp_path, capsys):
