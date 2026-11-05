@@ -1,5 +1,6 @@
 """The kit's wiki client: it reads, it never writes, and a page that is not JSON counts as down."""
 
+import email.message
 import http.client
 import io
 import json
@@ -77,6 +78,42 @@ def test_a_dropped_or_cut_off_answer_counts_as_unreachable(answer):
     wiki = iceria_wiki.Wiki(opener=FakeOpener(answer))
     with pytest.raises(iceria_wiki.WikiUnavailable):
         wiki.get_page("World Standards")
+
+
+def _http_error(code, headers=()):
+    msg = email.message.Message()
+    for k, v in headers:
+        msg[k] = v
+    return urllib.error.HTTPError(iceria_wiki.API, code, "Forbidden", msg, io.BytesIO(b""))
+
+
+@pytest.mark.parametrize(
+    "headers",
+    [[("cf-mitigated", "challenge"), ("Server", "cloudflare")], [("Server", "cloudflare")], []],
+)
+def test_a_refusal_says_it_is_the_wikis_firewall_and_what_still_works(headers):
+    # A Cloudflare challenge, a plain Cloudflare block, a bare 403: each is a firewall refusing
+    # this computer, never a setting the member got wrong. A network in between (a VPN, a school
+    # proxy) can send a bare 403 too, so the message says to try without one.
+    wiki = iceria_wiki.Wiki(opener=FakeOpener(_http_error(403, headers)))
+    with pytest.raises(iceria_wiki.WikiBlocked) as caught:
+        wiki.get_page("World Standards")
+    said = str(caught.value)
+    assert said.startswith(
+        "iceria.org's firewall refused this computer (HTTP 403). This is the wiki's firewall, "
+        "not your setup. If you are on a VPN or a school or work network, try once without it."
+    )
+    assert "not your setup" in said
+    assert "python tools/check.py draft.wiki --offline" in said
+    assert "Send the kit's maintainer everything this printed." in said
+    assert isinstance(caught.value, iceria_wiki.WikiUnavailable)  # every caller still catches it
+
+
+def test_another_http_error_is_not_called_a_firewall_refusal():
+    wiki = iceria_wiki.Wiki(opener=FakeOpener(_http_error(503)))
+    with pytest.raises(iceria_wiki.WikiUnavailable, match="HTTPError 503") as caught:
+        wiki.get_page("World Standards")
+    assert not isinstance(caught.value, iceria_wiki.WikiBlocked)
 
 
 def test_get_page_returns_text_and_revision_or_none():

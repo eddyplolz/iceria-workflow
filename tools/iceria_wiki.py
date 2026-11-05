@@ -6,6 +6,7 @@ import http.cookiejar
 import json
 import socket
 import ssl
+import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -63,6 +64,22 @@ class WikiUnavailable(Exception):
     """The wiki could not answer: network down, an HTTP error, an API error or a bot check."""
 
 
+class WikiBlocked(WikiUnavailable):
+    """A firewall refused this computer (HTTP 403): iceria.org's as a rule, though a VPN or a
+    school or work network can send a 403 of its own. No kit setting causes it."""
+
+    what = "iceria.org's firewall refused this computer (HTTP 403)"
+    step = (
+        "this is the wiki's firewall, not your setup. If you are on a VPN or a school or work "
+        "network, try once without it. Drafting still works, and so does the checker with "
+        "--offline: python tools/check.py draft.wiki --offline. Send the kit's maintainer "
+        "everything this printed."
+    )
+
+    def __init__(self):
+        super().__init__(f"{self.what}. {self.step[0].upper()}{self.step[1:]}")
+
+
 class LoginFailed(Exception):
     """The wiki answered and refused the bot password."""
 
@@ -104,6 +121,8 @@ class Wiki:
                     "then run the command again. Elsewhere, a network that inspects secure "
                     "traffic (a school or office proxy) can cause this; try another network."
                 ) from e
+            if isinstance(e, urllib.error.HTTPError) and e.code == 403:
+                raise WikiBlocked() from e
             raise WikiUnavailable(f"{self.api}: {e!r}") from e
         if "json" not in kind:
             raise WikiUnavailable(

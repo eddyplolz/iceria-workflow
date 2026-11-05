@@ -1,6 +1,6 @@
 # Culture zones of Iceria
 
-Copied from the Iceria wiki page "Culture zones of Iceria" (revision 2905) on 2026-11-03. The live page outranks this copy.
+Copied from the Iceria wiki page "Culture zones of Iceria" (revision 2905) on 2026-11-04. The live page outranks this copy.
 
 {{#seo:|description=Iceria's 31 culture zones show who lives where: families of peoples drawn on real Earth cultures that guide a new nation's people, languages and names.|keywords=interactive geofiction, collaborative worldbuilding, nation simulation, nation RP, fictional world, conworld, geofiction wiki}}{{SHORTDESC:Culture families of Iceria's continents}}
 {{Iceria Meta Masthead|Culture zones of Iceria|The culture families of each continent}}

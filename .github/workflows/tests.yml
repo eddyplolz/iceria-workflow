@@ -136,12 +136,10 @@ jobs:
           # Two FIX lines are the runner's, not the kit's: iceria.org refuses GitHub's runners
           # (403), and the canon copy goes stale 30 days after VERSION.json's build date. A wiki
           # FIX for any other reason (a certificate failure above all) fails the job.
-          bad=$(grep '^FIX ' <<<"$out" \
-            | grep -vE '^FIX wiki: could not reach|^FIX canon copy: copied .*, [0-9]+ days old$' || true)
+          refused="^FIX wiki: iceria.org's firewall refused this computer \(HTTP 403\)$"
+          stale='^FIX canon copy: copied .*, [0-9]+ days old$'
+          bad=$(grep '^FIX ' <<<"$out" | grep -vE "$refused|$stale" || true)
           [ -z "$bad" ] || { echo "unexpected FIX: $bad"; exit 1; }
-          if grep -q '^FIX wiki:' <<<"$out"; then
-            grep -q "HTTPError 403" <<<"$out" || { echo "the wiki FIX is not the runner's 403"; exit 1; }
-          fi
           want=0; grep -q '^FIX ' <<<"$out" && want=1
           [ "$code" = "$want" ] || { echo "doctor exited $code, expected $want"; exit 1; }
       - name: "Step 7: the AI-tell audit"
@@ -176,7 +174,7 @@ jobs:
             ! grep -q Traceback <<<"$out" || { echo "$cmd crashed"; exit 1; }
             case "$code" in
               0) ;;
-              2) grep -q "HTTPError 403" <<<"$out" || { echo "$cmd: not the runner's 403"; exit 1; } ;;
+              2) grep -qF "firewall refused this computer (HTTP 403)" <<<"$out" || { echo "$cmd: not the runner's 403"; exit 1; } ;;
               1) grep -q "^a refresh is due" <<<"$out" || { echo "$cmd exited 1"; exit 1; } ;;
               *) echo "$cmd exited $code"; exit 1 ;;
             esac

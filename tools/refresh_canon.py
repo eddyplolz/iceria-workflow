@@ -25,7 +25,7 @@ import cred_store
 import secrets_scan
 import setup_bot
 from canon_pages import Builder, BuildError, build_canon, knowledge, write_json
-from iceria_wiki import Wiki, WikiUnavailable
+from iceria_wiki import Wiki, WikiBlocked, WikiUnavailable
 
 KIT = Path(__file__).resolve().parents[1]
 # What a refresh rewrites; everything else in the kit (tools, skills, your drafts) is left alone.
@@ -83,7 +83,12 @@ def refresh(kit: Path, wiki, today: datetime.date, creds: tuple[str, str] | None
             )
             knowledge(tree)
         except (BuildError, WikiUnavailable) as e:
-            print(f"FAILED: {e}; {keeps}.", file=sys.stderr)
+            # canon_pages wraps a wiki failure in a BuildError naming the page; a refusal reads
+            # better on its own, since no page or retry is at fault.
+            if isinstance(e, WikiBlocked) or isinstance(e.__cause__, WikiBlocked):
+                print(f"FAILED: {WikiBlocked()} {keeps[0].upper()}{keeps[1:]}.", file=sys.stderr)
+            else:
+                print(f"FAILED: {e}; {keeps}.", file=sys.stderr)
             return 1
         try:
             _swap(kit, tree, work / "old")
@@ -117,10 +122,10 @@ def check(kit: Path, wiki, today: datetime.date, creds: tuple[str, str] | None) 
     v = json.loads((kit / "VERSION.json").read_text(encoding="utf-8"))
     copied = {p["title"]: p["revid"] for p in v["pages"]}
     titles = list(dict.fromkeys([*copied, *v.get("missing_nations", ())]))
-    if creds and (problem := setup_bot.vet_login(wiki, *creds)):
-        print(f"could not check: {problem}", file=sys.stderr)
-        return 2
     try:
+        if creds and (problem := setup_bot.vet_login(wiki, *creds)):
+            print(f"could not check: {problem}", file=sys.stderr)
+            return 2
         live = wiki.latest_revids(titles)
     except WikiUnavailable as e:
         print(f"could not check: {e}", file=sys.stderr)

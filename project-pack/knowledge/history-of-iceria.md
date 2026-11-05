@@ -1,6 +1,6 @@
 # History of Iceria
 
-Copied from the Iceria wiki page "History of Iceria" (revision 3427) on 2026-11-03. The live page outranks this copy.
+Copied from the Iceria wiki page "History of Iceria" (revision 3427) on 2026-11-04. The live page outranks this copy.
 
 {{#seo:|description=Iceria's shared past, from the first river cities and monsoon trade to the age of sail, independence and the year 2000: the backdrop every nation builds on.|keywords=interactive geofiction, collaborative worldbuilding, nation simulation, nation RP, fictional world, conworld, geofiction wiki}}{{SHORTDESC:Shared history of the planet Iceria}}
 {{Iceria Meta Masthead|History of Iceria|The broad history every nation shares}}

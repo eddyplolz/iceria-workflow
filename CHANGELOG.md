@@ -4,6 +4,15 @@ Every release of the kit gets an entry here, newest first. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the version numbers follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.1.2] - 2026-11-04
+
+### Fixed
+
+- When iceria.org's firewall refuses your computer (HTTP 403), every tool now says so in plain
+  words: it is the wiki's firewall, not your setup; drafting and `check.py --offline` still work;
+  send the maintainer everything the tool printed. `setup_bot.py` no longer calls a refusal a
+  login problem, and `refresh_canon.py` no longer calls it a connection problem.
+
 ## [0.1.1] - 2026-11-04
 
 ### Added

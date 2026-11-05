@@ -1,6 +1,6 @@
 # World Standards
 
-Copied from the Iceria wiki page "World Standards" (revision 3320) on 2026-11-03. The live page outranks this copy.
+Copied from the Iceria wiki page "World Standards" (revision 3320) on 2026-11-04. The live page outranks this copy.
 
 {{#seo:|description=Iceria's shared rules for seas, borders, the polar regions, dates, names and records that every nation follows.|keywords=interactive geofiction, collaborative worldbuilding, nation simulation, nation RP, fictional world, conworld, geofiction wiki}}{{SHORTDESC:Shared rules for Iceria's nations}}
 {{Iceria Meta Masthead|World Standards|The shared rules for seas, borders, dates and names}}

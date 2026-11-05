@@ -40,7 +40,7 @@ from checks import (
     voice,
     wiring,
 )
-from iceria_wiki import Wiki, WikiUnavailable
+from iceria_wiki import Wiki, WikiBlocked, WikiUnavailable
 
 CHECKS = [
     markup,
@@ -179,6 +179,12 @@ def main(argv=None) -> int:
     if not args.offline:
         try:
             found += wiring.run(text, {**ctx, "wiki": Wiki()})
+        except WikiBlocked as e:
+            print(
+                f"NOT CHECKED: categories, infobox fields and links were not looked up. {e}",
+                file=sys.stderr,
+            )
+            return 2
         except WikiUnavailable as e:
             print(
                 f"NOT CHECKED: the wiki could not be reached ({e}), so categories, infobox "

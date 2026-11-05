@@ -21,6 +21,8 @@ class Wiki:
         self.down = down
 
     def latest_revids(self, titles):
+        if isinstance(self.down, Exception):
+            raise self.down
         if self.down:
             raise iceria_wiki.WikiUnavailable(self.down)
         return dict.fromkeys(titles, 1)
@@ -204,6 +206,18 @@ def test_refreshed_files_lists_exactly_the_modified_tracked_files_of_the_refresh
     for rel in ("canon/a.md", "notes/mine.md", "tools/x.py"):
         (tmp_path / rel).write_text("new", encoding="utf-8")
     assert doctor.refreshed_files(tmp_path) == ["canon/a.md"]  # not the member's notes or tools
+
+
+def test_a_firewall_refusal_says_it_is_not_the_members_setup(tmp_path, monkeypatch, capsys):
+    _setup(monkeypatch)
+    assert doctor.main(_kit(tmp_path), Wiki(down=iceria_wiki.WikiBlocked()), TODAY) == 1
+    out = capsys.readouterr().out
+    assert "FIX wiki: iceria.org's firewall refused this computer (HTTP 403)\n" in out
+    step = out.split("FIX wiki:", 1)[1].splitlines()[1]
+    assert step.startswith("    do this: this is the wiki's firewall, not your setup.")
+    assert "nothing to change" not in step  # a VPN or a school network can be the cause
+    assert "not your setup" in step and "--offline" in step and "maintainer" in step
+    assert "try once without it" in step
 
 
 def test_a_folder_that_is_not_a_clone_has_no_refresh_clash(tmp_path):

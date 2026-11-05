@@ -1,6 +1,7 @@
 import json
 
 import check
+import iceria_wiki
 
 GOOD = """{{SHORTDESC:State on the Serenian Ocean}}
 '''Vell''' is a state on the Serenian Ocean.<ref name="ws" />
@@ -191,3 +192,23 @@ def test_a_form_value_may_speak_about_the_project(tmp_path, capsys):
     )
     assert check.main([str(draft), "--root", str(tmp_path), "--offline"]) == 0
     assert "out-of-world" not in capsys.readouterr().out
+
+
+class BlockedWiki:
+    def __getattr__(self, name):
+        def refuse(*args, **kwargs):
+            raise iceria_wiki.WikiBlocked()
+
+        return refuse
+
+
+def test_a_firewall_refusal_does_not_blame_the_connection(tmp_path, monkeypatch, capsys):
+    draft = tmp_path / "vell.wiki"
+    draft.write_text(GOOD, encoding="utf-8")
+    (tmp_path / "kit").mkdir()
+    monkeypatch.setattr(check, "Wiki", BlockedWiki)
+    assert check.main([str(draft), "--title", "Vell", "--root", str(_kit(tmp_path / "kit"))]) == 2
+    err = capsys.readouterr().err
+    assert err.startswith("NOT CHECKED: categories, infobox fields and links were not looked up.")
+    assert "firewall refused this computer (HTTP 403)" in err
+    assert "connection" not in err

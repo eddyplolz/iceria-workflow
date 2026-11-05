@@ -25,6 +25,8 @@ class FakeWiki:
         self.logins = []
 
     def login(self, user, password):
+        if isinstance(self.down, Exception):
+            raise self.down
         if self.down:
             raise iceria_wiki.WikiUnavailable(self.down)
         self.logins.append((user, password))
@@ -102,6 +104,22 @@ def test_an_unreachable_wiki_is_reported_and_not_saved(capsys):
     assert code == 1
     assert store.saved is None
     assert "no route to host" in out
+
+
+def test_a_firewall_refusal_is_reported_as_one_and_not_saved(capsys):
+    store = FakeStore()
+    code, out = run(FakeWiki(down=iceria_wiki.WikiBlocked()), store, capsys=capsys)
+    assert code == 1 and store.saved is None
+    assert "Not saved: iceria.org's firewall refused this computer (HTTP 403)." in out
+    assert "could not be reached" not in out
+
+
+def test_check_reports_a_firewall_refusal_as_one(monkeypatch, capsys):
+    monkeypatch.setattr(setup_bot.cred_store, "get", lambda: (("Ana@kitbot", PW), "the fake store"))
+    assert setup_bot.check(FakeWiki(down=iceria_wiki.WikiBlocked())) == 1
+    err = capsys.readouterr().err
+    assert err.startswith("Ana@kitbot from the fake store: iceria.org's firewall refused")
+    assert "could not be reached" not in err and PW not in err
 
 
 def test_the_password_is_never_printed(capsys):

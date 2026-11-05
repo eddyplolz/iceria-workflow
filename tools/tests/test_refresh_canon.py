@@ -32,10 +32,12 @@ class FakeWiki:
 
     def __init__(self, pages, refuse=None, down=(), rights=("read", "writeapi")):
         self.pages, self.refuse, self.down, self.rights = pages, refuse, set(down), list(rights)
-        self.calls = []
+        self.calls, self.blocked = [], False
 
     def login(self, user, password):
         self.calls.append(("login", user))
+        if self.blocked == "login":
+            raise iceria_wiki.WikiBlocked()
         if self.refuse:
             raise iceria_wiki.LoginFailed(self.refuse)
 
@@ -46,6 +48,8 @@ class FakeWiki:
         self.calls.append(("get_page", title))
         if title in self.down:
             raise iceria_wiki.WikiUnavailable("timed out")
+        if self.blocked:
+            raise iceria_wiki.WikiBlocked()
         text = self.pages.get(title)
         return {"title": title, "revid": 5000, "text": text} if text is not None else None
 
@@ -126,6 +130,35 @@ def test_a_bot_password_with_more_than_basic_rights_is_refused_before_reading(ki
     assert "FAILED" in err and "block, delete" in err and "2026-10-01" in err and PW not in err
     assert version(kit) == OLD
     assert not list(kit.glob(".refresh-*"))
+
+
+def test_a_firewall_refusal_says_so_plainly_and_keeps_the_old_kit(kit, capsys):
+    wiki = FakeWiki(wiki_pages(kit))
+    wiki.blocked = True
+    assert refresh_canon.refresh(kit, wiki, TODAY, None) == 1
+    failed = [line for line in capsys.readouterr().err.splitlines() if line.startswith("FAILED")]
+    assert len(failed) == 1
+    err = failed[0]
+    assert err.startswith(
+        "FAILED: iceria.org's firewall refused this computer (HTTP 403). This is the wiki's"
+    )
+    assert err.endswith("everything this printed. Your kit keeps the copy from 2026-10-01.")
+    assert "the wiki failed (" not in err
+    assert version(kit) == OLD
+
+
+def test_a_refusal_at_the_bot_login_is_called_a_refusal_not_a_login_problem(kit, capsys):
+    wiki = FakeWiki(wiki_pages(kit))
+    wiki.blocked = "login"
+    assert refresh_canon.refresh(kit, wiki, TODAY, ("Ana@kitbot", PW)) == 1
+    err = capsys.readouterr().err
+    failed = [line for line in err.splitlines() if line.startswith("FAILED")]
+    assert len(failed) == 1 and failed[0].startswith(
+        "FAILED: iceria.org's firewall refused this computer (HTTP 403)."
+    )
+    assert "could not be reached" not in err and ".;" not in err
+    assert "setup_bot.py --check" not in err  # the login is not at fault
+    assert version(kit) == OLD
 
 
 def test_a_wiki_failure_keeps_the_old_kit_and_never_uses_a_copy(kit, capsys):
@@ -311,6 +344,16 @@ def test_check_with_a_bot_password_vets_it_first(kit, capsys):
     wiki = FakeWiki({"Charter": "x"}, rights=("read", "edit"))
     assert refresh_canon.check(kit, wiki, TODAY, ("Ana@kitbot", PW)) == 2
     assert "more than Basic rights" in capsys.readouterr().err
+
+
+def test_check_with_a_refused_bot_login_says_it_was_refused(kit, capsys):
+    kit = checked_kit(kit, ["Charter"])
+    wiki = FakeWiki({"Charter": "x"})
+    wiki.blocked = "login"
+    assert refresh_canon.check(kit, wiki, TODAY, ("Ana@kitbot", PW)) == 2
+    err = capsys.readouterr().err
+    assert err.startswith("could not check: iceria.org's firewall refused this computer")
+    assert "could not be reached" not in err
     assert ("latest_revids", ("Charter", "Xuna")) not in wiki.calls
 
 

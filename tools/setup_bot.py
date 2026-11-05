@@ -16,7 +16,7 @@ import kit_python  # noqa: F401  stops on Python < 3.10
 
 # isort: split
 import cred_store
-from iceria_wiki import LoginFailed, Wiki, WikiUnavailable
+from iceria_wiki import LoginFailed, Wiki, WikiBlocked, WikiUnavailable
 
 STEPS = """\
 1. Log in to the wiki and open https://www.iceria.org/wiki/Special:BotPasswords
@@ -38,12 +38,15 @@ BASIC_RIGHTS = frozenset(
 
 
 def vet_login(wiki, user: str, password: str) -> str | None:
-    """None when the bot password logs in with Basic rights only, else what is wrong."""
+    """None when the bot password logs in with Basic rights only, else what is wrong. A firewall
+    refusal is raised, since it says nothing about the password and needs its own wording."""
     try:
         wiki.login(user, password)
         rights = set(wiki.whoami()["rights"])
     except LoginFailed as e:
         return f"the wiki refused the login: {e}"
+    except WikiBlocked:
+        raise
     except WikiUnavailable as e:
         return f"the wiki could not be reached: {e}"
     if extras := sorted(rights - BASIC_RIGHTS):
@@ -64,7 +67,10 @@ def setup(wiki, store, ask=input, secret=getpass.getpass) -> int:
         )
         return 1
     password = secret("Password the wiki showed (hidden as you type): ").strip()
-    problem = vet_login(wiki, user, password)
+    try:
+        problem = vet_login(wiki, user, password)
+    except WikiBlocked as e:
+        problem = str(e)
     if problem:
         print(f"Not saved: {problem}", file=sys.stderr)
         return 1
@@ -83,7 +89,10 @@ def check(wiki) -> int:
         print("No bot password set up. Run python tools/setup_bot.py first.", file=sys.stderr)
         return 1
     (user, password), where = found
-    problem = vet_login(wiki, user, password)
+    try:
+        problem = vet_login(wiki, user, password)
+    except WikiBlocked as e:
+        problem = str(e)
     if problem:
         print(f"{user} from {where}: {problem}", file=sys.stderr)
         return 1

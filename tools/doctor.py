@@ -24,7 +24,7 @@ import kit_python  # noqa: F401  stops on Python < 3.10, which is the Python che
 # isort: split
 import check
 import cred_store
-from iceria_wiki import Wiki, WikiUnavailable
+from iceria_wiki import Wiki, WikiBlocked, WikiUnavailable
 from refresh_canon import REBUILT
 
 KIT_ROOT = Path(__file__).resolve().parent.parent
@@ -75,6 +75,8 @@ def login() -> Result:
 def wiki_reachable(wiki) -> Result:
     try:
         wiki.latest_revids(["Main Page"])
+    except WikiBlocked as e:
+        return Result("wiki", e.what, e.step)
     except WikiUnavailable as e:
         return Result("wiki", "could not reach iceria.org", f"{e}; then run this again")
     return Result("wiki", "iceria.org answers")
