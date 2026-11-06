@@ -35,6 +35,19 @@ HEADING = re.compile(r"^\s*(=+)\s*(.*?)\s*(=+)\s*$")
 FURNITURE = re.compile(
     r"^\s*(\{\{|\}\}|\{\||\||!|\[\[(File|Image|Category):|__|#REDIRECT)", re.IGNORECASE
 )
+# A line that opens with a layout block (a styled banner or navigation bar) is not the lead: some
+# pages put two or three of these above the first sentence. A transclusion tag (<noinclude>) on its
+# own line above the first sentence is not the lead either.
+LAYOUT = re.compile(
+    r"^\s*</?(?:div|center|table|noinclude|includeonly|onlyinclude)\b", re.IGNORECASE
+)
+# A line that ends a sentence, before any closing quote marks, italics and tags (refs are blanked
+# first). When no plain line comes before the first heading, the first layout line that ends a
+# sentence is the lead written inside the block (taglines end sentences too, and banners hold bold,
+# so neither alone tells a lead from a banner).
+SENTENCE_END = re.compile(r"[.!?][\"'”’]*\s*(?:</\w+>\s*)*$")
+# A quotation in straight or curly double quotes, on one line: the speaker's words, not the page's.
+QUOTED = re.compile(r"\"[^\"\n]*\"|“[^”\n]*”")
 MONTH = r"(?:January|February|March|April|May|June|July|August|September|October|November|December)"
 
 
@@ -95,6 +108,18 @@ def prose_lines(text: str) -> list[tuple[int, str]]:
             continue
         out.append((i, ln))
     return out
+
+
+def lead(text: str) -> tuple[int, str] | None:
+    """The first prose line under any layout blocks at the top of the page, or None when the page
+    reaches its first heading before any. With no plain line there, the first layout line that
+    ends a sentence."""
+    rows = lines(text)
+    top = next((i for i, ln in enumerate(rows, 1) if HEADING.match(ln)), len(rows) + 1)
+    above = [p for p in prose_lines(text) if p[0] < top]
+    plain = (p for p in above if not LAYOUT.match(p[1]))
+    wrapped = (p for p in above if SENTENCE_END.search(strip_refs(p[1])))
+    return next(plain, None) or next(wrapped, None)
 
 
 def strip_refs(line: str) -> str:

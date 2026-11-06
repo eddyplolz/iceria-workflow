@@ -274,3 +274,11 @@ def test_every_infobox_field_in_the_kit_templates_is_one_the_module_reads():
         assert found == [], f"{path.name}: {[m.message for m in found]}"
         boxes += text.lower().count("{{infobox ")
     assert boxes >= 3
+
+
+def test_the_kind_of_page_is_read_from_the_lead_under_a_banner():
+    banner = '<div style="text-align:center;">The Republic of Vell is a land of ports</div>\n'
+    text = (
+        banner + "{{Infobox Settlement\n| name = Vell\n}}\n'''Vell''' is a republic on the bay.\n"
+    )
+    assert _run(text, title="Vell") == [("warning", "infobox does not fit the page")]

@@ -251,6 +251,20 @@ def test_a_project_page_is_checked_only_for_hidden_comments(tmp_path, capsys):
         ) in out
 
 
+def test_a_category_page_is_checked_only_for_hidden_comments(tmp_path, capsys):
+    # A category page labels a group of pages: it needs no lead, short description or category.
+    draft = tmp_path / "cat.wiki"
+    draft.write_text("Pages waiting for a steward - see below.\n<!-- x -->\n", encoding="utf-8")
+    args = [str(draft), "--root", str(tmp_path), "--offline", "--title", "Category:Vell"]
+    assert check.main(args) == 1
+    out = capsys.readouterr().out
+    assert [ln.split(": ")[1] for ln in out.splitlines()[:-1]] == ["markup", "comments"], out
+    assert (
+        "cat.wiki:1: markup: warning: a category page: only hidden comments were checked, since "
+        "the Manual of Style is for articles"
+    ) in out
+
+
 def test_a_form_value_may_speak_about_the_project(tmp_path, capsys):
     draft = tmp_path / "proposal.wiki"
     draft.write_text(

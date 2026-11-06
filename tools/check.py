@@ -69,6 +69,7 @@ ARTICLE_ONLY = (markup, headings, bold, dashes, refs, clashes)
 PROJECT_PAGE = re.compile(
     r"\{\{\s*Iceria[ _]Meta[ _]Masthead\s*[|}]|\[\[\s*Category\s*:\s*Meta[ _]Iceria\s*[|\]]", re.I
 )
+CATEGORY_TITLE = re.compile(r"\s*Category\s*:", re.I)
 KIT_ROOT = Path(__file__).resolve().parent.parent
 # The "# Title" heading and "- key: value" infobox lines that canon_pages.Builder.nations writes.
 INFOBOX_LINE = re.compile(r"^- (common_name|capital): (.*)$", re.M)
@@ -199,17 +200,25 @@ def main(argv=None) -> int:
     if form:
         body, found = form[0], found + form[1]
         checks = [c for c in checks if c not in ARTICLE_ONLY]
-    elif PROJECT_PAGE.search(mask(text)):
-        # A project page (World Standards, Dice table) is the project speaking about itself, so
-        # its out-of-world voice and missing lead are right; it still carries no comments.
+    elif (project := PROJECT_PAGE.search(mask(text))) or CATEGORY_TITLE.match(
+        ctx.get("title") or ""
+    ):
+        # A project page (World Standards, Dice table) is the project speaking about itself, and
+        # a category page labels a group of pages, so neither needs an article's lead, short
+        # description or voice; both still carry no comments.
+        kind = (
+            "a project page (Iceria Meta Masthead or Category:Meta Iceria)"
+            if project
+            else "a category page"
+        )
         checks = []
         found.append(
             Finding(
                 1,
                 "markup",
                 WARNING,
-                "a project page (Iceria Meta Masthead or Category:Meta Iceria): only hidden "
-                "comments were checked, since the Manual of Style is for articles",
+                f"{kind}: only hidden comments were checked, since the Manual of Style is for "
+                "articles",
             )
         )
     found += [f for c in checks for f in c.run(body, ctx)]

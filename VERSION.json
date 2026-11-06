@@ -1,5 +1,5 @@
 {
-  "kit_version": "0.1.4",
+  "kit_version": "0.1.6",
   "map_lock_version": "1.13",
   "read_as": "anonymous",
   "built": "2026-11-05",
@@ -59,7 +59,7 @@
     },
     {
       "title": "Alexandria",
-      "revid": 3451,
+      "revid": 3559,
       "source": "live"
     },
     {
@@ -79,7 +79,7 @@
     },
     {
       "title": "Axxannuzru",
-      "revid": 3459,
+      "revid": 3545,
       "source": "live"
     },
     {
@@ -89,7 +89,7 @@
     },
     {
       "title": "Tuvallia",
-      "revid": 3261,
+      "revid": 3563,
       "source": "live"
     },
     {

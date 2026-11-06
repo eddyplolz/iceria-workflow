@@ -8,7 +8,7 @@ for (MoS 5.1). Relative words ("currently", "now") are replaced with a year.
 
 import re
 
-from checks import ERROR, HEADING, MONTH, WARNING, Finding, lines, strip_refs
+from checks import ERROR, HEADING, MONTH, QUOTED, WARNING, Finding, lines, strip_refs
 
 LAUNCH_YEAR = 2000
 FORMS = [
@@ -103,7 +103,9 @@ def run(text: str, ctx: dict) -> list[Finding]:
                 )
             )
         if not HEADING.match(line):
-            words = list(dict.fromkeys(m.group(0) for m in RELATIVE.finditer(prose)))
+            # A quotation's "today" is the speaker's, which the page cannot date.
+            spoken = QUOTED.sub(" ", prose)
+            words = list(dict.fromkeys(m.group(0) for m in RELATIVE.finditer(spoken)))
             if words:
                 found.append(
                     Finding(

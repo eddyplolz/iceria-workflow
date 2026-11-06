@@ -8,13 +8,31 @@ case. Ref bodies are not read.
 
 import re
 
-from checks import ERROR, WARNING, Finding, lines, prose_lines, strip_refs
+from checks import ERROR, WARNING, Finding, lead, lines, prose_lines, strip_refs
 from checks.headings import COMMON
 
 LINK = re.compile(r"\[\[\s*:?\s*([^\]|#]+?)\s*(?:[|#][^\]]*)?\]\]")
 OUTSIDE = re.compile(r"https?://|\bwww\.", re.I)
 FILE = re.compile(r"\[\[\s*(?:File|Image)\s*:", re.I)
 PIXELS = re.compile(r"^\d*x?\d+px$")
+# A wikitable row or cell; a template field ("| image = ...") opens with "|" too but is not one.
+# A cell with attributes ('| align=center style="..." | [[File:...]]') ends them at a lone "|".
+TABLE_ROW = re.compile(r"[ \t]*(?:[|!](?![ \t]*\w[\w \t.-]*=(?!\"))|\|[^|\[\n]*\|(?!\|))")
+# On the wiki every image of 40px or less outside a table is an inline flag or badge; placed
+# pictures run 80px and up (count of 391 pages, 2026-11-05). The cutoff sits between the two.
+ICON_PX = 50
+PLACED = {
+    "thumb",
+    "thumbnail",
+    "frame",
+    "framed",
+    "frameless",
+    "left",
+    "right",
+    "center",
+    "centre",
+    "none",
+}
 CAPTION_OPENER = re.compile(
     r"^(?:an? )?(?:picture|photo|photograph|image|view|drawing)\s+(?:of|showing)\b"
     r"|^(?:image|photo|picture) shows\b"
@@ -65,10 +83,10 @@ def _unlinked_nation(text: str, ctx: dict) -> list[Finding]:
     """MoS 12.1: a nation in the first sentence is linked, unless a later prose line links it.
 
     A link in the infobox or a category does not count: the reader meets the lead first."""
-    lead = next(iter(prose_lines(text)), None)
-    if not lead:
+    first = lead(text)
+    if not first:
         return []
-    n, line = lead
+    n, line = first
     prose = strip_refs(line)
     body = "\n".join(strip_refs(ln) for _, ln in prose_lines(text))
     title = (ctx.get("title") or "").strip().lower()
@@ -124,7 +142,14 @@ def run(text: str, ctx: dict) -> list[Finding]:
         for m in FILE.finditer(line):
             params = _file_params(line, m.start())
             sized = [p for p in params if PIXELS.match(p)]
-            if sized:
+            # MoS 15.4 sizes pictures in the text; a picture in a table cell is sized to its cell,
+            # and a small one beside a line of text (a flag by a list item) is no placed picture.
+            icon = (
+                sized
+                and max(map(int, re.findall(r"\d+", sized[0]))) <= ICON_PX
+                and not PLACED.intersection(params)
+            )
+            if sized and not icon and not TABLE_ROW.match(line):
                 found.append(
                     Finding(
                         n,

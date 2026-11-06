@@ -7,7 +7,7 @@ templates; no final full stop; unique; never the article's title. Closing sectio
 
 import re
 
-from checks import ERROR, HEADING, WARNING, Finding, lines
+from checks import ERROR, HEADING, WARNING, Finding, lines, prose_lines, strip_refs
 
 CLOSING = ["Participants", "See also", "Notes", "References"]
 NOT_USED = {"external links", "further reading"}
@@ -21,11 +21,20 @@ COMMON = set(
     names art arts music literature cuisine law policy trade industry agriculture people""".split()
 )
 FUNCTION_WORDS = {"And", "Or", "Of", "The", "In", "On", "For", "To", "With", "At", "By"}
+# A link as the reader sees it: its label, or its target when it has none.
+LINK_LABEL = re.compile(r"\[\[(?:[^\]|]*\|)?([^\]]*)\]\]")
+# A hatnote shows the reader the page names it holds ("Main article: Jagoton Compact").
+HATNOTE = re.compile(r"\{\{\s*(?:Main|See also|Further)\s*\|([^{}]*)\}\}", re.I)
 
 
 def run(text: str, ctx: dict) -> list[Finding]:
     title = (ctx.get("title") or "").strip().lower()
     found, prev, seen, closing_at = [], 1, set(), -1
+    # A heading the page also writes with its capitals in a sentence ("the Imperial Navy") is a
+    # proper name, so its capitals are no sign of title case. Only the words a reader sees count:
+    # not ref bodies or the target of a piped link. The page names in a hatnote are seen too.
+    prose = "\n".join(LINK_LABEL.sub(r"\1", strip_refs(line)) for _, line in prose_lines(text))
+    prose += "".join("\n" + m.group(1) for m in HATNOTE.finditer("\n".join(lines(text))))
 
     def add(n, level, msg):
         found.append(Finding(n, "headings", level, msg))
@@ -66,7 +75,7 @@ def run(text: str, ctx: dict) -> list[Finding]:
                     "(MoS 4.2)",
                 )
             closing_at = max(closing_at, at)
-        elif not letters.isupper():
+        elif not letters.isupper() and not re.search(rf"\b{re.escape(name)}\b", prose):
             words = name.split()[1:]
             known = {
                 p.lower()
@@ -83,7 +92,7 @@ def run(text: str, ctx: dict) -> list[Finding]:
             ):
                 add(n, WARNING, "heading may be in title case: use sentence case (MoS 4.1)")
         # A linked title still repeats it: "History of [[Vell]]" reads as "History of Vell".
-        plain = re.sub(r"\[\[(?:[^\]|]*\|)?([^\]]*)\]\]", r"\1", low)
+        plain = LINK_LABEL.sub(r"\1", low)
         if title and (plain == title or plain.endswith(" of " + title)):
             add(n, WARNING, "heading repeats the title: name the topic of the section (MoS 4.1)")
     return found

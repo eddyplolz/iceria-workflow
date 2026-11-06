@@ -7,16 +7,20 @@ a quoted title may want them. Ref bodies are not read.
 
 import re
 
-from checks import ERROR, MONTH, WARNING, Finding, prose_lines, strip_refs
+from checks import ERROR, MONTH, QUOTED, WARNING, Finding, prose_lines, strip_refs
 
 GLUED = re.compile(r"\d+(?:[.,]\d+)*(?:km²|km|m²|cm|mm|kg|ha|°C|°F|m)(?![A-Za-z²])")
 # group 1 is the word before the full stop, so "c. 480" and "St. 12" are not sentence starts.
 OPENER = re.compile(r"^\d|(\w+)?[.!?][\"')\]]*\s+\d")
 ABBREVIATIONS = frozenset("c ca no nos st mt p pp vol fig".split())
+# A clause number at the start of a line ("1.", "12)"), as a constitution numbers its articles.
+# Four digits ("1534.") stay a year.
+CLAUSE = re.compile(r"^\s*\d{1,3}[.)]\s+")
 PERCENT = re.compile(r"\d\s*(?:percent|per cent)\b", re.I)
 # A lone digit 0-9 that is a count (MoS 5.3). Not part of a longer number, ordinal, unit, percent
-# or range; not a date, a quantity in millions, or a numbered item ("Article 3").
-SMALL = re.compile(r"(?<![\w.,/$€£-])\d(?![\w%/°²-]|[.,]\d)")
+# or range; not a date, a quantity in millions, a numbered item ("Article 3") or a signed offset
+# ("UTC+2").
+SMALL = re.compile(r"(?<![\w.,/$€£+−±-])\d(?![\w%/°²-]|[.,]\d)")
 SMALL_AFTER = re.compile(
     rf"\s*(?:km|m|cm|mm|kg|ha|million|billion|trillion|percent|per cent|{MONTH}|écu)\b", re.I
 )
@@ -30,7 +34,6 @@ FIGURE = re.compile(
     r"\b\d{1,3}(?:,\d{3})+\b(?!\s*(?:km|m|cm|mm|kg|ha|°|mi|t)\b|\s*km²)|\b\d+(?:\.\d+)?\s+(?:million|billion|trillion)\b",
     re.I,
 )
-QUOTED = re.compile(r"\"[^\"\n]*\"|“[^”\n]*”")
 LINK = re.compile(r"\[\[(?:[^\]|]*\|)?([^\]]*)\]\]")
 TEMPLATE = re.compile(r"\{\{[^{}]*\}\}")
 CITED_END = re.compile(r"[.!?](?:<ref\b[^>]*/>|<ref\b[^>]*>.*?</ref>)*(?=\s+\S)", re.S)
@@ -66,7 +69,7 @@ def _cited(line: str) -> list[str]:
 def run(text: str, ctx: dict) -> list[Finding]:
     found = []
     for n, line in prose_lines(text):
-        prose = strip_refs(line)
+        prose = CLAUSE.sub("", strip_refs(line))
         glued = [m.group(0) for m in GLUED.finditer(prose)]
         if glued:
             found.append(
@@ -107,7 +110,8 @@ def run(text: str, ctx: dict) -> list[Finding]:
                     n,
                     "numbers",
                     WARNING,
-                    "figure without a reference: cite the page it comes from (MoS 13.1)",
+                    "figure without a reference: skip this if this page is the first to publish the "
+                    "number; a number taken from another page cites that page (MoS 13.2)",
                 )
             )
         if PERCENT.search(prose):

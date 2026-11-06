@@ -88,7 +88,7 @@ All tools read; none of them writes to the wiki.
 
 | Command | What it does |
 |---|---|
-| `python tools/check.py draft.wiki --title "Title"` | The style and canon checker: name clashes, voice, and wiring (it asks the live wiki, read-only, whether each category, infobox field and link exists). `--offline` skips that lookup and says so; an unreachable wiki is reported, never passed over. `--own-nation "Name"` checks a page of a nation already in `canon/`, so its own name and capital are not reported as taken. On a project page (the Iceria Meta Masthead or Category:Meta Iceria) it checks only for hidden comments |
+| `python tools/check.py draft.wiki --title "Title"` | The style and canon checker: name clashes, voice, and wiring (it asks the live wiki, read-only, whether each category, infobox field and link exists). `--offline` skips that lookup and says so; an unreachable wiki is reported, never passed over. `--own-nation "Name"` checks a page of a nation already in `canon/`, so its own name and capital are not reported as taken. On a project page (the Iceria Meta Masthead or Category:Meta Iceria) or a category page it checks only for hidden comments |
 | `python tools/redlinks.py draft.wiki` | Lists each link in the draft that has no page on the live wiki (check.py warns on the same links) |
 | `python tools/iceria_calendar.py --real 2027-01-15` | Today's in-world date with no option; `--real` and `--in-world` convert either way |
 | `python tools/map_overlay.py notes/plan.json` | Draws the member's places and routes on the map, inside their own land only; `examples/plan.json` shows the format |

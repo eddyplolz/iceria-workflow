@@ -9,7 +9,7 @@ names are warnings, so the writer decides. Ref bodies are not read.
 
 import re
 
-from checks import ERROR, HIDDEN, WARNING, Finding, prose_lines, strip_refs
+from checks import ERROR, HIDDEN, QUOTED, WARNING, Finding, blank, prose_lines, strip_refs
 
 # MoS 1.5, by its own groups: praise, inflated verbs, stock phrases, editorializing, weasel
 # words, loaded words for "said", doubt.
@@ -25,8 +25,10 @@ claimed|admitted|insisted|revealed|conceded|so-called|supposed|alleged"""
 FOURTH_WALL = """player|players|steward|stewards|proposal|proposals|
 not yet written|will be added|to be written|to be added|artist's interpretation|in-character|
 official map|the member who|who writes|who wrote"""
-# Words no sentence inside the world can hold (MoS 1.1): always an error, in any case.
-OUT_OF_WORLD = """Discord|forum|roleplay|role-play|role play|out of character|
+# Words no sentence inside the world can hold (MoS 1.1): always an error, in any case. A bare
+# "forum" is a town square or a meeting of nations, so only the website's phrasings are here.
+OUT_OF_WORLD = """Discord|on the forum|on a forum|forum post|forum posts|forum thread|forum threads|
+roleplay|role-play|role play|out of character|
 this wiki|the wiki|Wikipedia|Britannica|nation owner|fictional|real world|real-world|
 artificial intelligence|language model|ChatGPT|OpenAI|Anthropic|Copilot|as Claude|as an AI|
 written with|written for|joined Iceria|joined the wiki|this article|fan fiction|fanfiction|
@@ -53,7 +55,13 @@ Cambodia|Malaysia|Taiwan|Mongolia|Nepal|Afghanistan|New Zealand|North America|So
 English|Spanish|French|German|Italian|Russian|Chinese|Japanese|Arabic|Latin|Greek|
 World War|AK-47|Glock|Kalashnikov|iPhone|Google|Facebook|Twitter|YouTube|Coca-Cola"""
 UNFINISHED = r"\[citation needed\]"
-QUOTED = re.compile(r"\"[^\"\n]*\"|“[^”\n]*”")
+# Phrases that hold a watched word in an in-world sense: firms that are "leading global players" in
+# a market, and a saint's name ("the Basilica of Our Lady"). The game's players and the writer's
+# "our" are still read.
+IN_WORLD = re.compile(
+    r"\b(?i:global|major|key|leading|big|market|industry|regional)\s+players?\b"
+    r"|\bOur (?:Lady|Lord|Savior|Saviour|Father)\b"
+)
 
 
 def _pattern(words: str, flags=re.I) -> re.Pattern:
@@ -108,12 +116,13 @@ def run(text: str, ctx: dict) -> list[Finding]:
                     f"out-of-world voice: {', '.join(hits)}; write from inside the world (MoS 1.1)",
                 )
             )
+        plain = IN_WORLD.sub(blank, prose)
         for rx, label, advice in GROUPS:
-            hits = list(dict.fromkeys(m.group(0) for m in rx.finditer(prose)))
+            hits = list(dict.fromkeys(m.group(0) for m in rx.finditer(plain)))
             if hits:
                 found.append(Finding(n, "voice", WARNING, f"{label}: {', '.join(hits)}; {advice}"))
         # "you" inside a quotation is a character speaking.
-        hits = list(dict.fromkeys(m.group(0) for m in ADDRESS_RX.finditer(QUOTED.sub("", prose))))
+        hits = list(dict.fromkeys(m.group(0) for m in ADDRESS_RX.finditer(QUOTED.sub("", plain))))
         if hits:
             found.append(
                 Finding(

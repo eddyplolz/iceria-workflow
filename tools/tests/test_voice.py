@@ -35,6 +35,17 @@ def _levels(text, ctx=None):
     return {(f.line, f.level) for f in voice.run(text, ctx or {})}
 
 
+def test_a_forum_in_the_world_is_not_the_website():
+    # A town's forum and a forum of nations are in-world; the website is "on the forum".
+    for ok in (
+        "The tablets were set up in the forum of Leria.\n",
+        "The Concord is a forum where nations meet.\n",
+    ):
+        assert voice.run(ok, {}) == [], ok
+    for meta in ("It was posted on a forum.", "See the forum thread.", "A forum post said so."):
+        assert _levels(meta) == {(1, "error")}, meta
+
+
 def test_unambiguous_out_of_world_words_are_errors():
     for word in (
         "Details were agreed on Discord.",
@@ -79,6 +90,28 @@ def test_a_claim_to_or_that_is_an_in_world_claim_not_the_claim_map():
     ):
         assert voice.run(line + "\n", {}) == [], line
     assert _levels("The claim covers the north shore.") == {(1, "warning")}
+
+
+def test_players_in_a_market_are_not_the_game_players():
+    # "Leading global players" are firms; the game's players are still read.
+    for ok in (
+        "Its media firms are leading global players.\n",
+        "The two banks are major players in the bond market.\n",
+    ):
+        assert voice.run(ok, {}) == [], ok
+    for meta in ("The players of Vell agreed.", "Each player claims land."):
+        assert _levels(meta) == {(1, "warning")}, meta
+
+
+def test_our_lady_is_a_name_not_the_writer_speaking():
+    for ok in (
+        "The city holds the Basilica of Our Lady of the Seven Sorrows.\n",
+        "Our Lady of the Harbor is its patron.\n",
+        "The Church of Our Savior stands on the hill.\n",
+    ):
+        assert voice.run(ok, {}) == [], ok
+    for meta in ("Our shipwrights built it.", "It is our port.", "Join Our Government today."):
+        assert _levels(meta) == {(1, "warning")}, meta
 
 
 def test_the_letters_ai_in_a_word_are_not_the_chatbot():

@@ -71,6 +71,27 @@ def test_a_title_case_heading_of_unlisted_words_is_a_warning():
     assert headings.run("== Vell Harbor ==\n", ctx) == []
 
 
+def test_a_heading_the_page_writes_in_capitals_in_its_prose_is_a_proper_name():
+    # "the Imperial Navy" in a sentence shows the capitals are the name's, not title case.
+    text = "The fleet of the Imperial Navy sails north.\n\n== Imperial Navy ==\nText.\n"
+    assert headings.run(text, {}) == []
+    # The phrase only in lower case, or only in the heading, proves nothing.
+    for text in (
+        "The port operations run all night.\n\n== Port Operations ==\n",
+        "Text.\n\n== Port Operations ==\n== Port Operations history ==\n",
+        # An infobox value or a table cell is not a sentence.
+        "{{Infobox settlement\n| office = Port Operations\n}}\nText.\n\n== Port Operations ==\n",
+        '{| class="wikitable"\n| Port Operations\n|}\nText.\n\n== Port Operations ==\n',
+        # Nor is a ref body, a piped link's target or a category line.
+        "Text.<ref>Port Operations Office, 1802.</ref>\n\n== Port Operations ==\n",
+        "The [[Port Operations of Vell|harbor office]] opened.\n\n== Port Operations ==\n",
+        "Text.\n\n== Port Operations ==\n[[Category:Port Operations]]\n",
+    ):
+        assert [f.message.split(":")[0] for f in headings.run(text, {})][:1] == [
+            "heading may be in title case"
+        ], text
+
+
 def test_participants_is_the_first_closing_section():
     good = "== History ==\n== Participants ==\n== See also ==\n== Notes ==\n== References ==\n"
     assert headings.run(good, {}) == []
@@ -78,3 +99,14 @@ def test_participants_is_the_first_closing_section():
     assert _rules(headings.run(late, {})) == [(3, "error", "closing sections out of order")]
     low = "== History ==\n== participants ==\n"
     assert _rules(headings.run(low, {})) == [(2, "error", "standard heading in the wrong case")]
+
+
+def test_a_heading_named_by_its_main_article_hatnote_is_a_proper_name():
+    # Corpus: Foreign relations of Axxannuzru. The hatnote shows "Main article: Jagoton Compact".
+    text = "Vell trades widely.\n\n== Treaties ==\n=== Jagoton Compact ===\n{{Main|Jagoton Compact}}\nIt was signed in 1802.\n"
+    assert headings.run(text, {"title": "Vell"}) == []
+    # A hatnote to some other page does not vouch for the heading's capitals.
+    other = text.replace("{{Main|Jagoton Compact}}", "{{Main|Jagoton}}")
+    assert [f.message.split(":")[0] for f in headings.run(other, {"title": "Vell"})] == [
+        "heading may be in title case"
+    ]

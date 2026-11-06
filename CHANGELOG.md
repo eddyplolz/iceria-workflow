@@ -4,6 +4,53 @@ Every release of the kit gets an entry here, newest first. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the version numbers follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.1.6] - 2026-11-05
+
+### Added
+
+- `check.py` warns when a page has prose under its headings but no opening paragraph above the
+  first one (MoS 3.1).
+
+### Changed
+
+- A category page (`--title "Category:..."`) is checked only for hidden comments, like a project
+  page: it labels a group of pages and needs no article lead.
+- The "figure without a reference" warning now says when to leave it: a page that is the first to
+  publish a number needs no reference; a number taken from another page cites that page (MoS 13.2).
+
+### Fixed
+
+- The lead is found under styled banners, navigation bars and `<noinclude>` lines at the top of a
+  page, so the bold-title, nation-link and infobox-type checks read the real first sentence. When no
+  plain line comes before the first heading, the first block line that ends a sentence is read as
+  the lead. Bold in a block below the lead is still reported.
+- A heading the page also writes with its capitals in a sentence ("the Imperial Navy") or names in
+  a hatnote (`{{Main|Jagoton Compact}}`) is a proper name, not title case. Only the words a reader
+  sees count: an infobox value, a table cell, a ref, the target of a piped link or a category does
+  not make a heading a proper name.
+- A small icon (50px or less, not a thumbnail or framed picture) and a picture in a table cell,
+  including a cell with its own attributes (`| align=center | [[File:...]]`), are no longer asked to
+  drop their pixel size. A picture in an infobox field (`| image = ...`) or a centered one is still
+  read.
+- A clause number at the start of a line ("1.", "12)") and a signed offset ("UTC+2") are no longer
+  read as numbers to spell out.
+- "Today" or "now" inside a quotation is the speaker's word and is no longer reported.
+- A page about the whole world ("Iceria", "List of nations of Iceria", "2000 in Iceria") may link
+  the shared reference pages. A nation whose name ends "of Iceria" is still a nation, and is still
+  warned.
+- A bare "forum" (a town square, a forum of nations) is no longer an out-of-world error; "on the
+  forum", "forum post" and "forum thread" still are.
+- "Leading global players" (firms in a market) and saints' names ("Our Lady", "Our Savior") are no
+  longer read as talk about the game or the writer.
+
+## [0.1.5] - 2026-11-05
+
+### Added
+
+- `check.py` now reports an error for a ref whose name is only digits (`<ref name="1978">`):
+  MediaWiki's Cite rejects such a name and shows a cite error in place of the citation. A name
+  like `constitution1978` passes.
+
 ## [0.1.4] - 2026-11-05
 
 ### Added

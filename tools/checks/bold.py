@@ -7,7 +7,7 @@ headings. Infobox lines and wikitable cells are not prose and are not read.
 
 import re
 
-from checks import ERROR, FURNITURE, HEADING, WARNING, Finding, lines
+from checks import ERROR, FURNITURE, HEADING, LAYOUT, WARNING, Finding, lead, lines
 
 # MediaWiki closes an unclosed ''' at the end of its line, so the span runs there.
 BOLD = re.compile(r"'''.+?(?:'''|$)|<(b|strong)\b[^>]*>.*?</\1\s*>", re.IGNORECASE)
@@ -41,17 +41,28 @@ def run(text: str, ctx: dict) -> list[Finding]:
     cells = _table_cells(rows)
     found, depth, in_lead, para, lead_bold, first_line = [], 0, True, "before", False, None
     lead_names: list[str] = []
+    first_heading, body_prose = None, False
+    # Banners, taglines and navigation bars above the lead are layout; the lead line itself may be
+    # written inside one (checks.lead). A block after the lead line is part of the lead and is read.
+    lead_line = (lead(text) or (0, ""))[0]
     for i, line in enumerate(rows):
         n = i + 1
         if HEADING.match(line):
             in_lead = False
+            first_heading = first_heading or n
             for m in BOLD.finditer(line):
                 found.append(
                     Finding(n, "bold", ERROR, f"bold in a heading: {m.group(0)} (MoS 4.1)")
                 )
             continue
-        furniture = depth > 0 or bool(FURNITURE.match(line))
+        furniture = (
+            depth > 0
+            or bool(FURNITURE.match(line))
+            or (in_lead and (n < lead_line or not lead_line) and bool(LAYOUT.match(line)))
+        )
         depth = max(0, depth + line.count("{{") - line.count("}}"))
+        if not in_lead and not furniture and line.strip():
+            body_prose = True
         if in_lead and not furniture:
             if line.strip():
                 if para == "before":
@@ -83,6 +94,16 @@ def run(text: str, ctx: dict) -> list[Finding]:
                 WARNING,
                 f"bold name is not the title: the first sentence bolds {lead_names[0]!r}; bold "
                 f"the title {ctx['title'].strip()!r} there, or retitle the page (MoS 3.1)",
+            )
+        )
+    if not first_line and body_prose:
+        found.append(
+            Finding(
+                first_heading,
+                "bold",
+                WARNING,
+                "the page has no lead: write an opening paragraph above the first heading that "
+                "bolds the title (MoS 3.1)",
             )
         )
     if first_line and not lead_bold:

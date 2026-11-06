@@ -25,6 +25,16 @@ def test_numeral_opening_a_sentence_is_a_warning():
     ]
 
 
+def test_a_clause_number_is_not_a_sentence_start_or_a_count():
+    # A constitution numbers its clauses "1." or "2)" at the start of a line (MoS 5.3 is for counts).
+    text = (
+        "1. The Legislative power is delegated to the Congress.\n"
+        "12) Each region sends its delegates.\n"
+        "1534. The year of the Compact.\n"
+    )
+    assert _summary(numbers.run(text, {})) == [(3, "warning", "numeral opens a sentence")]
+
+
 def test_abbreviation_before_a_year_is_not_a_sentence_start():
     text = "The Republic was founded c. 480 BC, and St. 12 is a church. It had 3.5 km of walls.\n"
     assert numbers.run(text, {}) == []
@@ -69,6 +79,8 @@ def test_numbers_that_are_not_counts_keep_their_numerals():
         'The ship was called "Seven Seas 3".\n',
         "Between 5 and 12 ships sailed.\n",
         "It came 3rd.\n",
+        "Its time zone is Geneva Time (UTC+2).\n",
+        "Its time zone is UTC−5, as the islands keep.\n",
     ):
         assert SMALL not in _kinds(ok), ok
 
@@ -89,3 +101,11 @@ def test_a_figure_in_an_uncited_sentence_is_a_warning_though_the_line_has_a_ref(
     ]
     cited = 'It had 120,000 people.<ref name="nation" /> The ref follows its sentence.\n'
     assert numbers.run(cited, {}) == []
+
+
+def test_the_figure_warning_says_a_number_first_published_here_needs_no_reference():
+    (f,) = numbers.run("Its army numbers 10,000.\n", {})
+    assert f.message == (
+        "figure without a reference: skip this if this page is the first to publish the number; "
+        "a number taken from another page cites that page (MoS 13.2)"
+    )

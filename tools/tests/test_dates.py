@@ -28,6 +28,17 @@ def test_each_date_fault_is_named_on_its_line():
     ]
 
 
+def test_a_relative_time_word_inside_a_quotation_is_the_speaker_s():
+    # The speaker's "today" was their day, so the page cannot give it a year (MoS 1.3 is for the
+    # page's own voice).
+    text = (
+        'She was described as "the most eligible of any in the royal courts today".\n'
+        "She was described as “the finest pianist now living”.\n"
+        'The court, which "met daily", is today a museum.\n'
+    )
+    assert _summary(dates.run(text, {})) == [(3, "warning", "relative time word")]
+
+
 def test_the_present_comes_from_the_in_world_date_when_there_is_one():
     text = "It joined the league in 2003.\n"
     assert dates.run(text, {"in_world_date": "1 May 2004"}) == []

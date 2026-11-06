@@ -4,7 +4,7 @@ A ref points to a wiki page: never an outside site, Discord, a talk, user, templ
 project page, or the Water cooler. A nation's Participants list (8.5) is the one place a user page
 is linked. Proposals may be cited, but a body link never leads to one.
 Named refs are written in full inside <references> at the end, and every name defined there is
-cited in the text and the other way round.
+cited in the text and the other way round. A name is never only digits: Cite rejects it.
 """
 
 import re
@@ -28,6 +28,9 @@ STEWARD_PAGE = re.compile(r"\[\[\s*(?:charter|world standards|manual of style)\s
 SHARED_REFERENCE = re.compile(
     r"\[\[\s*(?:geography|history|culture zones|atlas) of iceria\s*[|\]]", re.I
 )
+# A page about the whole world ("Iceria", "List of nations of Iceria", "2000 in Iceria") belongs
+# to no nation, so its links to the shared reference pages are not out of place.
+WORLD_TITLE = re.compile(r"\s*(?:Iceria|.+ (?:of|in) Iceria)\s*", re.I)
 # Links that leave the world: Wikipedia and its sister sites by prefix.
 INTERWIKI = re.compile(r"\[\[\s*(?:w|wikipedia|wikt|wiktionary|commons|wikimedia)\s*:", re.I)
 PERSON = re.compile(
@@ -53,6 +56,16 @@ def run(text: str, ctx: dict) -> list[Finding]:
     for m in REF.finditer(body):
         n, content = line_of(m.start()), m.group(3)
         name = _name(m.group(1) if content is None else m.group(2))
+        if name and re.fullmatch(r"[0-9]+", name):
+            found.append(
+                Finding(
+                    n,
+                    "refs",
+                    ERROR,
+                    f"all-digit ref name {name!r}: MediaWiki's Cite shows a cite error for it; "
+                    "give it a descriptive name, e.g. constitution1978",
+                )
+            )
         in_list = any(a <= m.start() < b for a, b in blocks)
         if content is None:
             if name:
@@ -126,7 +139,10 @@ def run(text: str, ctx: dict) -> list[Finding]:
                 "articles (MoS 12.4)",
             )
         )
-    for m in SHARED_REFERENCE.finditer(outside_refs):
+    title = ctx.get("title") or ""
+    world_page = WORLD_TITLE.fullmatch(title) and title not in ctx.get("nations", {})
+    shared = [] if world_page else SHARED_REFERENCE.finditer(outside_refs)
+    for m in shared:
         found.append(
             Finding(
                 line_of(m.start()),

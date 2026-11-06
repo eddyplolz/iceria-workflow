@@ -1,6 +1,6 @@
 # Axxannuzru
 
-Copied from the Iceria wiki page "Axxannuzru" (revision 3459) on 2026-11-05. The live page outranks this copy.
+Copied from the Iceria wiki page "Axxannuzru" (revision 3545) on 2026-11-05. The live page outranks this copy.
 
 ## Infobox
 

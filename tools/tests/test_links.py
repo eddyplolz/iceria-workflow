@@ -35,6 +35,50 @@ def test_image_size_in_pixels_and_caption_opener_are_warnings():
     ]
 
 
+def test_a_small_icon_beside_a_line_may_carry_a_pixel_size():
+    # MoS 15.4 places pictures as thumbnails; a 25px flag beside a list item is an icon, not one.
+    for ok in (
+        "* [[File:Flag.png|25px]] Knight of the Order of Vell\n",
+        "Vell [[File:Flag.png|x20px]] signed it.\n",
+    ):
+        assert _summary(links.run(ok, {})) == [], ok
+    # A placed picture, or a big one, still takes upright=.
+    for line in (
+        "* [[File:Flag.png|25px|thumb|The flag]]\n",
+        "[[File:Seal.png|40px|right]]\n",
+        "[[File:Seal.png|40px|centre]]\n",
+        "* [[File:Port.png|80px]] The port\n",
+        # A template field is not a table cell, though both lines open with "|".
+        "| image = [[File:Port.png|400px]]\n",
+        "| image-size = [[File:Port.png|400px]]\n",
+    ):
+        assert _summary(links.run(line, {})) == [(1, "warning", "image size in pixels")], line
+
+
+def test_an_image_in_a_table_cell_may_carry_a_pixel_size():
+    # MoS 15.4 is about pictures placed in the text; a flag icon in a table cell is sized to its cell.
+    text = (
+        '{| class="wikitable"\n'
+        "| [[File:Flag.png|20px]] Seltana\n"
+        "|-\n"
+        "! [[File:Seal.png|30px]] || [[File:Arms.png|30px]]\n"
+        "|-\n"
+        # A cell with attributes (The World of Iceria:Archive/Yuriev): "style=" is not a field.
+        '| align=center style="width:50%;" | [[File:Emblem.png|100px|frameless]]\n'
+        "|}\n"
+        "Text || more [[File:Port.png|300px]]\n"
+        "[[File:Port.png|300px|center]]\n"
+        "| logo = [[File:Seal.png|200px]]\n"
+    )
+    # "||" splits cells only on a row line, so line 8 is text and its picture is still read; a
+    # template field on line 10 is not a cell.
+    assert _summary(links.run(text, {})) == [
+        (8, "warning", "image size in pixels"),
+        (9, "warning", "image size in pixels"),
+        (10, "warning", "image size in pixels"),
+    ]
+
+
 def test_category_faults():
     text = (
         "A city.\n[[Category:Cities and Towns]]\n[[Category:Countries]]\n"
@@ -88,3 +132,10 @@ def test_a_lowercase_category_keyword_is_a_warning():
     assert [(f.line, f.level, f.message.split(":")[0]) for f in found] == [
         (1, "warning", "category keyword starts lowercase")
     ]
+
+
+def test_a_banner_above_the_lead_is_not_the_lead():
+    ctx = {"nations": {"Alexandria": "Port Alba"}}
+    banner = '<div style="text-align:center;">[[Vell|Welcome]] · [[Vell: Ports|Ports]]</div>\n'
+    found = _kinds(banner + "\nA port city in Alexandria.\n", ctx)
+    assert ("warning", "nation not linked") in found

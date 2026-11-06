@@ -1,6 +1,6 @@
 # Tuvallia
 
-Copied from the Iceria wiki page "Tuvallia" (revision 3261) on 2026-11-05. The live page outranks this copy.
+Copied from the Iceria wiki page "Tuvallia" (revision 3563) on 2026-11-05. The live page outranks this copy.
 
 ## Infobox
 

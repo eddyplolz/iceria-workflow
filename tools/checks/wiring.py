@@ -8,7 +8,7 @@ category are warnings, since a red link only means "not written yet" (Charter 1.
 
 import re
 
-from checks import ERROR, WARNING, Finding, lines, prose_lines, strip_refs
+from checks import ERROR, WARNING, Finding, lead, lines, strip_refs
 from checks.links import CATEGORY, LINK, _norm
 
 # User pages are not articles: a member's own page (MoS 8.5) may well be unwritten.
@@ -115,7 +115,8 @@ def _known(field: str, fields: set[str]) -> bool:
 
 def _infoboxes(text: str, ctx: dict) -> list[Finding]:
     found, wiki, rows = [], ctx["wiki"], lines(text)
-    lead = next((strip_refs(ln) for _, ln in prose_lines(text)), "")
+    first = lead(text)
+    opening = strip_refs(first[1]) if first else ""
     for i, row in enumerate(rows):
         m = INFOBOX.search(row)
         if not m:
@@ -127,8 +128,8 @@ def _infoboxes(text: str, ctx: dict) -> list[Finding]:
             )
             continue
         key = name.lower()
-        if (key == "country" and PLACE_LEAD.search(lead)) or (
-            key == "settlement" and NATION_LEAD.search(lead) and not PLACE_LEAD.search(lead)
+        if (key == "country" and PLACE_LEAD.search(opening)) or (
+            key == "settlement" and NATION_LEAD.search(opening) and not PLACE_LEAD.search(opening)
         ):
             found.append(
                 Finding(
